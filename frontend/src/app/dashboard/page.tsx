@@ -30,6 +30,77 @@ const MascotMini: React.FC = () => {
   );
 };
 
+const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ content, isUser }) => {
+  if (isUser) {
+    return <div style={{ whiteSpace: 'pre-wrap' }}>{content}</div>;
+  }
+
+  // Split by lines
+  const lines = content.split('\n');
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', lineHeight: '1.6', wordBreak: 'break-word' }}>
+      {lines.map((line, idx) => {
+        let trimmed = line.trim();
+        
+        // Handle headers
+        if (trimmed.startsWith('# ')) {
+          return <h1 key={idx} style={{ fontSize: '18px', fontWeight: 'bold', margin: '8px 0 4px 0', color: '#0f172a' }}>{trimmed.slice(2)}</h1>;
+        }
+        if (trimmed.startsWith('## ')) {
+          return <h2 key={idx} style={{ fontSize: '16px', fontWeight: 'bold', margin: '8px 0 4px 0', color: '#1e293b' }}>{trimmed.slice(3)}</h2>;
+        }
+        if (trimmed.startsWith('### ')) {
+          return <h3 key={idx} style={{ fontSize: '14px', fontWeight: 'bold', margin: '6px 0 2px 0', color: '#334155' }}>{trimmed.slice(4)}</h3>;
+        }
+
+        // Handle separators/dividers
+        if (trimmed === '---') {
+          return <hr key={idx} style={{ border: 0, borderTop: '1px solid #e2e8f0', margin: '12px 0' }} />;
+        }
+
+        // Handle bullet points
+        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          return (
+            <div key={idx} style={{ display: 'flex', gap: '8px', paddingLeft: '8px' }}>
+              <span>•</span>
+              <span>{renderTextWithBold(trimmed.slice(2))}</span>
+            </div>
+          );
+        }
+
+        // Handle tables
+        if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+          const cells = trimmed.split('|').map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1);
+          if (cells.every(c => c.startsWith('-'))) {
+            return null;
+          }
+          return (
+            <div key={idx} style={{ display: 'grid', gridAutoFlow: 'column', gridAutoColumns: '1fr', gap: '12px', padding: '6px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '13px' }}>
+              {cells.map((cell, cIdx) => (
+                <div key={cIdx}>{renderTextWithBold(cell)}</div>
+              ))}
+            </div>
+          );
+        }
+
+        // Handle normal paragraph text
+        return <p key={idx} style={{ margin: 0 }}>{renderTextWithBold(line)}</p>;
+      })}
+    </div>
+  );
+};
+
+function renderTextWithBold(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} style={{ fontWeight: 'bold', color: '#0f172a' }}>{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+}
+
 export default function Dashboard() {
   const { publicKey, connected } = useWallet();
   const [hasMounted, setHasMounted] = useState(false);
@@ -65,9 +136,6 @@ export default function Dashboard() {
   const handleSendPrompt = async () => {
     if (!prompt.trim() || isStreaming) return;
 
-    console.log('[DEBUG] Sending prompt to agent:', prompt);
-    console.log('[DEBUG] Active Cost Tier:', costTier);
-
     setIsStreaming(true);
     setCurrentResponse('');
     setCurrentModel('');
@@ -76,15 +144,11 @@ export default function Dashboard() {
     setChatLog(prev => [...prev, userMsg]);
 
     const targetUrl = `http://localhost:3001/v1/chat/stream?message=${encodeURIComponent(prompt)}&costTier=${costTier}`;
-    console.log('[DEBUG] Target SSE Stream URL:', targetUrl);
 
     try {
       const response = await fetch(targetUrl, {
         method: 'GET'
       });
-
-      console.log('[DEBUG] Connection established. Response Status:', response.status);
-      console.log('[DEBUG] Response Headers:', Array.from(response.headers.entries()));
 
       if (!response.ok) {
         throw new Error(`Failed to open chat stream connection. Status: ${response.status}`);
@@ -96,16 +160,11 @@ export default function Dashboard() {
       let activeModelId = '';
 
       if (reader) {
-        console.log('[DEBUG] Stream reader initialized. Waiting for chunks...');
         while (true) {
           const { done, value } = await reader.read();
-          if (done) {
-            console.log('[DEBUG] Stream reading complete (done: true).');
-            break;
-          }
+          if (done) break;
 
           const chunkText = decoder.decode(value);
-          console.log('[DEBUG] Raw Chunk Received:', JSON.stringify(chunkText));
           const lines = chunkText.split('\n');
 
           let currentEvent = '';
@@ -113,13 +172,10 @@ export default function Dashboard() {
             const line = lines[i].trim();
             if (line.startsWith('event:')) {
               currentEvent = line.replace('event:', '').trim();
-              console.log(`[DEBUG] Found event type: "${currentEvent}"`);
             } else if (line.startsWith('data:')) {
               const dataRaw = line.replace('data:', '').trim();
-              console.log(`[DEBUG] Found data for event "${currentEvent}":`, dataRaw);
               try {
                 const payload = JSON.parse(dataRaw);
-                console.log('[DEBUG] Parsed SSE Payload:', payload);
                 if (currentEvent === 'run.started') {
                   activeModelId = payload.model;
                   setCurrentModel(payload.model);
@@ -128,7 +184,7 @@ export default function Dashboard() {
                   setCurrentResponse(tempResp);
                 }
               } catch (e) {
-                console.warn('[DEBUG] Failed to parse JSON payload:', dataRaw, e);
+                // Fallback string payload
               }
             }
           }
@@ -139,11 +195,10 @@ export default function Dashboard() {
       setCurrentResponse('');
       setPrompt('');
     } catch (err) {
-      console.error('[DEBUG] Chat Stream connection failed with error:', err);
+      console.error(err);
       setChatLog(prev => [...prev, { role: 'assistant', content: `⚠️ Error: ${err instanceof Error ? err.message : 'Unknown connection error'}` }]);
     } finally {
       setIsStreaming(false);
-      console.log('[DEBUG] Chat session handleSendPrompt finalized.');
     }
   };
 
@@ -217,8 +272,8 @@ export default function Dashboard() {
                             <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#9a9aa2', display: 'block', marginBottom: '4px' }}>
                               {log.role === 'user' ? 'YOU' : log.model ? `AGENT (${log.model.toUpperCase()})` : 'AGENT'}
                             </span>
-                            <div style={{ display: 'inline-block', padding: '12px 16px', borderRadius: '14px', background: log.role === 'user' ? '#f5820a' : '#f1f5f9', color: log.role === 'user' ? '#fff' : '#0d0d10', maxWidth: '80%', textAlign: 'left' }}>
-                              {log.content}
+                            <div style={{ display: 'inline-block', padding: '12px 16px', borderRadius: '14px', background: log.role === 'user' ? '#f5820a' : '#f1f5f9', color: log.role === 'user' ? '#fff' : '#0d0d10', maxWidth: '85%', textAlign: 'left' }}>
+                              <MessageContent content={log.content} isUser={log.role === 'user'} />
                             </div>
                           </div>
                         ))}
@@ -227,8 +282,8 @@ export default function Dashboard() {
                             <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#9a9aa2', display: 'block', marginBottom: '4px' }}>
                               AGENT ({currentModel ? currentModel.toUpperCase() : 'ROUTING...'})
                             </span>
-                            <div style={{ display: 'inline-block', padding: '12px 16px', borderRadius: '14px', background: '#f1f5f9', color: '#0d0d10', maxWidth: '80%', textAlign: 'left' }}>
-                              {currentResponse || 'Thinking…'}
+                            <div style={{ display: 'inline-block', padding: '12px 16px', borderRadius: '14px', background: '#f1f5f9', color: '#0d0d10', maxWidth: '85%', textAlign: 'left' }}>
+                              <MessageContent content={currentResponse || 'Thinking…'} isUser={false} />
                             </div>
                           </div>
                         )}

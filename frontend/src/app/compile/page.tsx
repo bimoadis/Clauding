@@ -34,7 +34,7 @@ const MascotMini: React.FC = () => {
 function CompileContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
 
   const promptParam = searchParams.get('prompt') || '';
   const [loading, setLoading] = useState(true);
@@ -69,7 +69,10 @@ function CompileContent() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ prompt: promptParam })
+          body: JSON.stringify({
+            prompt: promptParam,
+            wallet: publicKey ? publicKey.toBase58() : undefined
+          })
         });
 
         if (!response.ok) {
@@ -91,17 +94,37 @@ function CompileContent() {
     };
 
     fetchCompiledSpec();
-  }, [promptParam]);
+  }, [promptParam, publicKey]);
 
-  const handlePublish = () => {
-    if (!connected) {
+  const handlePublish = async () => {
+    if (!connected || !publicKey) {
       alert('Please connect your Solana wallet to publish.');
       return;
     }
 
-    // Simulate Agent Spec Publication/Creation
-    alert(`Successfully launched "${name}"!\nRedirecting you to the dashboard console...`);
-    router.push('/dashboard');
+    try {
+      // Persist the final edited settings in the backend database under this user's wallet
+      const response = await fetch('http://localhost:3001/v1/agents/compile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: `Name: ${name}. Description: ${description}. Instructions: ${instructions}. Tools: ${tools.join(', ')}`,
+          wallet: publicKey.toBase58()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to register compiled agent');
+      }
+
+      alert(`Successfully launched "${name}"!\nRedirecting you to the dashboard console...`);
+      router.push('/dashboard');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to launch agent on the backend database.');
+    }
   };
 
   if (loading) {

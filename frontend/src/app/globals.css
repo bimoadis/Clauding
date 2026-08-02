@@ -1,15 +1,19 @@
 @import '@solana/wallet-adapter-react-ui/styles.css';
 
 :root {
-  --ink: #0d0d10;
-  --body: #54545c;
-  --muted: #9a9aa2;
-  --accent: #f5820a;
-  --accent-ink: #cf5f00;
-  --accent-soft: #fdeacd;
-  --line: #ececef;
-  --bg: #ffffff;
-  --radius: 18px;
+  --brand-cream: #FAFAF8;
+  --brand-orange-hex: #F5601C;
+  --brand-orange-dark: #C24A18;
+  
+  --ink: #0A0A0A;
+  --body: #334155;
+  --muted: #64748b;
+  --accent: var(--brand-orange-hex);
+  --accent-ink: var(--brand-orange-dark);
+  --accent-soft: #ffedd5;
+  --line: #e2e8f0;
+  --bg: var(--brand-cream);
+  --radius: 0.75rem; /* 12px Clonk radius */
   --maxw: 1200px;
 }
 
@@ -24,11 +28,12 @@ html {
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Neue Montreal', 'Instrument Sans', 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--ink);
   background: var(--bg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.015em;
   overflow-x: hidden;
 }
 
@@ -40,8 +45,8 @@ body {
 
 h1, h2, h3 {
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.02;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
   color: var(--ink);
 }
 
@@ -294,25 +299,27 @@ h1 {
 }
 
 .btn-primary {
-  background: var(--accent);
+  background: var(--ink);
   color: #fff;
   border: 0;
   font-family: inherit;
   font-weight: 600;
   font-size: 15px;
   padding: 12px 20px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: .18s;
+  transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .btn-primary:hover {
-  background: var(--accent-ink);
+  background: var(--accent);
   transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(245, 96, 28, 0.25);
 }
 
 .poweredby {
@@ -723,4 +730,25 @@ footer {
 
 .wallet-adapter-button:not([disabled]):hover {
   opacity: .85 !important;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--brand-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+  border: 2.5px solid var(--brand-cream);
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }

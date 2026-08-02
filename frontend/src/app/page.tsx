@@ -5,101 +5,30 @@ import { useRouter } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
-// Mascot component that renders the pixel art logo dynamically
-const Mascot: React.FC = () => {
-  const N = 22, cx = 10.5, cy = 9.3, r = 7.6;
-  const O = '#F6A21C', D = '#C24A18', K = '#151515', W = '#ffffff', B = '#1E52A6', R = '#E8451B', P = '#F3854B';
-
-  const rects: { x: number; y: number; fill: string }[] = [];
-  const addPx = (x: number, y: number, c: string) => {
-    rects.push({ x, y, fill: c });
-  };
-  
-  // Base head body circle
-  for (let y = 0; y < N; y++) {
-    for (let x = 0; x < N; x++) {
-      const d = Math.hypot(x - cx, y - cy);
-      if (d <= r) {
-        addPx(x, y, d > r - 1.05 ? D : O);
-      }
-    }
-  }
-
-  // Left/Right cheeks
-  [[1.5, 10.4], [19.5, 10.4]].forEach(([ax, ay]) => {
-    for (let y = 0; y < N; y++) {
-      for (let x = 0; x < N; x++) {
-        const d = Math.hypot(x - ax, y - ay);
-        if (d <= 2.15) {
-          addPx(x, y, d > 1.25 ? D : O);
-        }
-      }
-    }
-  });
-
-  // Feet
-  [[6.3, 18.4], [14.7, 18.4]].forEach(([fx, fy]) => {
-    for (let y = 0; y < N + 2; y++) {
-      for (let x = 0; x < N; x++) {
-        const d = Math.hypot((x - fx) / 1.35, (y - fy) / 0.95);
-        if (d <= 1.95) {
-          addPx(x, y, d > 1.3 ? D : R);
-        }
-      }
-    }
-  });
-
-  // Blushes
-  addPx(6, 10.5, P);
-  addPx(7, 10.5, P);
-  addPx(15, 10.5, P);
-  addPx(16, 10.5, P);
-
-  // Eyes
-  [[7.6, 7], [12.4, 7]].forEach(([ex, ey]) => {
-    for (let yy = 0; yy < 3; yy++) {
-      for (let xx = 0; xx < 2; xx++) {
-        addPx(ex + xx, ey + yy, K);
-      }
-    }
-    addPx(ex, ey, W);
-    addPx(ex + 1, ey, W);
-    addPx(ex, ey + 2, B);
-    addPx(ex + 1, ey + 2, B);
-  });
-
-  // Nose/mouth
-  addPx(10.3, 10.4, R);
-  addPx(11.3, 10.4, R);
-  addPx(10.3, 11.4, R);
-  addPx(11.3, 11.4, R);
-
-  return (
-    <svg viewBox="-1 0 24 23" shapeRendering="crispEdges" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kirble logo">
-      {rects.map((rc, idx) => (
-        <rect key={idx} x={rc.x} y={rc.y} width="1.04" height="1.04" fill={rc.fill} />
-      ))}
-    </svg>
-  );
-};
+// Mascot component that renders the logo icon
+const LogoIcon: React.FC = () => (
+  <div style={{
+    width: '32px',
+    height: '32px',
+    background: '#F5601C',
+    borderRadius: '8px',
+    display: 'grid',
+    placeItems: 'center',
+    color: '#fff',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    boxShadow: '0 4px 10px rgba(245, 96, 28, 0.2)'
+  }}>
+    🤖
+  </div>
+);
 
 export default function Home() {
   const router = useRouter();
-  const { publicKey } = useWallet();
-  const [activeSection, setActiveSection] = useState('top');
+  const { connected } = useWallet();
   const [prompt, setPrompt] = useState('');
   const [buildStatus, setBuildStatus] = useState('Create');
-
-  // Characters config
-  const characters = [
-    { icon: "📊", bg: "#e6f0fb", name: "The Analyst", desc: "Precise and data first. Cuts straight to the numbers with no fluff.", quote: '"Here\'s what the data actually says."' },
-    { icon: "🧭", bg: "#efeafe", name: "The Strategist", desc: "Big picture thinker. Weighs the angles and makes the sharp call.", quote: '"Let\'s think two moves ahead."' },
-    { icon: "💬", bg: "#fbe9f1", name: "The Companion", desc: "Warm, friendly, and always on. Talks with you, not at you.", quote: '"I\'ve got you — where do we start?"' },
-    { icon: "🛠", bg: "#e3f5ee", name: "The Builder", desc: "Hands on and fast. Turns ideas into something that ships.", quote: '"Say the word, I\'ll build it."' },
-    { icon: "🎨", bg: "#fbeee6", name: "The Muse", desc: "Playful and bold. Brings creative energy to everything it touches.", quote: '"Let\'s make something wild."' },
-    { icon: "📚", bg: "#fbf1dc", name: "The Scholar", desc: "Deep and patient. Explains the why, not just the what.", quote: '"Let me walk you through it."' }
-  ];
-  const [selectedChar, setSelectedChar] = useState(characters[0]);
+  const [isYearly, setIsYearly] = useState(true);
 
   // Accordion FAQs
   const faqs = [
@@ -110,24 +39,6 @@ export default function Home() {
     { q: "Is my agent always online?", a: "Yes. Once launched, your agent runs on Kirble's infrastructure and stays available across the tools you connect it to." }
   ];
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-
-  // Scroll active section listener
-  useEffect(() => {
-    const handleScroll = () => {
-      const secs = ['top', 'how', 'characters', 'models', 'faq'];
-      let current = 'top';
-      for (const id of secs) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= 120) {
-          current = id;
-        }
-      }
-      setActiveSection(current);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleBuild = () => {
     if (!prompt.trim()) {
@@ -141,198 +52,413 @@ export default function Home() {
   };
 
   return (
-    <>
-      <nav>
-        <div className="navbar">
-          <span className="brand">
-            <span className="mark">
-              <Mascot />
-            </span>
-            Kirble
-          </span>
-          <span className="navlinks">
-            <a href="#top" className={activeSection === 'top' ? 'active' : ''}>Home</a>
-            <a href="#how" className={activeSection === 'how' ? 'active' : ''}>How it works</a>
-            <a href="#characters" className={activeSection === 'characters' ? 'active' : ''}>Characters</a>
-            <a href="#models" className={activeSection === 'models' ? 'active' : ''}>Models</a>
-            <a href="#faq" className={activeSection === 'faq' ? 'active' : ''}>FAQ</a>
-          </span>
+    <div style={{ background: '#FAFAF8', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif', color: '#0A0A0A' }}>
 
-          <WalletMultiButton className="nav-cta" />
+      <nav style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '30px 40px',
+        background: 'transparent'
+      }}>
+        {/* Left: Brand */}
+        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', fontSize: '18px', color: '#0A0A0A' }}>
+          <LogoIcon />
+          Kirble
+        </span>
+
+        {/* Center: Navigation Links in Capsule */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          background: 'rgba(0, 0, 0, 0.05)',
+          padding: '4px 6px',
+          borderRadius: '999px'
+        }}>
+          <a href="#how" style={{ fontSize: '13px', fontWeight: 600, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>How it works</a>
+          <a href="#comparison" style={{ fontSize: '13px', fontWeight: 600, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>Comparison</a>
+          <a href="#pricing" style={{ fontSize: '13px', fontWeight: 600, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>Pricing</a>
+          <a href="#faq" style={{ fontSize: '13px', fontWeight: 600, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>FAQ</a>
+        </div>
+
+        {/* Right: Connect Button */}
+        <div>
+          <WalletMultiButton style={{
+            background: '#F5601C',
+            borderRadius: '999px',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            padding: '0 24px',
+            height: '40px',
+            border: 0,
+            color: '#fff',
+            boxShadow: '0 4px 12px rgba(245, 96, 28, 0.2)'
+          }} />
         </div>
       </nav>
 
-      <header className="hero" id="top">
-        <div className="glow sun"></div>
-        <div className="glow mist"></div>
-        <div className="hero-mascot" id="heroMascot">
-          <Mascot />
-        </div>
-        <div className="wrap">
-          <div className="hero-inner">
-            <span className="eyebrow reveal in"><span className="dot"></span> Build agents in plain language</span>
-            <h1 className="reveal in">One line.<br /><span className="accent">Any AI agent.</span></h1>
-            <p className="lead reveal in">Describe what you want, give it a character, and launch an agent powered by the best AI models. No code, no setup.</p>
-            <div className="prompt reveal in">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M8 10h8M8 14h5" /><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h1a8 8 0 0 1 8 8z" /></svg>
-              <input
-                id="promptIn"
-                type="text"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="An agent that tracks crypto news and DMs me the alpha"
-              />
-              <button className="btn-primary" onClick={handleBuild}>
-                {buildStatus}
-                {buildStatus === 'Create' && (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                )}
-              </button>
+      {/* Hero Section */}
+      <header style={{
+        minHeight: '130vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '140px 24px 80px 24px',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+        backgroundImage: "linear-gradient(to bottom, #FAFAF8 0%, rgba(250, 250, 248, 0) 15%, rgba(250, 250, 248, 0) 70%, #FAFAF8 85%, #FAFAF8 100%), url('/hero-bg.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center 80px',
+        backgroundRepeat: 'no-repeat'
+      }}>
+        <div style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+          <h1 style={{ fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: '24px' }}>
+            One prompt.<br />
+            <span style={{ color: '#F5601C' }}>Launch any AI agent.</span>
+          </h1>
+
+          <p style={{ fontSize: 'clamp(16px, 1.8vw, 20px)', color: '#475569', maxWidth: '600px', margin: '0 auto 32px auto', lineHeight: 1.5 }}>
+            describe what you want, give it a character, and launch an agent powered by the best AI models. no code, no setup, just ship.
+          </p>
+
+          {/* CTA Link to Dashboard */}
+          <a href="/dashboard" style={{ textDecoration: 'none', marginBottom: '32px' }}>
+            <button className="btn-primary" style={{
+              padding: '16px 36px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              borderRadius: '999px',
+              cursor: 'pointer',
+              boxShadow: '0 8px 30px rgba(245, 96, 28, 0.25)',
+              border: 0
+            }}>
+              Go to Dashboard &rarr;
+            </button>
+          </a>
+
+          {/* Model Badges */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', opacity: 0.8, marginBottom: '32px' }}>
+            {['Claude 3.5', 'GPT-4o', 'Gemini Pro', 'Grok 2', 'Llama 3'].map((m) => (
+              <span key={m} style={{ fontSize: '12px', fontWeight: 'bold', background: '#fff', padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>{m}</span>
+            ))}
+          </div>
+
+          {/* macOS Window App Mockup inside Hero */}
+          <div style={{
+            width: '100%',
+            maxWidth: '960px',
+            background: '#fff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.05)',
+            overflow: 'hidden',
+            textAlign: 'left'
+          }}>
+            {/* macOS window title bar */}
+            <div style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ff5f56' }}></div>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ffbd2e' }}></div>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#27c93f' }}></div>
+              <span style={{ margin: '0 auto', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>kirble-console-v2.5.app</span>
             </div>
-            <div className="poweredby reveal in">
-              <span>Powered by</span>
-              <span className="models"><span>Claude</span><span>GPT</span><span>Gemini</span><span>Grok</span><span>Llama</span></span>
+            {/* Mock Console Content */}
+            <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', height: '360px', background: '#FAFAF8' }}>
+              <div style={{ borderRight: '1px solid #e2e8f0', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ background: '#ffedd5', color: '#c2410c', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold' }}>🤖 Agents Sandbox</div>
+                <div style={{ color: '#475569', padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }}>🎭 Reusable Personas</div>
+                <div style={{ color: '#475569', padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }}>💳 Wallet Ledger</div>
+              </div>
+              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ alignSelf: 'flex-end', background: '#F5601C', color: '#fff', padding: '10px 16px', borderRadius: '12px', fontSize: '13px' }}>
+                    check solana balance and search the web
+                  </div>
+                  <div style={{ alignSelf: 'flex-start', background: '#fff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '13px', maxWidth: '80%' }}>
+                    <strong>AGENT (MIMO-V2.5-PRO)</strong><br />
+                    Analyzing query... Executing tool [solana_balance]... Balance is 50.4 SOL. Executing [web_search]... Finished task!
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input disabled placeholder="Describe a task or compile a new instruction..." style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff' }} />
+                  <button disabled style={{ background: '#0A0A0A', color: '#fff', border: 0, padding: '0 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold' }}>Send</button>
+                </div>
+              </div>
             </div>
           </div>
+
         </div>
       </header>
 
-      <section className="how wrap" id="how">
-        <div className="lbl reveal in">How it works</div>
-        <h2 className="reveal in">From a single sentence to a working agent.</h2>
-        <div className="rows">
-          <div className="row reveal in"><div className="k">Describe it</div><div className="v">Say what your agent should do in plain words. Kirble turns your sentence into a working setup.</div></div>
-          <div className="row reveal in"><div className="k">Give it character</div><div className="v">Choose a personality that shapes how your agent thinks, talks, and makes decisions.</div></div>
-          <div className="row reveal in"><div className="k">Launch</div><div className="v">Your agent goes live instantly, running on whichever AI model does each task best.</div></div>
+      {/* How it works */}
+      <section id="how" style={{ padding: '80px 24px' }}>
+        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
+          <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>How it works</span>
+          <h2 style={{ fontSize: '36px', fontWeight: 800, margin: '12px 0 48px 0', letterSpacing: '-0.02em' }}>From a single sentence to a live running agent.</h2>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
+            <div style={{ padding: '24px', background: '#FAFAF8', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: '24px', marginBottom: '12px' }}>✍️</div>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>1. Describe It</h3>
+              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6 }}>Describe what your agent should do in plain English. Kirble interprets your logic and maps required tools.</p>
+            </div>
+            <div style={{ padding: '24px', background: '#FAFAF8', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: '24px', marginBottom: '12px' }}>🎭</div>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>2. Select Persona</h3>
+              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6 }}>Choose a reusable voice/tone persona to define how your agent speaks, formats answers, and handles values.</p>
+            </div>
+            <div style={{ padding: '24px', background: '#FAFAF8', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: '24px', marginBottom: '12px' }}>🚀</div>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>3. Deploy & Run</h3>
+              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6 }}>Launch your agent live. The routing engine handles model choices, runs loops, and charges in micro-USD.</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="chars" id="characters">
-        <div className="wrap">
-          <div className="lbl reveal in">Characters</div>
-          <h2 className="reveal in">Give your agent a character.</h2>
-          <p className="sub reveal in">A personality shapes how your agent thinks, talks, and decides. Pick one to preview.</p>
-          <div className="avatars reveal in">
-            {characters.map((c, i) => (
-              <div
-                key={i}
-                className={`avatar ${selectedChar.name === c.name ? 'sel' : ''}`}
-                onClick={() => setSelectedChar(c)}
-              >
-                <div className="disc" style={{ background: c.bg }}>{c.icon}</div>
-                <div className="nm">{c.name.replace('The ', '')}</div>
+      {/* Comparison & Benchmarks */}
+      <section id="comparison" style={{ padding: '80px 24px' }}>
+        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
+          <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Benchmarks</span>
+          <h2 style={{ fontSize: '36px', fontWeight: 800, margin: '12px 0 48px 0', letterSpacing: '-0.02em' }}>High speed compilation. Zero waste.</h2>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '32px' }}>
+            {/* Time comparison card */}
+            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '24px' }}>Time to Ship Agent (Hours)</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                    <span>Kirble Agent Spec</span> <span>5 hours</span>
+                  </div>
+                  <div style={{ width: '100%', height: '12px', background: '#ffedd5', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '8%', height: '100%', background: '#F5601C' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                    <span>Traditional Dev / Code</span> <span>72 hours</span>
+                  </div>
+                  <div style={{ width: '100%', height: '12px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '90%', height: '100%', background: '#94a3b8' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                    <span>Visual Builder Tools</span> <span>48 hours</span>
+                  </div>
+                  <div style={{ width: '100%', height: '12px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '60%', height: '100%', background: '#94a3b8' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cost comparison card */}
+            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '24px' }}>Cost for 1,000 runs (USD)</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                    <span>Kirble (BYOK / Proxy)</span> <span>$0.00</span>
+                  </div>
+                  <div style={{ width: '100%', height: '12px', background: '#ffedd5', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '2%', height: '100%', background: '#F5601C' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                    <span>Standard AI SaaS Tier</span> <span>$150.00</span>
+                  </div>
+                  <div style={{ width: '100%', height: '12px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '75%', height: '100%', background: '#94a3b8' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                    <span>No-Code Platforms</span> <span>$220.00</span>
+                  </div>
+                  <div style={{ width: '100%', height: '12px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '95%', height: '100%', background: '#94a3b8' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" style={{ padding: '80px 24px' }}>
+        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Flexible plans</span>
+            <h2 style={{ fontSize: '38px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>Pricing built for scale.</h2>
+            <p style={{ color: '#475569' }}>Pay only for what you run, or choose unlimited access.</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '32px' }}>
+            {/* Free Card */}
+            <div style={{ background: '#FAFAF8', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Free Mode</h3>
+                <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>For hobbyists testing prompts.</p>
+                <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '24px' }}>$0 <span style={{ fontSize: '16px', fontWeight: 'normal', color: '#64748b' }}>/ forever</span></div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#334155' }}>
+                  <li>✓ Manual sandbox runs</li>
+                  <li>✓ Basic prompt translation</li>
+                  <li>✓ standard LLM catalog models</li>
+                  <li>✓ 1 Active agent connection</li>
+                </ul>
+              </div>
+              <button style={{ background: 'transparent', border: '2px solid #e2e8f0', color: '#0a0a0a', padding: '12px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '32px' }}>Get Started</button>
+            </div>
+
+            {/* Pro Card */}
+            <div style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transform: 'scale(1.02)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <h3 style={{ fontSize: '20px', fontWeight: 'bold' }}>Pro Tier</h3>
+                  <span style={{ background: '#F5601C', fontSize: '11px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '999px', color: '#fff' }}>POPULAR</span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>For active autonomous loops.</p>
+
+                {/* Yearly Toggle */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#262626', padding: '4px', borderRadius: '999px', width: 'fit-content', marginBottom: '24px' }}>
+                  <button onClick={() => setIsYearly(false)} style={{ background: !isYearly ? '#404040' : 'transparent', color: '#fff', border: 0, padding: '4px 12px', borderRadius: '999px', fontSize: '12px', cursor: 'pointer' }}>Monthly</button>
+                  <button onClick={() => setIsYearly(true)} style={{ background: isYearly ? '#404040' : 'transparent', color: '#fff', border: 0, padding: '4px 12px', borderRadius: '999px', fontSize: '12px', cursor: 'pointer' }}>Yearly (27% Off)</button>
+                </div>
+
+                <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '24px' }}>
+                  {isYearly ? '$7.25' : '$9.97'} <span style={{ fontSize: '16px', fontWeight: 'normal', color: '#94a3b8' }}>/ month</span>
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#cbd5e1' }}>
+                  <li>✓ 24h+ Autonomous agentic loops</li>
+                  <li>✓ 1-click cloud ship</li>
+                  <li>✓ BYO API keys / no markup credits</li>
+                  <li>✓ Access to mimo-v2.5-pro models</li>
+                  <li>✓ Priority custom catalog tools</li>
+                </ul>
+              </div>
+              <button style={{ background: '#fff', color: '#0a0a0a', border: 0, padding: '12px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '32px', cursor: 'pointer' }}>Upgrade to Pro</button>
+            </div>
+          </div>
+
+          {/* Lifetime Card */}
+          <div style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
+            <div style={{ textAlign: 'left', flex: 1 }}>
+              <span style={{ background: '#c2410c', fontSize: '11px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '999px', marginRight: '10px' }}>LIMITED DEAL</span>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Lifetime Access</h3>
+              <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>Pay once, run forever with your own API endpoints. No recurring fees.</p>
+
+              {/* Progress Step */}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '20px', fontSize: '12px' }}>
+                <span style={{ color: '#64748b', textDecoration: 'line-through' }}>$67 sold out</span>
+                <span style={{ color: '#F5601C', fontWeight: 'bold' }}>$97 active (43 left)</span>
+                <span style={{ color: '#64748b' }}>$125 next stage</span>
+              </div>
+            </div>
+            <button style={{ background: '#F5601C', color: '#fff', border: 0, padding: '16px 32px', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(245, 96, 28, 0.3)' }}>Get Lifetime for $97</button>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ accordion */}
+      <section id="faq" style={{ padding: '80px 24px' }}>
+        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>FAQ</span>
+            <h2 style={{ fontSize: '36px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>Common questions.</h2>
+          </div>
+
+          <div style={{ borderTop: '1px solid #e2e8f0' }}>
+            {faqs.map((faq, idx) => (
+              <div key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <button
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  style={{
+                    width: '100%',
+                    background: 'none',
+                    border: 0,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '24px 8px',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    textAlign: 'left',
+                    color: '#0A0A0A'
+                  }}
+                >
+                  <span>{faq.q}</span>
+                  <span style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: openFaq === idx ? '#F5601C' : '#fff',
+                    color: openFaq === idx ? '#fff' : '#c2410c',
+                    border: '1px solid #e2e8f0',
+                    display: 'grid',
+                    placeItems: 'center',
+                    transition: '.2s',
+                    transform: openFaq === idx ? 'rotate(45deg)' : 'none',
+                    fontSize: '18px'
+                  }}>{openFaq === idx ? '×' : '+'}</span>
+                </button>
+                <div style={{
+                  maxHeight: openFaq === idx ? '200px' : '0px',
+                  overflow: 'hidden',
+                  transition: 'max-height .35s ease'
+                }}>
+                  <p style={{ padding: '0 8px 24px 8px', color: '#475569', fontSize: '15px', lineHeight: 1.6 }}>{faq.a}</p>
+                </div>
               </div>
             ))}
           </div>
-          <div className="char-preview reveal in" id="charPreview">
-            <div className="who">{selectedChar.name}</div>
-            <div className="desc">{selectedChar.desc}</div>
-            <div className="quote">{selectedChar.quote}</div>
-          </div>
         </div>
       </section>
 
-      <section className="wrap" id="models">
-        <div className="models-sec">
-          <div>
-            <div className="lbl reveal in">Under the hood</div>
-            <h2 className="reveal in">One agent. Every model.</h2>
-            <p className="sub reveal in">Kirble routes each task to the model that handles it best, so your agent always runs on the right brain. One balance, no accounts to juggle.</p>
-          </div>
-          <div className="reveal in">
-            <svg className="diagram" viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M250 190 C160 120 120 110 90 90" stroke="#ecdcc4" stroke-width="1.5" />
-              <path d="M250 190 C170 170 130 190 80 200" stroke="#ecdcc4" stroke-width="1.5" />
-              <path d="M250 190 C170 230 140 280 110 310" stroke="#ecdcc4" stroke-width="1.5" />
-              <path d="M250 190 C340 120 380 110 410 90" stroke="#ecdcc4" stroke-width="1.5" />
-              <path d="M250 190 C340 230 370 280 400 310" stroke="#ecdcc4" stroke-width="1.5" />
-              <g fontFamily="Space Grotesk, sans-serif" fontSize="14" fontWeight="600">
-                <g><rect x="30" y="72" width="98" height="38" rx="19" fill="#fff" stroke="#efe3d0" /><text x="79" y="96" textAnchor="middle" fill="#3a3a44">Claude</text></g>
-                <g><rect x="18" y="182" width="80" height="38" rx="19" fill="#fff" stroke="#efe3d0" /><text x="58" y="206" textAnchor="middle" fill="#3a3a44">GPT</text></g>
-                <g><rect x="42" y="292" width="98" height="38" rx="19" fill="#fff" stroke="#efe3d0" /><text x="91" y="316" textAnchor="middle" fill="#3a3a44">Gemini</text></g>
-                <g><rect x="372" y="72" width="86" height="38" rx="19" fill="#fff" stroke="#efe3d0" /><text x="415" y="96" textAnchor="middle" fill="#3a3a44">Grok</text></g>
-                <g><rect x="360" y="292" width="94" height="38" rx="19" fill="#fff" stroke="#efe3d0" /><text x="407" y="316" textAnchor="middle" fill="#3a3a44">Llama</text></g>
-              </g>
-              <circle cx="250" cy="190" r="52" fill="#f5820a" />
-              <text x="250" y="196" textAnchor="middle" fill="#fff" fontFamily="Inter, sans-serif" fontSize="18" fontWeight="700" letterSpacing="-0.02em">Kirble</text>
-            </svg>
-          </div>
-        </div>
-      </section>
-
-      <section className="faq wrap" id="faq">
-        <div className="lbl reveal in">FAQ</div>
-        <h2 className="reveal in">Common questions.</h2>
-        <div className="qa">
-          {faqs.map((faq, idx) => (
-            <div key={idx} className={`qitem ${openFaq === idx ? 'open' : ''}`}>
-              <button onClick={() => setOpenFaq(openFaq === idx ? null : idx)}>
-                <span>{faq.q}</span>
-                <span className="ic">{openFaq === idx ? '×' : '+'}</span>
-              </button>
-              <div
-                className="ans"
-                style={{
-                  maxHeight: openFaq === idx ? '200px' : '0px',
-                  transition: 'max-height .35s ease'
-                }}
-              >
-                <p>{faq.a}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="cta wrap">
-        <div className="cta-inner reveal in">
-          <h2>Build your first agent.</h2>
-          <p className="sub">Describe it, give it a character, and watch it come alive in minutes.</p>
-          <button
-            className="btn-primary"
-            onClick={() => {
-              document.getElementById('promptIn')?.focus();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          >
-            Start building
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-          </button>
-        </div>
-      </section>
-
-      <footer>
-        <div className="wrap">
-          <div className="foot-grid">
-            <div className="foot-brand">
-              <span className="brand">
-                <span className="mark">
-                  <Mascot />
-                </span>
+      {/* Footer */}
+      <footer style={{ padding: '80px 24px 40px 24px', background: '#fff', borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '48px', marginBottom: '64px' }}>
+            <div>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '18px', marginBottom: '16px' }}>
+                <LogoIcon />
                 Kirble
               </span>
-              <p>Any AI agent you can describe. Give it a character and launch it on the best models — no code.</p>
-              <a className="foot-x" href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.5 8.6L23 22h-6.8l-5-6.6L5.5 22H2.4l8-9.2L1.7 2h6.9l4.6 6.1L18.9 2zm-2.4 18h1.9L7.5 3.9H5.5L16.5 20z" /></svg> Follow on X</a>
+              <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6, maxWidth: '280px' }}>
+                Any AI agent you can describe. Give it a character and launch it on the best models — no code.
+              </p>
             </div>
             <div>
-              <h4>Explore</h4>
-              <a href="#how">How it works</a>
-              <a href="#characters">Characters</a>
-              <a href="#models">Models</a>
+              <h4 style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', color: '#F5601C', marginBottom: '16px' }}>Product</h4>
+              <a href="#how" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>How it works</a>
+              <a href="#comparison" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>Comparison</a>
+              <a href="#pricing" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>Pricing</a>
             </div>
             <div>
-              <h4>More</h4>
-              <a href="#faq">FAQ</a>
-              <a href="#">Docs</a>
-              <a href="#">X / Twitter</a>
+              <h4 style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', color: '#F5601C', marginBottom: '16px' }}>Legal</h4>
+              <a href="#" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>Privacy Policy</a>
+              <a href="#" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>Terms of Service</a>
             </div>
           </div>
-          <div className="foot-bottom">
-            <span>© 2026 Kirble. Placeholder brand.</span>
-            <span className="links"><a href="#how">How it works</a><a href="#characters">Characters</a><a href="#models">Models</a><a href="#faq">FAQ</a></span>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '24px', fontSize: '13px', color: '#64748b' }}>
+            <span>© 2026 Kirble. All rights reserved.</span>
+            <span>designed by <span style={{ color: '#F5601C', fontWeight: 'bold' }}>Kirble Architect</span></span>
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
