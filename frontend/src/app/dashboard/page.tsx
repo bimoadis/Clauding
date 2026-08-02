@@ -1,49 +1,39 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
-// Mascot component reused for the brand mark
-const MascotMini: React.FC = () => {
-  const N = 22, cx = 10.5, cy = 9.3, r = 7.6;
-  const O = '#F6A21C', D = '#C24A18', K = '#151515', W = '#ffffff', B = '#1E52A6', R = '#E8451B', P = '#F3854B';
+// Logo / Mascot mini icon
+const LogoIconMini: React.FC = () => (
+  <div style={{
+    width: '28px',
+    height: '28px',
+    background: '#F5601C',
+    borderRadius: '6px',
+    display: 'grid',
+    placeItems: 'center',
+    color: '#fff',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    boxShadow: '0 4px 10px rgba(245, 96, 28, 0.2)'
+  }}>
+    🤖
+  </div>
+);
 
-  const rects: { x: number; y: number; fill: string }[] = [];
-  const addPx = (x: number, y: number, c: string) => {
-    rects.push({ x, y, fill: c });
-  };
-
-  for (let y = 0; y < N; y++) {
-    for (let x = 0; x < N; x++) {
-      const d = Math.hypot(x - cx, y - cy);
-      if (d <= r) addPx(x, y, d > r - 1.05 ? D : O);
-    }
-  }
-
-  return (
-    <svg viewBox="-1 0 24 23" shapeRendering="crispEdges" style={{ width: '24px', height: '24px' }}>
-      {rects.map((rc, idx) => (
-        <rect key={idx} x={rc.x} y={rc.y} width="1.04" height="1.04" fill={rc.fill} />
-      ))}
-    </svg>
-  );
-};
-
+// Message renderer helper for chat logs
 const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ content, isUser }) => {
   if (isUser) {
     return <div style={{ whiteSpace: 'pre-wrap' }}>{content}</div>;
   }
 
-  // Split by lines
   const lines = content.split('\n');
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', lineHeight: '1.6', wordBreak: 'break-word' }}>
       {lines.map((line, idx) => {
         let trimmed = line.trim();
-        
-        // Handle headers
         if (trimmed.startsWith('# ')) {
           return <h1 key={idx} style={{ fontSize: '18px', fontWeight: 'bold', margin: '8px 0 4px 0', color: '#0f172a' }}>{trimmed.slice(2)}</h1>;
         }
@@ -53,13 +43,9 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
         if (trimmed.startsWith('### ')) {
           return <h3 key={idx} style={{ fontSize: '14px', fontWeight: 'bold', margin: '6px 0 2px 0', color: '#334155' }}>{trimmed.slice(4)}</h3>;
         }
-
-        // Handle separators/dividers
         if (trimmed === '---') {
           return <hr key={idx} style={{ border: 0, borderTop: '1px solid #e2e8f0', margin: '12px 0' }} />;
         }
-
-        // Handle bullet points
         if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
           return (
             <div key={idx} style={{ display: 'flex', gap: '8px', paddingLeft: '8px' }}>
@@ -68,23 +54,6 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
             </div>
           );
         }
-
-        // Handle tables
-        if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
-          const cells = trimmed.split('|').map(c => c.trim()).filter((_, i, arr) => i > 0 && i < arr.length - 1);
-          if (cells.every(c => c.startsWith('-'))) {
-            return null;
-          }
-          return (
-            <div key={idx} style={{ display: 'grid', gridAutoFlow: 'column', gridAutoColumns: '1fr', gap: '12px', padding: '6px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '13px' }}>
-              {cells.map((cell, cIdx) => (
-                <div key={cIdx}>{renderTextWithBold(cell)}</div>
-              ))}
-            </div>
-          );
-        }
-
-        // Handle normal paragraph text
         return <p key={idx} style={{ margin: 0 }}>{renderTextWithBold(line)}</p>;
       })}
     </div>
@@ -101,57 +70,131 @@ function renderTextWithBold(text: string) {
   });
 }
 
-export default function Dashboard() {
-  const { publicKey, connected } = useWallet();
-  const [hasMounted, setHasMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'agents' | 'characters' | 'billing'>('agents');
+function DashboardContent() {
+  const router = useRouter();
+  const { connected, publicKey } = useWallet();
 
-  // Chat/Playground state
-  const [prompt, setPrompt] = useState('');
+  const [hasMounted, setHasMounted] = useState(false);
+  
+  // Builder state steps: 'prompt' | 'compiling' | 'configure' | 'playground'
+  const [step, setStep] = useState<'prompt' | 'compiling' | 'configure' | 'playground'>('prompt');
+  
+  // Step 1: Prompt AI input state
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [fullStackToggle, setFullStackToggle] = useState(false);
+  const [noVibeToggle, setNoVibeToggle] = useState(true);
+
+  // Step 3: Editable Agent Config states
+  const [name, setName] = useState('Crypto Scout Agent');
+  const [description, setDescription] = useState('Compiled from prompt: "make solana report"');
+  const [instructions, setInstructions] = useState('Monitor crypto sources. Surface high-signal Solana and SPL token announcements. Always verify information before alerts.');
+  const [tools, setTools] = useState<string[]>(['solana_balance', 'spl_token_balance', 'solana_transaction_history']);
+  const [selectedCharId, setSelectedCharId] = useState('char_analyst');
   const [costTier, setCostTier] = useState<'economy' | 'balanced' | 'premium'>('balanced');
-  const [chatLog, setChatLog] = useState<{ role: string; content: string; model?: string; cost?: string }[]>([]);
+
+  // Step 4: Sandbox Chat state
+  const [sandboxPrompt, setSandboxPrompt] = useState('');
+  const [chatLog, setChatLog] = useState<{ role: string; content: string; model?: string }[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentResponse, setCurrentResponse] = useState('');
   const [currentModel, setCurrentModel] = useState('');
 
   useEffect(() => {
     setHasMounted(true);
+    // Parse query params using native window object to avoid NextJS useSearchParams hydration hang
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const promptQuery = params.get('prompt');
+      if (promptQuery) {
+        setAiPrompt(promptQuery);
+        triggerCompilation(promptQuery);
+      }
+    }
   }, []);
 
-  if (!hasMounted) {
-    return (
-      <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', background: '#f8f9fc', fontFamily: 'system-ui, sans-serif' }}>
-        <h2>Loading Console...</h2>
-      </div>
-    );
-  }
+  const triggerCompilation = async (promptText: string) => {
+    if (!promptText.trim()) return;
+    setStep('compiling');
+    
+    try {
+      const response = await fetch('http://localhost:3001/v1/agents/compile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: promptText,
+          wallet: publicKey ? publicKey.toBase58() : undefined
+        })
+      });
 
-  // Characters catalog
-  const characters = [
-    { icon: "📊", name: "The Analyst", tag: "Data-first, evidence based" },
-    { icon: "🧭", name: "The Strategist", tag: "Big picture calculations" },
-    { icon: "💬", name: "The Companion", tag: "Friendly and highly interactive" }
-  ];
+      if (!response.ok) {
+        throw new Error('Failed to compile agent spec');
+      }
 
-  const handleSendPrompt = async () => {
-    if (!prompt.trim() || isStreaming) return;
+      const data = await response.json();
+      setName(data.name || 'Crypto Scout Agent');
+      setDescription(data.description || `Compiled from prompt: "${promptText}"`);
+      setInstructions(data.instructions || '');
+      setTools(data.tools || ['solana_balance', 'spl_token_balance', 'solana_transaction_history']);
+      if (data.modelPolicy?.costTier) setCostTier(data.modelPolicy.costTier);
+      if (data.characterId) setSelectedCharId(data.characterId);
+      
+      setStep('configure');
+    } catch (err) {
+      console.error(err);
+      // fallback mock so development is smooth
+      setName('Crypto Scout Agent');
+      setDescription(`Compiled from prompt: "${promptText}"`);
+      setStep('configure');
+    }
+  };
+
+  const handleLaunchAgent = async () => {
+    if (!connected || !publicKey) {
+      alert('Please connect your Solana wallet to launch the agent.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3001/v1/agents/compile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `Name: ${name}. Description: ${description}. Instructions: ${instructions}. Tools: ${tools.join(', ')}`,
+          wallet: publicKey.toBase58()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to publish agent');
+      }
+
+      setChatLog([
+        { role: 'assistant', content: `🤖 **Agent Live!** Hello, I am **${name}** (routed with *${costTier.toUpperCase()}* tier policy). I am ready to monitor balances, run tasks, and assist you. How can I help?` }
+      ]);
+      setStep('playground');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to launch agent on backend database.');
+    }
+  };
+
+  const handleSendSandboxPrompt = async () => {
+    if (!sandboxPrompt.trim() || isStreaming) return;
 
     setIsStreaming(true);
     setCurrentResponse('');
     setCurrentModel('');
 
-    const userMsg = { role: 'user', content: prompt };
+    const userMsg = { role: 'user', content: sandboxPrompt };
     setChatLog(prev => [...prev, userMsg]);
+    setSandboxPrompt('');
 
-    const targetUrl = `http://localhost:3001/v1/chat/stream?message=${encodeURIComponent(prompt)}&costTier=${costTier}`;
+    const targetUrl = `http://localhost:3001/v1/chat/stream?message=${encodeURIComponent(sandboxPrompt)}&costTier=${costTier}`;
 
     try {
-      const response = await fetch(targetUrl, {
-        method: 'GET'
-      });
-
+      const response = await fetch(targetUrl, { method: 'GET' });
       if (!response.ok) {
-        throw new Error(`Failed to open chat stream connection. Status: ${response.status}`);
+        throw new Error(`Chat stream connection failed with status: ${response.status}`);
       }
 
       const reader = response.body?.getReader();
@@ -184,7 +227,7 @@ export default function Dashboard() {
                   setCurrentResponse(tempResp);
                 }
               } catch (e) {
-                // Fallback string payload
+                // Ignore parse errors on ticks
               }
             }
           }
@@ -193,233 +236,553 @@ export default function Dashboard() {
 
       setChatLog(prev => [...prev, { role: 'assistant', content: tempResp, model: activeModelId }]);
       setCurrentResponse('');
-      setPrompt('');
     } catch (err) {
       console.error(err);
-      setChatLog(prev => [...prev, { role: 'assistant', content: `⚠️ Error: ${err instanceof Error ? err.message : 'Unknown connection error'}` }]);
+      setChatLog(prev => [...prev, { role: 'assistant', content: `⚠️ Error communicating with agent: ${err instanceof Error ? err.message : 'Connection lost'}` }]);
     } finally {
       setIsStreaming(false);
     }
   };
 
+  if (!hasMounted) {
+    return (
+      <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', background: '#FAFAF8', fontFamily: 'system-ui, sans-serif' }}>
+        <h3 style={{ fontWeight: 'bold' }}>Loading Console...</h3>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ background: '#f8f9fc', minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'system-ui, sans-serif' }}>
-      {/* Header Bar */}
-      <header style={{ background: '#fff', borderBottom: '1px solid #e2e8f0', padding: '12px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '18px', color: '#0d0d10' }}>
-          <MascotMini />
-          Kirble Console
+    <div style={{
+      background: '#FAFAF8',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      color: '#0A0A0A',
+      position: 'relative',
+      backgroundImage: "linear-gradient(to bottom, #FAFAF8 0%, rgba(250, 250, 248, 0) 15%, rgba(250, 250, 248, 0) 70%, #FAFAF8 85%, #FAFAF8 100%), url('/hero-bg.png')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center 80px',
+      backgroundRepeat: 'no-repeat'
+    }}>
+
+      {/* Header bar (Styled exactly like Home page navbar) */}
+      <header style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '30px 40px',
+        background: 'transparent'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', fontSize: '18px', color: '#0A0A0A' }}>
+          <LogoIconMini />
+          Kirble Builder
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <WalletMultiButton />
+        
+        {/* Stepper Wizard Indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step !== 'prompt' ? '#10b981' : '#F5601C' }}>
+            <span style={{
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              background: step !== 'prompt' ? '#10b981' : '#F5601C',
+              color: '#fff',
+              display: 'grid',
+              placeItems: 'center',
+              fontSize: '10px'
+            }}>{step !== 'prompt' ? '✓' : '1'}</span>
+            <span>Prompt</span>
+          </div>
+          <span style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: (step === 'configure' || step === 'playground') ? '#10b981' : (step === 'compiling' ? '#F5601C' : '#94a3b8') }}>
+            <span style={{
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              background: (step === 'configure' || step === 'playground') ? '#10b981' : (step === 'compiling' ? '#F5601C' : '#ecefef'),
+              color: (step === 'configure' || step === 'playground' || step === 'compiling') ? '#fff' : '#64748b',
+              display: 'grid',
+              placeItems: 'center',
+              fontSize: '10px'
+            }}>{(step === 'configure' || step === 'playground') ? '✓' : '2'}</span>
+            <span>Configure</span>
+          </div>
+          <span style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step === 'playground' ? '#10b981' : (step === 'configure' ? '#F5601C' : '#94a3b8') }}>
+            <span style={{
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              background: step === 'playground' ? '#10b981' : (step === 'configure' ? '#F5601C' : '#ecefef'),
+              color: (step === 'playground' || step === 'configure') ? '#fff' : '#64748b',
+              display: 'grid',
+              placeItems: 'center',
+              fontSize: '10px'
+            }}>{step === 'playground' ? '✓' : '3'}</span>
+            <span>Review</span>
+          </div>
+          <span style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step === 'playground' ? '#F5601C' : '#94a3b8' }}>
+            <span style={{
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              background: step === 'playground' ? '#F5601C' : '#ecefef',
+              color: step === 'playground' ? '#fff' : '#64748b',
+              display: 'grid',
+              placeItems: 'center',
+              fontSize: '10px'
+            }}>4</span>
+            <span>Launch</span>
+          </div>
+        </div>
+
+        <div>
+          <WalletMultiButton style={{
+            background: '#F5601C',
+            borderRadius: '999px',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            padding: '0 24px',
+            height: '40px',
+            border: 0,
+            color: '#fff',
+            boxShadow: '0 4px 12px rgba(245, 96, 28, 0.2)'
+          }} />
         </div>
       </header>
 
-      {/* Main Console Layout */}
-      <div style={{ display: 'flex', flex: 1 }}>
-        {/* Sidebar */}
-        <aside style={{ width: '240px', background: '#fff', borderRight: '1px solid #e2e8f0', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <button
-            onClick={() => setActiveTab('agents')}
-            style={{ padding: '12px 16px', borderRadius: '12px', border: 0, textAlign: 'left', background: activeTab === 'agents' ? '#fdeacd' : 'transparent', color: activeTab === 'agents' ? '#cf5f00' : '#54545c', fontWeight: 600, cursor: 'pointer', transition: '.2s' }}
-          >
-            🤖 Agents Playground
-          </button>
-          <button
-            onClick={() => setActiveTab('characters')}
-            style={{ padding: '12px 16px', borderRadius: '12px', border: 0, textAlign: 'left', background: activeTab === 'characters' ? '#fdeacd' : 'transparent', color: activeTab === 'characters' ? '#cf5f00' : '#54545c', fontWeight: 600, cursor: 'pointer', transition: '.2s' }}
-          >
-            🎭 Reusable Personas
-          </button>
-          <button
-            onClick={() => setActiveTab('billing')}
-            style={{ padding: '12px 16px', borderRadius: '12px', border: 0, textAlign: 'left', background: activeTab === 'billing' ? '#fdeacd' : 'transparent', color: activeTab === 'billing' ? '#cf5f00' : '#54545c', fontWeight: 600, cursor: 'pointer', transition: '.2s' }}
-          >
-            💳 Wallet Ledger
-          </button>
-        </aside>
+      {/* Main Workspace Frame */}
+      <main style={{ flex: 1, zIndex: 1, display: 'flex', flexDirection: 'column', paddingTop: '110px' }}>
+        
+        {/* Step 1: Prompt AI View */}
+        {step === 'prompt' && (
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '60px 24px'
+          }}>
+            {/* Mascot header badges */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 'bold', background: '#fff', border: '1px solid #e2e8f0', color: '#F5601C', padding: '6px 14px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '6px', height: '6px', background: '#F5601C', borderRadius: '50%' }}></span>
+                1 token = 1 app
+              </span>
+              <span style={{ fontSize: '12px', fontWeight: 'bold', background: '#fff', border: '1px solid #e2e8f0', color: '#64748b', padding: '6px 14px', borderRadius: '999px' }}>
+                ✓ keep the code
+              </span>
+            </div>
 
-        {/* Viewport Content */}
-        <main style={{ flex: 1, padding: '32px' }}>
-          {!connected ? (
-            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '24px', padding: '48px', textAlign: 'center', maxWidth: '600px', margin: '40px auto' }}>
-              <h2 style={{ marginBottom: '12px' }}>Connect Solana Wallet</h2>
-              <p style={{ color: '#54545c', marginBottom: '24px' }}>Please connect your Solana wallet to access the builder console, configure custom agents, and fund your usage ledger.</p>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <WalletMultiButton />
+            <h1 style={{ fontSize: 'clamp(32px, 5vw, 64px)', fontWeight: 800, textAlign: 'center', letterSpacing: '-0.03em', marginBottom: '12px', lineHeight: 1.1 }}>
+              One-shot apps
+            </h1>
+            <p style={{ color: '#475569', fontSize: '18px', textAlign: 'center', maxWidth: '580px', marginBottom: '40px', lineHeight: 1.5 }}>
+              Give Clonk the idea. Get the app, preview, deploy, and code in minutes.
+            </p>
+
+            {/* Dark input prompt window card */}
+            <div style={{
+              width: '100%',
+              maxWidth: '720px',
+              background: '#18181C',
+              border: '1px solid #2E2E34',
+              borderRadius: '24px',
+              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.15)',
+              padding: '24px 28px',
+              position: 'relative'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <span style={{ width: '8px', height: '8px', background: '#F5601C', borderRadius: '50%' }}></span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#A1A1AA', textTransform: 'uppercase', letterSpacing: '0.05em' }}>App prompt</span>
+                <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#71717A' }}>paste an idea or attach a repo</span>
+              </div>
+
+              <textarea
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="Describe the app you want to build..."
+                rows={5}
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 0,
+                  outline: 0,
+                  resize: 'none',
+                  color: '#fff',
+                  fontSize: '16px',
+                  lineHeight: 1.5,
+                  fontFamily: 'inherit',
+                  marginBottom: '20px'
+                }}
+              />
+
+              {/* Controls bar inside dark container */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #2E2E34', paddingTop: '16px' }}>
+                <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#A1A1AA' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={fullStackToggle} onChange={() => setFullStackToggle(!fullStackToggle)} style={{ cursor: 'pointer' }} />
+                    <span>FULL-STACK</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={noVibeToggle} onChange={() => setNoVibeToggle(!noVibeToggle)} style={{ cursor: 'pointer' }} />
+                    <span>NO VIBE ▾</span>
+                  </label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '12px', color: '#71717A' }}>💎 1  Ctrl+Enter</span>
+                  <button
+                    onClick={() => triggerCompilation(aiPrompt)}
+                    style={{
+                      background: '#F5601C',
+                      color: '#fff',
+                      border: 0,
+                      borderRadius: '12px',
+                      padding: '12px 24px',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(245, 96, 28, 0.3)'
+                    }}
+                  >
+                    CLONK IT
+                  </button>
+                </div>
+              </div>
+
+              {/* Floating mascot cute peek */}
+              <div style={{
+                position: 'absolute',
+                top: '-32px',
+                right: '40px',
+                fontSize: '44px',
+                pointerEvents: 'none'
+              }}>
+                🤖
               </div>
             </div>
-          ) : (
-            <>
-              {/* Tab 1: Agent Playgrounds */}
-              {activeTab === 'agents' && (
+
+            {/* Badges footer list */}
+            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+              {['⚡ Keep the code', '🌐 Auto deployed', '🖥️ Instant preview'].map(badge => (
+                <span key={badge} style={{ fontSize: '13px', background: '#FAFAF8', border: '1px solid #e2e8f0', color: '#475569', padding: '6px 14px', borderRadius: '8px' }}>
+                  {badge}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Compiling Spec View */}
+        {step === 'compiling' && (
+          <div style={{ flex: 1, display: 'grid', placeItems: 'center', padding: '80px 24px' }}>
+            <div style={{
+              background: '#fff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '24px',
+              padding: '40px 32px',
+              textAlign: 'center',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.03)',
+              maxWidth: '480px',
+              width: '100%'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px', animation: 'spin 3s linear infinite' }}>⚙️</div>
+              <h2 style={{ marginBottom: '8px' }}>Compiling Agent Spec...</h2>
+              <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.5 }}>
+                Structuring prompt tools, mapping provider adapters, and establishing voice model directives.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Review Settings View */}
+        {step === 'configure' && (
+          <div style={{ flex: 1, maxWidth: '1100px', margin: '10px auto', padding: '0 24px', width: '100%' }}>
+            
+            {/* Back button */}
+            <button
+              onClick={() => setStep('prompt')}
+              style={{
+                background: '#fff',
+                border: '1px solid #e2e8f0',
+                color: '#334155',
+                cursor: 'pointer',
+                marginBottom: '24px',
+                fontSize: '13px',
+                fontWeight: 600,
+                padding: '8px 16px',
+                borderRadius: '8px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+              }}
+            >
+              ← Back to home
+            </button>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '32px', alignItems: 'start' }}>
+              
+              {/* Left panel: Spec Card */}
+              <div style={{
+                background: '#fff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '24px',
+                padding: '36px',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.02)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px' }}>
+                  <div style={{ fontSize: '36px', background: '#ffedd5', padding: '8px', borderRadius: '12px' }}>🤖</div>
+                  <div>
+                    <h2 style={{ fontSize: '28px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>Review Agent Settings</h2>
+                    <p style={{ color: '#64748b', fontSize: '13px', margin: '4px 0 0 0' }}>Review your agent configuration before launching it live.</p>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#c2410c', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>🪪 Agent Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    style={{ width: '100%', padding: '12px 14px', border: '1px solid #e2e8f0', borderRadius: '12px', outline: 0, fontSize: '14px', color: '#0A0A0A' }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#c2410c', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>✍️ Description</label>
+                  <input
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    style={{ width: '100%', padding: '12px 14px', border: '1px solid #e2e8f0', borderRadius: '12px', outline: 0, fontSize: '14px', color: '#0A0A0A' }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', color: '#c2410c', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>⚙️ System Instructions</label>
+                  <textarea
+                    value={instructions}
+                    onChange={(e) => setInstructions(e.target.value)}
+                    rows={5}
+                    style={{ width: '100%', padding: '12px 14px', border: '1px solid #e2e8f0', borderRadius: '12px', outline: 0, fontFamily: 'inherit', resize: 'vertical', fontSize: '14px', lineHeight: 1.5, color: '#0A0A0A' }}
+                  />
+                </div>
+
+                {/* Launch CTA inside the card at the bottom */}
+                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                  <button
+                    onClick={handleLaunchAgent}
+                    style={{
+                      background: '#F5601C',
+                      color: '#fff',
+                      border: 0,
+                      borderRadius: '16px',
+                      padding: '16px 36px',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      boxShadow: '0 8px 24px rgba(245, 96, 28, 0.25)',
+                      textAlign: 'center',
+                      width: '100%',
+                      maxWidth: '360px'
+                    }}
+                  >
+                    🚀 Launch Agent Live
+                  </button>
+                  <div style={{ fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
+                    Secure • Private • Encrypted
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Right panel: Capabilities Card */}
+              <div style={{
+                background: '#fff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '24px',
+                padding: '32px',
+                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.02)'
+              }}>
+                <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#c2410c', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '16px' }}>
+                  💼 Capabilities (Tools)
+                </span>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {tools.map(tool => (
+                    <span key={tool} style={{ padding: '6px 12px', background: '#e3f5ee', color: '#0d6b46', fontSize: '13px', fontWeight: 'bold', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      🛠️ {tool}
+                    </span>
+                  ))}
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '16px', lineHeight: 1.4 }}>
+                  ℹ️ These tools will be available for your agent to use during execution.
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Live Agent Chat Playground View */}
+        {step === 'playground' && (
+          <div style={{ flex: 1, display: 'flex', height: 'calc(100vh - 110px)' }}>
+            
+            {/* Sidebar Controls */}
+            <aside style={{
+              width: '280px',
+              background: '#fff',
+              borderRight: '1px solid #e2e8f0',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between'
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
-                  <h2 style={{ marginBottom: '6px' }}>Agents Sandbox</h2>
-                  <p style={{ color: '#54545c', marginBottom: '24px' }}>Test prompt routing models and chat streaming performance against active adapters.</p>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px' }}>
-                    {/* Live Playground Chat */}
-                    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px', display: 'flex', flexDirection: 'column', height: '550px' }}>
-                      <div style={{ flex: 1, overflowY: 'auto', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '16px' }}>
-                        {chatLog.length === 0 && (
-                          <div style={{ color: '#9a9aa2', textAlign: 'center', marginTop: '120px' }}>
-                            <p style={{ fontSize: '24px', marginBottom: '8px' }}>💬</p>
-                            <p>No messages yet. Ask something to compile and route your agent!</p>
-                          </div>
-                        )}
-                        {chatLog.map((log, idx) => (
-                          <div key={idx} style={{ marginBottom: '16px', textAlign: log.role === 'user' ? 'right' : 'left' }}>
-                            <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#9a9aa2', display: 'block', marginBottom: '4px' }}>
-                              {log.role === 'user' ? 'YOU' : log.model ? `AGENT (${log.model.toUpperCase()})` : 'AGENT'}
-                            </span>
-                            <div style={{ display: 'inline-block', padding: '12px 16px', borderRadius: '14px', background: log.role === 'user' ? '#f5820a' : '#f1f5f9', color: log.role === 'user' ? '#fff' : '#0d0d10', maxWidth: '85%', textAlign: 'left' }}>
-                              <MessageContent content={log.content} isUser={log.role === 'user'} />
-                            </div>
-                          </div>
-                        ))}
-                        {isStreaming && (
-                          <div style={{ marginBottom: '16px', textAlign: 'left' }}>
-                            <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#9a9aa2', display: 'block', marginBottom: '4px' }}>
-                              AGENT ({currentModel ? currentModel.toUpperCase() : 'ROUTING...'})
-                            </span>
-                            <div style={{ display: 'inline-block', padding: '12px 16px', borderRadius: '14px', background: '#f1f5f9', color: '#0d0d10', maxWidth: '85%', textAlign: 'left' }}>
-                              <MessageContent content={currentResponse || 'Thinking…'} isUser={false} />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Chat inputs */}
-                      <div style={{ display: 'flex', gap: '12px' }}>
-                        <input
-                          type="text"
-                          value={prompt}
-                          onChange={(e) => setPrompt(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleSendPrompt()}
-                          placeholder="Describe a task or compile a new instruction..."
-                          style={{ flex: 1, padding: '12px 16px', border: '1px solid #e2e8f0', borderRadius: '12px', outline: 0 }}
-                        />
-                        <button onClick={handleSendPrompt} disabled={isStreaming} className="btn-primary" style={{ padding: '12px 24px', borderRadius: '12px' }}>
-                          Send
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Routing Configurations Panel */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px' }}>
-                        <h3 style={{ marginBottom: '14px' }}>Routing Quality Policy</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                            <input type="radio" checked={costTier === 'economy'} onChange={() => setCostTier('economy')} />
-                            <div>
-                              <strong>Economy Tier</strong>
-                              <div style={{ fontSize: '12px', color: '#54545c' }}>Prioritizes cheapest model, high delay fallback thresholds</div>
-                            </div>
-                          </label>
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                            <input type="radio" checked={costTier === 'balanced'} onChange={() => setCostTier('balanced')} />
-                            <div>
-                              <strong>Balanced Tier (Recommended)</strong>
-                              <div style={{ fontSize: '12px', color: '#54545c' }}>Harmonious score weighting Quality, Cost, and Latency</div>
-                            </div>
-                          </label>
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                            <input type="radio" checked={costTier === 'premium'} onChange={() => setCostTier('premium')} />
-                            <div>
-                              <strong>Premium Tier</strong>
-                              <div style={{ fontSize: '12px', color: '#54545c' }}>Routes exclusively to high-capacity models (e.g. Claude 3.5 Sonnet)</div>
-                            </div>
-                          </label>
-                        </div>
-                      </div>
-
-                      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px' }}>
-                        <h3 style={{ marginBottom: '12px' }}>Active Catalogs</h3>
-                        <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                            <span>Claude 3.5 Sonnet</span> <span style={{ color: '#10b981', fontWeight: 'bold' }}>Active</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                            <span>GPT-4o</span> <span style={{ color: '#10b981', fontWeight: 'bold' }}>Active</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>Llama 3 (vLLM)</span> <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>Inactive (Cooldown)</span>
-                          </div>
-                        </div>
-                      </div>
+                  <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Active Agent</span>
+                  <div style={{ background: '#FAFAF8', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '24px' }}>🤖</span>
+                    <div>
+                      <strong style={{ display: 'block', fontSize: '14px', color: '#0A0A0A' }}>{name}</strong>
+                      <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 600 }}>● Running Live</span>
                     </div>
                   </div>
                 </div>
-              )}
 
-              {/* Tab 2: Reusable Personas */}
-              {activeTab === 'characters' && (
                 <div>
-                  <h2 style={{ marginBottom: '6px' }}>Reusable Personas</h2>
-                  <p style={{ color: '#54545c', marginBottom: '24px' }}>Personas shape the system instructions injected across provider adapter runtimes.</p>
+                  <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Active Voice Persona</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                    <span style={{ fontSize: '20px' }}>
+                      📊
+                    </span>
+                    <strong>The Analyst</strong>
+                  </div>
+                </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-                    {characters.map((char, idx) => (
-                      <div key={idx} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px' }}>
-                        <div style={{ fontSize: '32px', marginBottom: '12px' }}>{char.icon}</div>
-                        <h3 style={{ marginBottom: '6px' }}>{char.name}</h3>
-                        <p style={{ color: '#54545c', fontSize: '14px', marginBottom: '16px' }}>{char.tag}</p>
-                        <span style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '8px', background: '#ececef', fontWeight: 'bold' }}>BUILT-IN</span>
+                <div>
+                  <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Routing Quality Tier</span>
+                  <span style={{ fontSize: '12px', background: '#ffedd5', color: '#c2410c', padding: '4px 10px', borderRadius: '8px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                    {costTier}
+                  </span>
+                </div>
+              </div>
+
+              {/* Reset / Compile new button */}
+              <button
+                onClick={() => {
+                  setAiPrompt('');
+                  setChatLog([]);
+                  setStep('prompt');
+                }}
+                style={{
+                  background: 'transparent',
+                  border: '2px solid #e2e8f0',
+                  color: '#0A0A0A',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  fontWeight: 'bold',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  textAlign: 'center'
+                }}
+              >
+                + Compile New Agent
+              </button>
+            </aside>
+
+            {/* Sandbox Chat Playground */}
+            <section style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#FAFAF8', padding: '24px' }}>
+              <div style={{ flex: 1, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.01)' }}>
+                
+                {/* Chat window viewport */}
+                <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {chatLog.map((log, idx) => (
+                    <div key={idx} style={{ alignSelf: log.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
+                      <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '4px', textAlign: log.role === 'user' ? 'right' : 'left' }}>
+                        {log.role === 'user' ? 'YOU' : log.model ? `AGENT (${log.model.toUpperCase()})` : 'AGENT'}
+                      </span>
+                      <div style={{
+                        padding: '12px 18px',
+                        borderRadius: '16px',
+                        background: log.role === 'user' ? '#F5601C' : '#f1f5f9',
+                        color: log.role === 'user' ? '#fff' : '#0A0A0A'
+                      }}>
+                        <MessageContent content={log.content} isUser={log.role === 'user'} />
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Tab 3: Wallet Ledger */}
-              {activeTab === 'billing' && (
-                <div>
-                  <h2 style={{ marginBottom: '6px' }}>Wallet Credit Ledger</h2>
-                  <p style={{ color: '#54545c', marginBottom: '24px' }}>Double-entry transaction balances denominated in micro USD credits.</p>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '32px' }}>
-                    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px', textAlign: 'center' }}>
-                      <span style={{ color: '#9a9aa2', fontSize: '14px' }}>Current Balance</span>
-                      <h1 style={{ fontSize: '48px', color: '#f5820a', margin: '12px 0' }}>$15.40</h1>
-                      <p style={{ fontSize: '12px', color: '#54545c', marginBottom: '24px' }}>15,400,000 micro-USD credits</p>
-                      <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>Top Up Balance</button>
                     </div>
+                  ))}
 
-                    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px' }}>
-                      <h3 style={{ marginBottom: '16px' }}>Ledger Activity</h3>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-                        <thead>
-                          <tr style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
-                            <th style={{ padding: '8px 0' }}>Type</th>
-                            <th>Amount</th>
-                            <th>Reference</th>
-                            <th>Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '12px 0', color: '#10b981', fontWeight: 'bold' }}>Credit (Top up)</td>
-                            <td>+$10.00</td>
-                            <td>Solana Deposit tx...</td>
-                            <td>2026-07-30</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '12px 0', color: '#ef4444', fontWeight: 'bold' }}>Debit (Usage)</td>
-                            <td>-$0.0024</td>
-                            <td>run_x8d21 (GPT-4o)</td>
-                            <td>2026-07-31</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                  {/* Streaming Assistant message */}
+                  {isStreaming && (
+                    <div style={{ alignSelf: 'flex-start', maxWidth: '80%' }}>
+                      <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>
+                        AGENT ({currentModel ? currentModel.toUpperCase() : 'ROUTING...'})
+                      </span>
+                      <div style={{ padding: '12px 18px', borderRadius: '16px', background: '#f1f5f9', color: '#0A0A0A' }}>
+                        <MessageContent content={currentResponse || 'Thinking...'} isUser={false} />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              )}
-            </>
-          )}
-        </main>
-      </div>
+
+                {/* Input action bar */}
+                <div style={{ padding: '18px 24px', borderTop: '1px solid #e2e8f0', background: '#fff', display: 'flex', gap: '12px' }}>
+                  <input
+                    type="text"
+                    value={sandboxPrompt}
+                    onChange={(e) => setSandboxPrompt(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendSandboxPrompt()}
+                    placeholder={`Instruct ${name} to check solana balances, analyze split tokens, or run loops...`}
+                    style={{ flex: 1, padding: '12px 16px', border: '1px solid #e2e8f0', borderRadius: '12px', outline: 0, fontSize: '14px' }}
+                  />
+                  <button
+                    onClick={handleSendSandboxPrompt}
+                    disabled={isStreaming}
+                    style={{
+                      background: '#0A0A0A',
+                      color: '#fff',
+                      border: 0,
+                      borderRadius: '12px',
+                      padding: '0 24px',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Send
+                  </button>
+                </div>
+
+              </div>
+            </section>
+
+          </div>
+        )}
+
+      </main>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', background: '#FAFAF8', fontFamily: 'system-ui, sans-serif' }}>
+        <h3 style={{ fontWeight: 'bold' }}>Loading Console...</h3>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
