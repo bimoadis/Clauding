@@ -1,24 +1,40 @@
-# Dependency directories
+# Dependencies
 node_modules/
-
-# Build outputs
-dist/
-build/
-.next/
-out/
-
-# Environments & secrets
-.env
-.env.local
-.env.*.local
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+**/node_modules/
 pnpm-debug.log*
 
-# System files
+# Next.js Build & Cache
+.next/
+**/.next/
+out/
+**/out/
+
+# NestJS / TypeScript compiler targets
+dist/
+**/dist/
+build/
+**/build/
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Environment & Secrets (any subdirectory)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env
+**/.env.local
+**/.env.*
+
+# IDEs & System files
+.vscode/
+**/.vscode/
+.idea/
+**/.idea/
 .DS_Store
 Thumbs.db
+
+# Test Coverage
+coverage/
+**/coverage/
