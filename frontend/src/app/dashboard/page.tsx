@@ -108,27 +108,27 @@ export default function Dashboard() {
           console.log('[DEBUG] Raw Chunk Received:', JSON.stringify(chunkText));
           const lines = chunkText.split('\n');
 
+          let currentEvent = '';
           for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
             if (line.startsWith('event:')) {
-              const eventType = line.replace('event:', '').trim();
-              const nextLine = lines[i + 1]?.trim() || '';
-              console.log(`[DEBUG] Event type: "${eventType}", Next line: "${nextLine}"`);
-              if (nextLine.startsWith('data:')) {
-                const dataRaw = nextLine.replace('data:', '').trim();
-                try {
-                  const payload = JSON.parse(dataRaw);
-                  console.log('[DEBUG] Parsed SSE Payload:', payload);
-                  if (eventType === 'run.started') {
-                    activeModelId = payload.model;
-                    setCurrentModel(payload.model);
-                  } else if (eventType === 'token') {
-                    tempResp += payload.delta;
-                    setCurrentResponse(tempResp);
-                  }
-                } catch (e) {
-                  console.warn('[DEBUG] Failed to parse JSON payload:', dataRaw, e);
+              currentEvent = line.replace('event:', '').trim();
+              console.log(`[DEBUG] Found event type: "${currentEvent}"`);
+            } else if (line.startsWith('data:')) {
+              const dataRaw = line.replace('data:', '').trim();
+              console.log(`[DEBUG] Found data for event "${currentEvent}":`, dataRaw);
+              try {
+                const payload = JSON.parse(dataRaw);
+                console.log('[DEBUG] Parsed SSE Payload:', payload);
+                if (currentEvent === 'run.started') {
+                  activeModelId = payload.model;
+                  setCurrentModel(payload.model);
+                } else if (currentEvent === 'token') {
+                  tempResp += payload.delta;
+                  setCurrentResponse(tempResp);
                 }
+              } catch (e) {
+                console.warn('[DEBUG] Failed to parse JSON payload:', dataRaw, e);
               }
             }
           }
