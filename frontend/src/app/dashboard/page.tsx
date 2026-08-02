@@ -65,6 +65,9 @@ export default function Dashboard() {
   const handleSendPrompt = async () => {
     if (!prompt.trim() || isStreaming) return;
 
+    console.log('[DEBUG] Sending prompt to agent:', prompt);
+    console.log('[DEBUG] Active Cost Tier:', costTier);
+
     setIsStreaming(true);
     setCurrentResponse('');
     setCurrentModel('');
@@ -72,14 +75,19 @@ export default function Dashboard() {
     const userMsg = { role: 'user', content: prompt };
     setChatLog(prev => [...prev, userMsg]);
 
+    const targetUrl = `http://localhost:3001/v1/chat/stream?message=${encodeURIComponent(prompt)}&costTier=${costTier}`;
+    console.log('[DEBUG] Target SSE Stream URL:', targetUrl);
+
     try {
-      // Direct call to our Fastify NestJS SSE stream endpoint
-      const response = await fetch(`http://localhost:3001/v1/chat/stream?message=${encodeURIComponent(prompt)}&costTier=${costTier}`, {
+      const response = await fetch(targetUrl, {
         method: 'GET'
       });
 
+      console.log('[DEBUG] Connection established. Response Status:', response.status);
+      console.log('[DEBUG] Response Headers:', Array.from(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error('Failed to open chat stream connection');
+        throw new Error(`Failed to open chat stream connection. Status: ${response.status}`);
       }
 
       const reader = response.body?.getReader();
@@ -88,11 +96,16 @@ export default function Dashboard() {
       let activeModelId = '';
 
       if (reader) {
+        console.log('[DEBUG] Stream reader initialized. Waiting for chunks...');
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
+          if (done) {
+            console.log('[DEBUG] Stream reading complete (done: true).');
+            break;
+          }
 
           const chunkText = decoder.decode(value);
+          console.log('[DEBUG] Raw Chunk Received:', JSON.stringify(chunkText));
           const lines = chunkText.split('\n');
 
           for (let i = 0; i < lines.length; i++) {
@@ -100,10 +113,12 @@ export default function Dashboard() {
             if (line.startsWith('event:')) {
               const eventType = line.replace('event:', '').trim();
               const nextLine = lines[i + 1]?.trim() || '';
+              console.log(`[DEBUG] Event type: "${eventType}", Next line: "${nextLine}"`);
               if (nextLine.startsWith('data:')) {
                 const dataRaw = nextLine.replace('data:', '').trim();
                 try {
                   const payload = JSON.parse(dataRaw);
+                  console.log('[DEBUG] Parsed SSE Payload:', payload);
                   if (eventType === 'run.started') {
                     activeModelId = payload.model;
                     setCurrentModel(payload.model);
@@ -111,8 +126,8 @@ export default function Dashboard() {
                     tempResp += payload.delta;
                     setCurrentResponse(tempResp);
                   }
-                } catch {
-                  // Fallback string payload
+                } catch (e) {
+                  console.warn('[DEBUG] Failed to parse JSON payload:', dataRaw, e);
                 }
               }
             }
@@ -124,10 +139,11 @@ export default function Dashboard() {
       setCurrentResponse('');
       setPrompt('');
     } catch (err) {
-      console.error(err);
-      setChatLog(prev => [...prev, { role: 'assistant', content: '⚠️ Error connecting to local NestJS Fastify backend. Make sure it is running on port 3001.' }]);
+      console.error('[DEBUG] Chat Stream connection failed with error:', err);
+      setChatLog(prev => [...prev, { role: 'assistant', content: `⚠️ Error: ${err instanceof Error ? err.message : 'Unknown connection error'}` }]);
     } finally {
       setIsStreaming(false);
+      console.log('[DEBUG] Chat session handleSendPrompt finalized.');
     }
   };
 
