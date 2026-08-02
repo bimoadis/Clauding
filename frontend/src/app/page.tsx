@@ -40,21 +40,66 @@ export default function Home() {
   ];
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const handleBuild = () => {
-    if (!prompt.trim()) {
-      alert('Describe your agent first, then click Create.');
-      return;
-    }
-    setBuildStatus('Building…');
-    setTimeout(() => {
-      router.push(`/compile?prompt=${encodeURIComponent(prompt)}`);
-    }, 450);
-  };
-
   return (
     <div style={{ background: '#FAFAF8', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif', color: '#0A0A0A' }}>
+      
+      {/* Vanilla Responsive CSS for Landing Page */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 900px) {
+          .landing-nav {
+            position: relative !important;
+            padding: 20px 24px !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+            align-items: center !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(8px) !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+          }
+          .landing-nav-capsule {
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+          }
+          .landing-hero {
+            padding-top: 40px !important;
+            min-height: auto !important;
+          }
+          .console-mockup-content {
+            grid-template-columns: 1fr !important;
+            height: auto !important;
+          }
+          .console-mockup-sidebar {
+            display: none !important;
+          }
+          .console-mockup-chat {
+            padding: 20px !important;
+            height: 300px !important;
+          }
+          .how-it-works-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+          .comparison-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+          .pricing-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+          .lifetime-card {
+            flex-direction: column !important;
+            text-align: center !important;
+            gap: 20px !important;
+          }
+          .footer-grid {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+          }
+        }
+      `}} />
 
-      <nav style={{
+      <nav className="landing-nav" style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -73,7 +118,7 @@ export default function Home() {
         </span>
 
         {/* Center: Navigation Links in Capsule */}
-        <div style={{
+        <div className="landing-nav-capsule" style={{
           display: 'flex',
           alignItems: 'center',
           gap: '4px',
@@ -104,7 +149,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <header style={{
+      <header className="landing-hero" style={{
         minHeight: '130vh',
         display: 'flex',
         flexDirection: 'column',
@@ -171,23 +216,23 @@ export default function Home() {
               <span style={{ margin: '0 auto', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>kirble-console-v2.5.app</span>
             </div>
             {/* Mock Console Content */}
-            <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', height: '360px', background: '#FAFAF8' }}>
-              <div style={{ borderRight: '1px solid #e2e8f0', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div className="console-mockup-content" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', height: '360px', background: '#FAFAF8' }}>
+              <div className="console-mockup-sidebar" style={{ borderRight: '1px solid #e2e8f0', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ background: '#ffedd5', color: '#c2410c', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold' }}>🤖 Agents Sandbox</div>
                 <div style={{ color: '#475569', padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }}>🎭 Reusable Personas</div>
                 <div style={{ color: '#475569', padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }}>💳 Wallet Ledger</div>
               </div>
-              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="console-mockup-chat" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
                   <div style={{ alignSelf: 'flex-end', background: '#F5601C', color: '#fff', padding: '10px 16px', borderRadius: '12px', fontSize: '13px' }}>
                     check solana balance and search the web
                   </div>
-                  <div style={{ alignSelf: 'flex-start', background: '#fff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '13px', maxWidth: '80%' }}>
+                  <div style={{ alignSelf: 'flex-start', background: '#fff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '13px', maxWidth: '85%' }}>
                     <strong>AGENT (MIMO-V2.5-PRO)</strong><br />
                     Analyzing query... Executing tool [solana_balance]... Balance is 50.4 SOL. Executing [web_search]... Finished task!
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
                   <input disabled placeholder="Describe a task or compile a new instruction..." style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff' }} />
                   <button disabled style={{ background: '#0A0A0A', color: '#fff', border: 0, padding: '0 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold' }}>Send</button>
                 </div>
@@ -204,7 +249,7 @@ export default function Home() {
           <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>How it works</span>
           <h2 style={{ fontSize: '36px', fontWeight: 800, margin: '12px 0 48px 0', letterSpacing: '-0.02em' }}>From a single sentence to a live running agent.</h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
+          <div className="how-it-works-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
             <div style={{ padding: '24px', background: '#FAFAF8', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
               <div style={{ fontSize: '24px', marginBottom: '12px' }}>✍️</div>
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>1. Describe It</h3>
@@ -230,7 +275,7 @@ export default function Home() {
           <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Benchmarks</span>
           <h2 style={{ fontSize: '36px', fontWeight: 800, margin: '12px 0 48px 0', letterSpacing: '-0.02em' }}>High speed compilation. Zero waste.</h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '32px' }}>
+          <div className="comparison-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px' }}>
             {/* Time comparison card */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px' }}>
               <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '24px' }}>Time to Ship Agent (Hours)</h3>
@@ -305,7 +350,7 @@ export default function Home() {
             <p style={{ color: '#475569' }}>Pay only for what you run, or choose unlimited access.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '32px' }}>
+          <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '32px' }}>
             {/* Free Card */}
             <div style={{ background: '#FAFAF8', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div>
@@ -353,7 +398,7 @@ export default function Home() {
           </div>
 
           {/* Lifetime Card */}
-          <div style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
+          <div className="lifetime-card" style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', marginTop: '40px' }}>
             <div style={{ textAlign: 'left', flex: 1 }}>
               <span style={{ background: '#c2410c', fontSize: '11px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '999px', marginRight: '10px' }}>LIMITED DEAL</span>
               <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Lifetime Access</h3>
@@ -430,7 +475,7 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ padding: '80px 24px 40px 24px', background: '#fff', borderTop: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '48px', marginBottom: '64px' }}>
+          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '48px', marginBottom: '64px' }}>
             <div>
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '18px', marginBottom: '16px' }}>
                 <LogoIcon />
@@ -453,7 +498,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '24px', fontSize: '13px', color: '#64748b' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '24px', fontSize: '13px', color: '#64748b', flexWrap: 'wrap', gap: '16px' }}>
             <span>© 2026 Kirble. All rights reserved.</span>
             <span>designed by <span style={{ color: '#F5601C', fontWeight: 'bold' }}>Kirble Architect</span></span>
           </div>

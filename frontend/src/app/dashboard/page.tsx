@@ -266,9 +266,50 @@ function DashboardContent() {
       backgroundPosition: 'center 80px',
       backgroundRepeat: 'no-repeat'
     }}>
+      {/* Vanilla Responsive CSS Stylesheet */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 900px) {
+          .responsive-header {
+            padding: 20px 24px !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+            position: relative !important;
+            align-items: center !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(8px) !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+          }
+          .responsive-main {
+            padding-top: 24px !important;
+          }
+          .responsive-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .step-text {
+            display: none !important;
+          }
+          .step-line {
+            width: 12px !important;
+          }
+          .responsive-playground {
+            flex-direction: column !important;
+            height: auto !important;
+          }
+          .responsive-sidebar {
+            width: 100% !important;
+            border-right: none !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            padding: 16px !important;
+          }
+          .responsive-chat-window {
+            height: 500px !important;
+          }
+        }
+      `}} />
 
       {/* Header bar (Styled exactly like Home page navbar) */}
-      <header style={{
+      <header className="responsive-header" style={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -298,9 +339,9 @@ function DashboardContent() {
               placeItems: 'center',
               fontSize: '10px'
             }}>{step !== 'prompt' ? '✓' : '1'}</span>
-            <span>Prompt</span>
+            <span className="step-text">Prompt</span>
           </div>
-          <span style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
+          <span className="step-line" style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: (step === 'configure' || step === 'playground') ? '#10b981' : (step === 'compiling' ? '#F5601C' : '#94a3b8') }}>
             <span style={{
@@ -313,9 +354,9 @@ function DashboardContent() {
               placeItems: 'center',
               fontSize: '10px'
             }}>{(step === 'configure' || step === 'playground') ? '✓' : '2'}</span>
-            <span>Configure</span>
+            <span className="step-text">Configure</span>
           </div>
-          <span style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
+          <span className="step-line" style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step === 'playground' ? '#10b981' : (step === 'configure' ? '#F5601C' : '#94a3b8') }}>
             <span style={{
@@ -328,9 +369,9 @@ function DashboardContent() {
               placeItems: 'center',
               fontSize: '10px'
             }}>{step === 'playground' ? '✓' : '3'}</span>
-            <span>Review</span>
+            <span className="step-text">Review</span>
           </div>
-          <span style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
+          <span className="step-line" style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step === 'playground' ? '#F5601C' : '#94a3b8' }}>
             <span style={{
@@ -343,7 +384,7 @@ function DashboardContent() {
               placeItems: 'center',
               fontSize: '10px'
             }}>4</span>
-            <span>Launch</span>
+            <span className="step-text">Launch</span>
           </div>
         </div>
 
@@ -363,7 +404,7 @@ function DashboardContent() {
       </header>
 
       {/* Main Workspace Frame */}
-      <main style={{ flex: 1, zIndex: 1, display: 'flex', flexDirection: 'column', paddingTop: '110px' }}>
+      <main className="responsive-main" style={{ flex: 1, zIndex: 1, display: 'flex', flexDirection: 'column', paddingTop: '110px' }}>
         
         {/* Step 1: Prompt AI View */}
         {step === 'prompt' && (
@@ -373,10 +414,10 @@ function DashboardContent() {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: '60px 24px'
+            padding: '40px 20px'
           }}>
             {/* Mascot header badges */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
               <span style={{ fontSize: '12px', fontWeight: 'bold', background: '#fff', border: '1px solid #e2e8f0', color: '#F5601C', padding: '6px 14px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ width: '6px', height: '6px', background: '#F5601C', borderRadius: '50%' }}></span>
                 1 token = 1 app
@@ -386,10 +427,10 @@ function DashboardContent() {
               </span>
             </div>
 
-            <h1 style={{ fontSize: 'clamp(32px, 5vw, 64px)', fontWeight: 800, textAlign: 'center', letterSpacing: '-0.03em', marginBottom: '12px', lineHeight: 1.1 }}>
+            <h1 style={{ fontSize: 'clamp(28px, 5vw, 64px)', fontWeight: 800, textAlign: 'center', letterSpacing: '-0.03em', marginBottom: '12px', lineHeight: 1.1 }}>
               One-shot apps
             </h1>
-            <p style={{ color: '#475569', fontSize: '18px', textAlign: 'center', maxWidth: '580px', marginBottom: '40px', lineHeight: 1.5 }}>
+            <p style={{ color: '#475569', fontSize: 'clamp(15px, 2vw, 18px)', textAlign: 'center', maxWidth: '580px', marginBottom: '32px', lineHeight: 1.5 }}>
               Give Clonk the idea. Get the app, preview, deploy, and code in minutes.
             </p>
 
@@ -401,10 +442,10 @@ function DashboardContent() {
               border: '1px solid #2E2E34',
               borderRadius: '24px',
               boxShadow: '0 24px 60px rgba(0, 0, 0, 0.15)',
-              padding: '24px 28px',
+              padding: '24px 20px',
               position: 'relative'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
                 <span style={{ width: '8px', height: '8px', background: '#F5601C', borderRadius: '50%' }}></span>
                 <span style={{ fontSize: '12px', fontWeight: 600, color: '#A1A1AA', textTransform: 'uppercase', letterSpacing: '0.05em' }}>App prompt</span>
                 <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#71717A' }}>paste an idea or attach a repo</span>
@@ -430,7 +471,7 @@ function DashboardContent() {
               />
 
               {/* Controls bar inside dark container */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #2E2E34', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #2E2E34', paddingTop: '16px', flexWrap: 'wrap', gap: '16px' }}>
                 <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#A1A1AA' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                     <input type="checkbox" checked={fullStackToggle} onChange={() => setFullStackToggle(!fullStackToggle)} style={{ cursor: 'pointer' }} />
@@ -476,7 +517,7 @@ function DashboardContent() {
             </div>
 
             {/* Badges footer list */}
-            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
               {['⚡ Keep the code', '🌐 Auto deployed', '🖥️ Instant preview'].map(badge => (
                 <span key={badge} style={{ fontSize: '13px', background: '#FAFAF8', border: '1px solid #e2e8f0', color: '#475569', padding: '6px 14px', borderRadius: '8px' }}>
                   {badge}
@@ -531,7 +572,7 @@ function DashboardContent() {
               ← Back to home
             </button>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '32px', alignItems: 'start' }}>
+            <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '32px', alignItems: 'start' }}>
               
               {/* Left panel: Spec Card */}
               <div style={{
@@ -636,10 +677,10 @@ function DashboardContent() {
 
         {/* Step 4: Live Agent Chat Playground View */}
         {step === 'playground' && (
-          <div style={{ flex: 1, display: 'flex', height: 'calc(100vh - 110px)' }}>
+          <div className="responsive-playground" style={{ flex: 1, display: 'flex', height: 'calc(100vh - 110px)' }}>
             
             {/* Sidebar Controls */}
-            <aside style={{
+            <aside className="responsive-sidebar" style={{
               width: '280px',
               background: '#fff',
               borderRight: '1px solid #e2e8f0',
@@ -694,7 +735,8 @@ function DashboardContent() {
                   fontWeight: 'bold',
                   fontSize: '13px',
                   cursor: 'pointer',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  marginTop: '20px'
                 }}
               >
                 + Compile New Agent
@@ -702,7 +744,7 @@ function DashboardContent() {
             </aside>
 
             {/* Sandbox Chat Playground */}
-            <section style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#FAFAF8', padding: '24px' }}>
+            <section className="responsive-chat-window" style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#FAFAF8', padding: '24px' }}>
               <div style={{ flex: 1, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.01)' }}>
                 
                 {/* Chat window viewport */}
