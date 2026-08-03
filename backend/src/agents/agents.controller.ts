@@ -44,7 +44,7 @@ export class AgentsController {
     instructions?: string;
     tools?: string[];
     costTier?: 'economy' | 'balanced' | 'premium';
-  }): Promise<AgentSpec> {
+  }): Promise<any> {
     const rawPrompt = body.prompt || 'general assistant';
     const wallet = body.wallet;
     
@@ -120,6 +120,7 @@ export class AgentsController {
     };
 
     // If wallet address is provided, register user and agent in database
+    let createdAgentRecordId: string | null = null;
     if (wallet && wallet.trim().length > 0) {
       try {
         console.log(`[DB] Registering agent for wallet: ${wallet}`);
@@ -137,6 +138,7 @@ export class AgentsController {
           ownerId: userRecord.id,
           name: spec.name
         }).returning();
+        createdAgentRecordId = agentRecord.id;
 
         // Insert version specs
         await db.insert(agentVersions).values({
@@ -151,7 +153,10 @@ export class AgentsController {
       }
     }
 
-    return spec;
+    return {
+      id: createdAgentRecordId,
+      ...spec
+    };
   }
 
   @Get('list')

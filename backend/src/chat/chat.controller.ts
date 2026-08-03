@@ -4,6 +4,9 @@ import { OpenAIAdapter } from '../models/adapters/openai.adapter';
 import { AnthropicAdapter } from '../models/adapters/anthropic.adapter';
 import { ModelRouter } from '../models/model-router.service';
 import { ModelRef } from '../models/model-router.interface';
+import { db } from '../db/db';
+import { users, threads, messages, agents } from '../db/schema';
+import { eq, and } from 'drizzle-orm';
 
 interface ChatStreamDto {
   message: string;
@@ -59,7 +62,9 @@ export class ChatController {
   public handleChatStream(
     @Query('message') message: string,
     @Query('costTier') costTier?: 'economy' | 'balanced' | 'premium',
-    @Query('tools') toolsStr?: string
+    @Query('tools') toolsStr?: string,
+    @Query('wallet') wallet?: string,
+    @Query('agentId') agentId?: string
   ): Observable<MessageEvent> {
     return new Observable<MessageEvent>((subscriber) => {
       (async () => {
@@ -81,6 +86,83 @@ export class ChatController {
           );
           const activeModel = routedModels[0];
 
+          // Database Persistence Integration
+          let dbUser = null;
+          let dbThread = null;
+          if (wallet && wallet.trim().length > 0) {
+            try {
+              // 1. Find or create user
+              dbUser = await db.select().from(users).where(eq(users.wallet, wallet)).limit(1).then(r => r[0]);
+              if (!dbUser) {
+                const [newUser] = await db.insert(users).values({ wallet }).returning();
+                dbUser = newUser;
+              }
+
+              // 2. Find or create thread for this user and agent
+              const agentUuid = agentId && agentId.trim().length > 0 ? agentId : null;
+              if (agentUuid) {
+                dbThread = await db.select().from(threads).where(
+                  and(
+                    eq(threads.ownerId, dbUser.id),
+                    eq(threads.agentId, agentUuid)
+                  )
+                ).limit(1).then(r => r[0]);
+
+                if (!dbThread) {
+                  const [newThread] = await db.insert(threads).values({
+                    ownerId: dbUser.id,
+                    agentId: agentUuid,
+                    title: `Chat Session with Agent`
+                  } as any).returning();
+                  dbThread = newThread;
+                }
+              } else {
+                dbThread = await db.select().from(threads).where(
+                  and(
+                    eq(threads.ownerId, dbUser.id),
+                    eq(threads.title, 'General Chat')
+                  )
+                ).limit(1).then(r => r[0]);
+
+                if (!dbThread) {
+                  const [newThread] = await db.insert(threads).values({
+                    ownerId: dbUser.id,
+                    title: 'General Chat'
+                  } as any).returning();
+                  dbThread = newThread;
+                }
+              }
+
+              // 3. Save User message to db
+              await db.insert(messages).values({
+                threadId: dbThread.id,
+                role: 'user',
+                content: message
+              });
+            } catch (err) {
+              console.error('Failed to initialize thread/messages in DB:', err);
+            }
+          }
+
+          // Retrieve message history context for the LLM session
+          let finalMessages: { role: 'user' | 'assistant'; content: string }[] = [{ role: 'user', content: message }];
+          if (dbThread) {
+            try {
+              const pastMsgs = await db.select().from(messages)
+                .where(eq(messages.threadId, dbThread.id))
+                .orderBy(messages.createdAt);
+              
+              if (pastMsgs.length > 0) {
+                finalMessages = pastMsgs.map(m => ({
+                  role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+                  content: m.content
+                }));
+              }
+            } catch (err) {
+              console.error('Failed to load thread history for LLM context:', err);
+            }
+          }
+
           // Send run.started event
           subscriber.next({
             type: 'run.started',
@@ -91,12 +173,14 @@ export class ChatController {
           const adapter = activeModel.provider === 'openai' ? this.openai : this.anthropic;
           const stream = adapter.stream({
             model: activeModel.id,
-            messages: [{ role: 'user', content: message }],
+            messages: finalMessages,
             allowedTools
           });
 
+          let fullResponse = '';
           for await (const chunk of stream) {
             if (chunk.delta) {
+              fullResponse += chunk.delta;
               subscriber.next({
                 type: 'token',
                 data: JSON.stringify({ delta: chunk.delta })
@@ -107,6 +191,19 @@ export class ChatController {
                 type: 'usage',
                 data: JSON.stringify(chunk.usage)
               });
+            }
+          }
+
+          // Save assistant response to DB
+          if (dbThread && fullResponse.length > 0) {
+            try {
+              await db.insert(messages).values({
+                threadId: dbThread.id,
+                role: 'assistant',
+                content: fullResponse
+              });
+            } catch (err) {
+              console.error('Failed to save assistant message to DB:', err);
             }
           }
 
@@ -126,5 +223,55 @@ export class ChatController {
         }
       })();
     });
+  }
+
+  @Get('history')
+  public async getChatHistory(
+    @Query('wallet') wallet: string,
+    @Query('agentId') agentId?: string
+  ) {
+    if (!wallet) {
+      return [];
+    }
+    try {
+      const dbUser = await db.select().from(users).where(eq(users.wallet, wallet)).limit(1).then(r => r[0]);
+      if (!dbUser) {
+        return [];
+      }
+
+      let dbThread = null;
+      const agentUuid = agentId && agentId.trim().length > 0 ? agentId : null;
+      if (agentUuid) {
+        dbThread = await db.select().from(threads).where(
+          and(
+            eq(threads.ownerId, dbUser.id),
+            eq(threads.agentId, agentUuid)
+          )
+        ).limit(1).then(r => r[0]);
+      } else {
+        dbThread = await db.select().from(threads).where(
+          and(
+            eq(threads.ownerId, dbUser.id),
+            eq(threads.title, 'General Chat')
+          )
+        ).limit(1).then(r => r[0]);
+      }
+
+      if (!dbThread) {
+        return [];
+      }
+
+      const history = await db.select().from(messages).where(
+        eq(messages.threadId, dbThread.id)
+      ).orderBy(messages.createdAt);
+
+      return history.map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+    } catch (err) {
+      console.error('Failed to fetch chat history:', err);
+      return [];
+    }
   }
 }

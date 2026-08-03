@@ -227,9 +227,29 @@ function DashboardContent() {
                   setCostTier(latestAgent.spec.modelPolicy.costTier);
                 }
               }
-              setChatLog([
-                { role: 'assistant', content: `🤖 **Welcome back!** Loaded your existing agent **${latestAgent.name}**. I am ready to monitor balances, run tasks, and assist you. How can I help?` }
-              ]);
+              // Fetch history for the latest agent
+              try {
+                const histRes = await fetch(`http://localhost:3001/v1/chat/history?wallet=${publicKey.toBase58()}&agentId=${latestAgent.id}`);
+                if (histRes.ok) {
+                  const histData = await histRes.json();
+                  if (histData.length > 0) {
+                    setChatLog(histData);
+                  } else {
+                    setChatLog([
+                      { role: 'assistant', content: `🤖 **Welcome back!** Loaded your existing agent **${latestAgent.name}**. I am ready to monitor balances, run tasks, and assist you. How can I help?` }
+                    ]);
+                  }
+                } else {
+                  setChatLog([
+                    { role: 'assistant', content: `🤖 **Welcome back!** Loaded your existing agent **${latestAgent.name}**. I am ready to monitor balances, run tasks, and assist you. How can I help?` }
+                  ]);
+                }
+              } catch (e) {
+                console.error('Failed to load chat history:', e);
+                setChatLog([
+                  { role: 'assistant', content: `🤖 **Welcome back!** Loaded your existing agent **${latestAgent.name}**. I am ready to monitor balances, run tasks, and assist you. How can I help?` }
+                ]);
+              }
             }
           }
         } catch (e) {
@@ -344,6 +364,21 @@ function DashboardContent() {
         throw new Error('Failed to publish agent');
       }
 
+      const data = await response.json();
+      if (data.id) {
+        setSelectedAgentId(data.id);
+      }
+
+      try {
+        const listRes = await fetch(`http://localhost:3001/v1/agents/list?wallet=${publicKey.toBase58()}`);
+        if (listRes.ok) {
+          const listData = await listRes.json();
+          setMyAgents(listData);
+        }
+      } catch (e) {
+        console.error('Failed to reload agents list after compilation:', e);
+      }
+
       console.log('Step 3 Success: Agent successfully launched live in database.');
       setChatLog([
         { role: 'assistant', content: `🤖 **Agent Live!** Hello, I am **${name}** (routed with *${costTier.toUpperCase()}* tier policy). I am ready to monitor balances, run tasks, and assist you. How can I help?` }
@@ -379,7 +414,9 @@ function DashboardContent() {
     setChatLog(prev => [...prev, userMsg]);
     setSandboxPrompt('');
 
-    const targetUrl = `http://localhost:3001/v1/chat/stream?message=${encodeURIComponent(sandboxPrompt)}&costTier=${costTier}&tools=${encodeURIComponent(JSON.stringify(tools))}`;
+    const walletParam = publicKey ? `&wallet=${publicKey.toBase58()}` : '';
+    const agentParam = selectedAgentId ? `&agentId=${selectedAgentId}` : '';
+    const targetUrl = `http://localhost:3001/v1/chat/stream?message=${encodeURIComponent(sandboxPrompt)}&costTier=${costTier}&tools=${encodeURIComponent(JSON.stringify(tools))}${walletParam}${agentParam}`;
     console.log('Step 4: Opening SSE (Server-Sent Events) network chat stream connection at:', targetUrl);
 
     try {
@@ -1307,9 +1344,31 @@ function DashboardContent() {
                               setCostTier(targetAgent.spec.modelPolicy.costTier);
                             }
                           }
-                          setChatLog([
-                            { role: 'assistant', content: `🤖 Switched to agent **${targetAgent.name}**. Ready for instructions.` }
-                          ]);
+                          // Fetch and load chat history for this agent!
+                          (async () => {
+                            try {
+                              const histRes = await fetch(`http://localhost:3001/v1/chat/history?wallet=${publicKey!.toBase58()}&agentId=${targetAgent.id}`);
+                              if (histRes.ok) {
+                                const histData = await histRes.json();
+                                if (histData.length > 0) {
+                                  setChatLog(histData);
+                                } else {
+                                  setChatLog([
+                                    { role: 'assistant', content: `🤖 Switched to agent **${targetAgent.name}**. Ready for instructions.` }
+                                  ]);
+                                }
+                              } else {
+                                setChatLog([
+                                  { role: 'assistant', content: `🤖 Switched to agent **${targetAgent.name}**. Ready for instructions.` }
+                                ]);
+                              }
+                            } catch (e) {
+                              console.error('Failed to load chat history:', e);
+                              setChatLog([
+                                { role: 'assistant', content: `🤖 Switched to agent **${targetAgent.name}**. Ready for instructions.` }
+                              ]);
+                            }
+                          })();
                         }
                       }}
                       style={{
@@ -1331,23 +1390,6 @@ function DashboardContent() {
                     </select>
                   </div>
                 )}
-
-                <div>
-                  <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Active Voice Persona</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-                    <span style={{ fontSize: '20px' }}>
-                      📊
-                    </span>
-                    <strong>The Analyst</strong>
-                  </div>
-                </div>
-
-                <div>
-                  <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Routing Quality Tier</span>
-                  <span style={{ fontSize: '12px', background: '#ffedd5', color: '#c2410c', padding: '4px 10px', borderRadius: '8px', fontWeight: 'bold', textTransform: 'uppercase' }}>
-                    {costTier}
-                  </span>
-                </div>
               </div>
 
               {/* Reset / Compile new button */}
