@@ -58,11 +58,22 @@ export class ChatController {
   @Sse() // Marks it as an SSE stream
   public handleChatStream(
     @Query('message') message: string,
-    @Query('costTier') costTier?: 'economy' | 'balanced' | 'premium'
+    @Query('costTier') costTier?: 'economy' | 'balanced' | 'premium',
+    @Query('tools') toolsStr?: string
   ): Observable<MessageEvent> {
     return new Observable<MessageEvent>((subscriber) => {
       (async () => {
         try {
+          // Parse allowed tools list
+          let allowedTools: string[] | undefined = undefined;
+          if (toolsStr) {
+            try {
+              allowedTools = JSON.parse(toolsStr);
+            } catch (e) {
+              console.error('Failed to parse tools query parameter:', e);
+            }
+          }
+
           // 1. Select Model using Router
           const routedModels = this.router.route(
             { costTier: costTier ?? 'balanced' },
@@ -80,7 +91,8 @@ export class ChatController {
           const adapter = activeModel.provider === 'openai' ? this.openai : this.anthropic;
           const stream = adapter.stream({
             model: activeModel.id,
-            messages: [{ role: 'user', content: message }]
+            messages: [{ role: 'user', content: message }],
+            allowedTools
           });
 
           for await (const chunk of stream) {

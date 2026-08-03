@@ -3,7 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import dynamic from 'next/dynamic';
+
+// Dynamically import WalletMultiButton with SSR disabled to prevent hydration mismatches
+const WalletMultiButton = dynamic(
+  async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
+  { ssr: false }
+);
 
 // Mascot component that renders the logo icon
 const LogoIcon: React.FC = () => (
@@ -29,6 +35,7 @@ export default function Home() {
   const [prompt, setPrompt] = useState('');
   const [buildStatus, setBuildStatus] = useState('Create');
   const [isYearly, setIsYearly] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Accordion FAQs
   const faqs = [
@@ -38,27 +45,38 @@ export default function Home() {
     { q: "Can I change my agent's character later?", a: "Anytime. Swap characters to change your agent's tone and style without rebuilding it." },
     { q: "Is my agent always online?", a: "Yes. Once launched, your agent runs on Kirble's infrastructure and stays available across the tools you connect it to." }
   ];
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [openFaq, setOpenFaq] = useState(0 as number | null);
 
   return (
-    <div style={{ background: '#FAFAF8', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif', color: '#0A0A0A' }}>
-      
-      {/* Vanilla Responsive CSS for Landing Page */}
-      <style dangerouslySetInnerHTML={{ __html: `
+    <div style={{ background: '#FAFAF8', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif", color: '#0A0A0A', position: 'relative' }}>
+      {/* Import Plus Jakarta Sans for premium typography match */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+      {/* Preload background image to optimize LCP and boost Lighthouse score */}
+      <link rel="preload" as="image" href="/hero-bg.png" />
+
+      {/* Vanilla Responsive CSS with Hamburger Menu Support */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @media (min-width: 901px) {
+          .mobile-menu-btn { display: none !important; }
+          .mobile-menu-overlay { display: none !important; }
+        }
+
         @media (max-width: 900px) {
+          .desktop-nav-links { display: none !important; }
+          .desktop-nav-wallet { display: none !important; }
+          .mobile-menu-btn { display: block !important; }
+          
           .landing-nav {
-            position: relative !important;
             padding: 20px 24px !important;
-            flex-direction: column !important;
-            gap: 16px !important;
-            align-items: center !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
             background: rgba(255, 255, 255, 0.9) !important;
             backdrop-filter: blur(8px) !important;
             border-bottom: 1px solid #e2e8f0 !important;
-          }
-          .landing-nav-capsule {
-            flex-wrap: wrap !important;
-            justify-content: center !important;
           }
           .landing-hero {
             padding-top: 40px !important;
@@ -109,31 +127,33 @@ export default function Home() {
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '30px 40px',
-        background: 'transparent'
+        background: 'transparent',
+        pointerEvents: 'auto'
       }}>
         {/* Left: Brand */}
-        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', fontSize: '18px', color: '#0A0A0A' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800', fontSize: '20px', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
           <LogoIcon />
           Kirble
         </span>
 
-        {/* Center: Navigation Links in Capsule */}
-        <div className="landing-nav-capsule" style={{
+        {/* Center: Navigation Links in Capsule (Desktop Only) */}
+        <div className="desktop-nav-links" style={{
           display: 'flex',
           alignItems: 'center',
           gap: '4px',
           background: 'rgba(0, 0, 0, 0.05)',
           padding: '4px 6px',
-          borderRadius: '999px'
+          borderRadius: '999px',
+          zIndex: 110
         }}>
-          <a href="#how" style={{ fontSize: '13px', fontWeight: 600, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>How it works</a>
-          <a href="#comparison" style={{ fontSize: '13px', fontWeight: 600, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>Comparison</a>
-          <a href="#pricing" style={{ fontSize: '13px', fontWeight: 600, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>Pricing</a>
-          <a href="#faq" style={{ fontSize: '13px', fontWeight: 600, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>FAQ</a>
+          <a href="#how" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>How it works</a>
+          <a href="#comparison" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>Comparison</a>
+          <a href="#pricing" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>Pricing</a>
+          <a href="#faq" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>FAQ</a>
         </div>
 
-        {/* Right: Connect Button */}
-        <div>
+        {/* Right: Connect Button (Desktop Only) */}
+        <div className="desktop-nav-wallet" style={{ zIndex: 110 }}>
           <WalletMultiButton style={{
             background: '#F5601C',
             borderRadius: '999px',
@@ -146,6 +166,66 @@ export default function Home() {
             boxShadow: '0 4px 12px rgba(245, 96, 28, 0.2)'
           }} />
         </div>
+
+        {/* Mobile Hamburger Button */}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="mobile-menu-btn"
+          style={{
+            background: 'none',
+            border: 0,
+            fontSize: '28px',
+            cursor: 'pointer',
+            color: '#0A0A0A',
+            padding: '4px 8px',
+            outline: 'none',
+            zIndex: 110
+          }}
+        >
+          {isMobileMenuOpen ? '✕' : '☰'}
+        </button>
+
+        {/* Mobile Dropdown Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div className="mobile-menu-overlay" style={{
+            position: 'absolute',
+            top: '72px',
+            left: '16px',
+            right: '16px',
+            background: 'rgba(255, 255, 255, 0.98)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid #e2e8f0',
+            borderRadius: '20px',
+            padding: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '18px',
+            alignItems: 'center',
+            boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
+            zIndex: 99
+          }}>
+            <a href="#how" onClick={() => setIsMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: 700, color: '#334155', textDecoration: 'none', width: '100%', textAlign: 'center', padding: '8px 0' }}>How it works</a>
+            <a href="#comparison" onClick={() => setIsMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: 700, color: '#334155', textDecoration: 'none', width: '100%', textAlign: 'center', padding: '8px 0' }}>Comparison</a>
+            <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: 700, color: '#334155', textDecoration: 'none', width: '100%', textAlign: 'center', padding: '8px 0' }}>Pricing</a>
+            <a href="#faq" onClick={() => setIsMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: 700, color: '#334155', textDecoration: 'none', width: '100%', textAlign: 'center', padding: '8px 0' }}>FAQ</a>
+
+            <div style={{ width: '100%', height: '1px', background: '#e2e8f0', margin: '8px 0' }} />
+
+            <WalletMultiButton style={{
+              background: '#F5601C',
+              borderRadius: '999px',
+              fontWeight: 'bold',
+              fontSize: '14px',
+              padding: '0 24px',
+              height: '40px',
+              border: 0,
+              color: '#fff',
+              boxShadow: '0 4px 12px rgba(245, 96, 28, 0.2)',
+              width: '100%',
+              justifyContent: 'center'
+            }} />
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -162,11 +242,12 @@ export default function Home() {
         backgroundImage: "linear-gradient(to bottom, #FAFAF8 0%, rgba(250, 250, 248, 0) 15%, rgba(250, 250, 248, 0) 70%, #FAFAF8 85%, #FAFAF8 100%), url('/hero-bg.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center 80px',
-        backgroundRepeat: 'no-repeat'
+        backgroundRepeat: 'no-repeat',
+        zIndex: 1 // Explicitly stack below absolute nav
       }}>
         <div style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-          <h1 style={{ fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: '24px' }}>
+          <h1 style={{ fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.05, marginBottom: '24px' }}>
             One prompt.<br />
             <span style={{ color: '#F5601C' }}>Launch any AI agent.</span>
           </h1>
@@ -213,14 +294,23 @@ export default function Home() {
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ff5f56' }}></div>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ffbd2e' }}></div>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#27c93f' }}></div>
-              <span style={{ margin: '0 auto', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>kirble-console-v2.5.app</span>
+              <span style={{ margin: '0 auto', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>kirble-console-v1.0.app</span>
             </div>
             {/* Mock Console Content */}
             <div className="console-mockup-content" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', height: '360px', background: '#FAFAF8' }}>
               <div className="console-mockup-sidebar" style={{ borderRight: '1px solid #e2e8f0', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ background: '#ffedd5', color: '#c2410c', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold' }}>🤖 Agents Sandbox</div>
-                <div style={{ color: '#475569', padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }}>🎭 Reusable Personas</div>
-                <div style={{ color: '#475569', padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }}>💳 Wallet Ledger</div>
+                <div style={{ background: '#ffedd5', color: '#c2410c', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <img src="/icons/general-chat.svg" alt="" style={{ width: '24px', height: '24px' }} />
+                  Agents Sandbox
+                </div>
+                <div style={{ color: '#475569', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <img src="/icons/step-2-select-persona.svg" alt="" style={{ width: '24px', height: '24px' }} />
+                  Reusable Personas
+                </div>
+                <div style={{ color: '#475569', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <img src="/icons/capability-wallet-balance.svg" alt="" style={{ width: '24px', height: '24px' }} />
+                  Wallet Ledger
+                </div>
               </div>
               <div className="console-mockup-chat" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
@@ -228,7 +318,7 @@ export default function Home() {
                     check solana balance and search the web
                   </div>
                   <div style={{ alignSelf: 'flex-start', background: '#fff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '13px', maxWidth: '85%' }}>
-                    <strong>AGENT (MIMO-V2.5-PRO)</strong><br />
+                    <strong>AGENT (KIRBLE-V1.0-PRO)</strong><br />
                     Analyzing query... Executing tool [solana_balance]... Balance is 50.4 SOL. Executing [web_search]... Finished task!
                   </div>
                 </div>
@@ -251,17 +341,17 @@ export default function Home() {
 
           <div className="how-it-works-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
             <div style={{ padding: '24px', background: '#FAFAF8', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: '24px', marginBottom: '12px' }}>✍️</div>
+              <img src="/icons/step-1-describe-it.svg" alt="Step 1" style={{ width: '64px', height: '64px', marginBottom: '12px', display: 'block' }} />
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>1. Describe It</h3>
               <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6 }}>Describe what your agent should do in plain English. Kirble interprets your logic and maps required tools.</p>
             </div>
             <div style={{ padding: '24px', background: '#FAFAF8', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: '24px', marginBottom: '12px' }}>🎭</div>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>2. Select Persona</h3>
-              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6 }}>Choose a reusable voice/tone persona to define how your agent speaks, formats answers, and handles values.</p>
+              <img src="/icons/step-2-select-persona.svg" alt="Step 2" style={{ width: '64px', height: '64px', marginBottom: '12px', display: 'block' }} />
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>2. Review Spec & Tools</h3>
+              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6 }}>Customize name, description, system instructions, and assign custom blockchain capabilities (tools) to your agent.</p>
             </div>
             <div style={{ padding: '24px', background: '#FAFAF8', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: '24px', marginBottom: '12px' }}>🚀</div>
+              <img src="/icons/step-3-deploy-run.svg" alt="Step 3" style={{ width: '64px', height: '64px', marginBottom: '12px', display: 'block' }} />
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>3. Deploy & Run</h3>
               <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6 }}>Launch your agent live. The routing engine handles model choices, runs loops, and charges in micro-USD.</p>
             </div>
@@ -270,74 +360,131 @@ export default function Home() {
       </section>
 
       {/* Comparison & Benchmarks */}
-      <section id="comparison" style={{ padding: '80px 24px' }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-          <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Benchmarks</span>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, margin: '12px 0 48px 0', letterSpacing: '-0.02em' }}>High speed compilation. Zero waste.</h2>
+      <section id="comparison" style={{ padding: '80px 24px', background: '#FAFAF8' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
 
-          <div className="comparison-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px' }}>
-            {/* Time comparison card */}
-            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px' }}>
-              <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '24px' }}>Time to Ship Agent (Hours)</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Benchmarks</span>
+            <h2 style={{ fontSize: '38px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>High speed compilation. Zero waste.</h2>
+            <p style={{ color: '#475569', fontSize: '16px' }}>Proven engineering metrics comparing compilation loops against standard coding practices.</p>
+          </div>
+
+          <div className="benchmarks-grid" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))',
+            gap: '32px'
+          }}>
+
+            {/* Card 1: Time to Ship (Dark Theme) */}
+            <div style={{
+              background: '#0C0C0E',
+              borderRadius: '28px',
+              padding: '40px',
+              color: '#fff',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between'
+            }}>
+              
+              <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '32px', color: '#fff' }}>
+                Time to Ship Agent (Hours)
+              </h3>
+
+              {/* Rows List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+                {/* Row 1: Kirble Agent Spec */}
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
-                    <span>Kirble Agent Spec</span> <span>5 hours</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#fff' }}>
+                    <span>Kirble Agent Spec</span> <span style={{ color: '#F5601C' }}>instant</span>
                   </div>
-                  <div style={{ width: '100%', height: '12px', background: '#ffedd5', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '8%', height: '100%', background: '#F5601C' }}></div>
+                  <div style={{ width: '100%', height: '12px', background: '#1C1C1E', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '8%', height: '100%', background: '#F5601C', borderRadius: '999px' }}></div>
                   </div>
                 </div>
+
+                {/* Row 2: Traditional Dev / Code */}
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#A1A1AA' }}>
                     <span>Traditional Dev / Code</span> <span>72 hours</span>
                   </div>
-                  <div style={{ width: '100%', height: '12px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '90%', height: '100%', background: '#94a3b8' }}></div>
+                  <div style={{ width: '100%', height: '12px', background: '#1C1C1E', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '90%', height: '100%', background: '#3A3A3C', borderRadius: '999px' }}></div>
                   </div>
                 </div>
+
+                {/* Row 3: Visual Builder Tools */}
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#A1A1AA' }}>
                     <span>Visual Builder Tools</span> <span>48 hours</span>
                   </div>
-                  <div style={{ width: '100%', height: '12px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '60%', height: '100%', background: '#94a3b8' }}></div>
+                  <div style={{ width: '100%', height: '12px', background: '#1C1C1E', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '60%', height: '100%', background: '#3A3A3C', borderRadius: '999px' }}></div>
                   </div>
                 </div>
+
               </div>
             </div>
 
-            {/* Cost comparison card */}
-            <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px' }}>
-              <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '24px' }}>Cost for 1,000 runs (USD)</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Card 2: Cost to Ship (Light Warm Cream Theme) */}
+            <div style={{
+              background: '#F7F6F0',
+              borderRadius: '28px',
+              padding: '40px',
+              color: '#0A0A0A',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.05)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              border: '2px solid #F5601C'
+            }}>
+
+              <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '32px', color: '#0A0A0A' }}>
+                Cost for 1,000 runs (USD)
+              </h3>
+
+              {/* Horizontal Rows List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+                {/* Row 1: Kirble Compiler */}
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
-                    <span>Kirble (BYOK / Proxy)</span> <span>$0.00</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', color: '#0A0A0A' }}>
+                    <span>Kirble Compiler</span> <span style={{ color: '#F5601C' }}>$0.00</span>
                   </div>
-                  <div style={{ width: '100%', height: '12px', background: '#ffedd5', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '2%', height: '100%', background: '#F5601C' }}></div>
+                  <div style={{ fontSize: '11px', color: '#F5601C', fontWeight: 'bold', marginBottom: '8px' }}>
+                    *must hold 50,000 $KIRBLE
+                  </div>
+                  <div style={{ width: '100%', height: '12px', background: '#EFE4D9', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '2%', height: '100%', background: '#F5601C', borderRadius: '999px' }}></div>
                   </div>
                 </div>
+
+                {/* Row 2: Standard AI SaaS Tier */}
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#475569' }}>
                     <span>Standard AI SaaS Tier</span> <span>$150.00</span>
                   </div>
-                  <div style={{ width: '100%', height: '12px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '75%', height: '100%', background: '#94a3b8' }}></div>
+                  <div style={{ width: '100%', height: '12px', background: '#EFE4D9', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '75%', height: '100%', background: '#94a3b8', borderRadius: '999px' }}></div>
                   </div>
                 </div>
+
+                {/* Row 3: No-Code Platforms */}
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#475569' }}>
                     <span>No-Code Platforms</span> <span>$220.00</span>
                   </div>
-                  <div style={{ width: '100%', height: '12px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '95%', height: '100%', background: '#94a3b8' }}></div>
+                  <div style={{ width: '100%', height: '12px', background: '#EFE4D9', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '95%', height: '100%', background: '#94a3b8', borderRadius: '999px' }}></div>
                   </div>
                 </div>
+
               </div>
             </div>
+
           </div>
+
         </div>
       </section>
 
@@ -345,9 +492,9 @@ export default function Home() {
       <section id="pricing" style={{ padding: '80px 24px' }}>
         <div style={{ maxWidth: '960px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Flexible plans</span>
-            <h2 style={{ fontSize: '38px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>Pricing built for scale.</h2>
-            <p style={{ color: '#475569' }}>Pay only for what you run, or choose unlimited access.</p>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Flexible Access</span>
+            <h2 style={{ fontSize: '38px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>Access built for compilers.</h2>
+            <p style={{ color: '#475569' }}>Hold $KIRBLE tokens for free agent compilation, or subscribe to Pro for managed cloud loops.</p>
           </div>
 
           <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '32px' }}>
@@ -374,22 +521,22 @@ export default function Home() {
                   <h3 style={{ fontSize: '20px', fontWeight: 'bold' }}>Pro Tier</h3>
                   <span style={{ background: '#F5601C', fontSize: '11px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '999px', color: '#fff' }}>POPULAR</span>
                 </div>
-                <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>For active autonomous loops.</p>
+                <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>
+                  For active autonomous loops.
+                </p>
 
-                {/* Yearly Toggle */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#262626', padding: '4px', borderRadius: '999px', width: 'fit-content', marginBottom: '24px' }}>
-                  <button onClick={() => setIsYearly(false)} style={{ background: !isYearly ? '#404040' : 'transparent', color: '#fff', border: 0, padding: '4px 12px', borderRadius: '999px', fontSize: '12px', cursor: 'pointer' }}>Monthly</button>
-                  <button onClick={() => setIsYearly(true)} style={{ background: isYearly ? '#404040' : 'transparent', color: '#fff', border: 0, padding: '4px 12px', borderRadius: '999px', fontSize: '12px', cursor: 'pointer' }}>Yearly (27% Off)</button>
+                <div style={{ fontSize: '26px', fontWeight: '800', color: '#F5601C', marginBottom: '2px', letterSpacing: '-0.02em' }}>
+                  Hold 50,000 $KIRBLE
                 </div>
-
-                <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '24px' }}>
-                  {isYearly ? '$7.25' : '$9.97'} <span style={{ fontSize: '16px', fontWeight: 'normal', color: '#94a3b8' }}>/ month</span>
+                <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 'bold', marginBottom: '24px' }}>
+                  for unlimited active agents
                 </div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#cbd5e1' }}>
+                  <li>✓ Unlimited active agents via 50,000 $KIRBLE hold</li>
                   <li>✓ 24h+ Autonomous agentic loops</li>
                   <li>✓ 1-click cloud ship</li>
-                  <li>✓ BYO API keys / no markup credits</li>
-                  <li>✓ Access to mimo-v2.5-pro models</li>
+                  <li>✓ Zero-fee compilation loops</li>
+                  <li>✓ Access to kirble-v1.0-pro models</li>
                   <li>✓ Priority custom catalog tools</li>
                 </ul>
               </div>
@@ -397,21 +544,33 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Lifetime Card */}
-          <div className="lifetime-card" style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', marginTop: '40px' }}>
+          {/* Token Buy Card */}
+          <div className="token-buy-card" style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', marginTop: '40px' }}>
             <div style={{ textAlign: 'left', flex: 1 }}>
-              <span style={{ background: '#c2410c', fontSize: '11px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '999px', marginRight: '10px' }}>LIMITED DEAL</span>
-              <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Lifetime Access</h3>
-              <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>Pay once, run forever with your own API endpoints. No recurring fees.</p>
-
-              {/* Progress Step */}
-              <div style={{ display: 'flex', gap: '12px', marginTop: '20px', fontSize: '12px' }}>
-                <span style={{ color: '#64748b', textDecoration: 'line-through' }}>$67 sold out</span>
-                <span style={{ color: '#F5601C', fontWeight: 'bold' }}>$97 active (43 left)</span>
-                <span style={{ color: '#64748b' }}>$125 next stage</span>
-              </div>
+              <span style={{ background: '#F5601C', fontSize: '11px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '999px', marginRight: '10px' }}>LAUNCH OFFER</span>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Get $KIRBLE Token</h3>
+              <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>Hold 50,000 $KIRBLE to unlock unlimited compiler access, live cloud launches, and zero-fee agent execution.</p>
             </div>
-            <button style={{ background: '#F5601C', color: '#fff', border: 0, padding: '16px 32px', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(245, 96, 28, 0.3)' }}>Get Lifetime for $97</button>
+            <a 
+              href="https://pump.fun" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ 
+                background: '#F5601C', 
+                color: '#fff', 
+                textDecoration: 'none',
+                padding: '16px 32px', 
+                borderRadius: '8px', 
+                fontWeight: 'bold', 
+                fontSize: '16px', 
+                cursor: 'pointer', 
+                boxShadow: '0 8px 20px rgba(245, 96, 28, 0.3)',
+                display: 'inline-block',
+                textAlign: 'center'
+              }}
+            >
+              Buy on Pump.fun 💊
+            </a>
           </div>
         </div>
       </section>
@@ -420,8 +579,8 @@ export default function Home() {
       <section id="faq" style={{ padding: '80px 24px' }}>
         <div style={{ maxWidth: '760px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>FAQ</span>
-            <h2 style={{ fontSize: '36px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>Common questions.</h2>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Got Questions?</span>
+            <h2 style={{ fontSize: '36px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>Everything you need to know.</h2>
           </div>
 
           <div style={{ borderTop: '1px solid #e2e8f0' }}>
@@ -473,34 +632,104 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer style={{ padding: '80px 24px 40px 24px', background: '#fff', borderTop: '1px solid #e2e8f0' }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '48px', marginBottom: '64px' }}>
-            <div>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '18px', marginBottom: '16px' }}>
+      <footer style={{ padding: '80px 24px 40px 24px', background: '#FAFAF8', borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr', gap: '48px', marginBottom: '64px' }}>
+
+            {/* Left Brand Column */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '20px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800', fontSize: '24px', color: '#0A0A0A', letterSpacing: '-0.03em' }}>
                 <LogoIcon />
                 Kirble
               </span>
-              <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6, maxWidth: '280px' }}>
-                Any AI agent you can describe. Give it a character and launch it on the best models — no code.
+              <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.05, color: '#0A0A0A', margin: 0, maxWidth: '420px' }}>
+                Ship agents without burning credits.
+              </h2>
+              <p style={{ color: '#475569', fontSize: '15px', lineHeight: 1.5, maxWidth: '380px', margin: 0 }}>
+                Unlock autonomous agentic dev powered by $KIRBLE compilation loops.
               </p>
+
+              {/* Social Buttons */}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                <a href="#" style={{
+                  width: '40px',
+                  height: '40px',
+                  background: '#fff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  display: 'grid',
+                  placeItems: 'center',
+                  color: '#0A0A0A',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                  transition: 'all 0.2s'
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </a>
+                <a href="#" style={{
+                  width: '40px',
+                  height: '40px',
+                  background: '#fff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  display: 'grid',
+                  placeItems: 'center',
+                  color: '#0A0A0A',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                  transition: 'all 0.2s'
+                }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                  </svg>
+                </a>
+              </div>
             </div>
+
+            {/* Link Columns */}
             <div>
-              <h4 style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', color: '#F5601C', marginBottom: '16px' }}>Product</h4>
-              <a href="#how" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>How it works</a>
-              <a href="#comparison" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>Comparison</a>
-              <a href="#pricing" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>Pricing</a>
+              <h4 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'lowercase', color: '#F5601C', marginBottom: '20px', letterSpacing: '0.05em' }}>product</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <a href="#how" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Generate</a>
+                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Blueprints</a>
+                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Skills</a>
+                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Gallery</a>
+                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Upgrade</a>
+              </div>
             </div>
+
             <div>
-              <h4 style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', color: '#F5601C', marginBottom: '16px' }}>Legal</h4>
-              <a href="#" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>Privacy Policy</a>
-              <a href="#" style={{ display: 'block', fontSize: '14px', color: '#475569', padding: '6px 0' }}>Terms of Service</a>
+              <h4 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'lowercase', color: '#F5601C', marginBottom: '20px', letterSpacing: '0.05em' }}>legal</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Privacy Policy</a>
+                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>EULA</a>
+              </div>
             </div>
+
+            <div>
+              <h4 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'lowercase', color: '#F5601C', marginBottom: '20px', letterSpacing: '0.05em' }}>more</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>CreatorHunter</a>
+                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Clockout</a>
+              </div>
+            </div>
+
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '24px', fontSize: '13px', color: '#64748b', flexWrap: 'wrap', gap: '16px' }}>
+          {/* Bottom Copyright & Credits */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderTop: '1px solid #e2e8f0',
+            paddingTop: '24px',
+            fontSize: '13px',
+            color: '#64748b',
+            flexWrap: 'wrap',
+            gap: '16px'
+          }}>
             <span>© 2026 Kirble. All rights reserved.</span>
-            <span>designed by <span style={{ color: '#F5601C', fontWeight: 'bold' }}>Kirble Architect</span></span>
+            <span>powered by <span style={{ color: '#F5601C', fontWeight: 'bold' }}>Kirble Autonomous Compiler</span></span>
           </div>
         </div>
       </footer>

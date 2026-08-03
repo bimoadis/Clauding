@@ -1,0 +1,12 @@
+<svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+  <rect x="2" y="2" width="136" height="136" rx="26" fill="#FCEEE0"/>
+  <g transform="translate(20,20)">
+
+    <path d="M14 30C14 24 19 19 25 19H75C81 19 86 24 86 30V32H25C19 32 14 37 14 43V70C14 76 19 81 25 81H75C81 81 86 76 86 70V38C86 35 84 33 81 33"
+          fill="#2B2A28"/>
+    <path d="M14 43V70C14 76 19 81 25 81H75C81 81 86 76 86 70V44C86 41 84 39 81 39H25C19 39 14 44 14 50"
+          fill="#1E1D1C"/>
+    <circle cx="68" cy="61" r="5.5" fill="#F0801E"/>
+
+  </g>
+</svg>

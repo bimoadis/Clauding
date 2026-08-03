@@ -1,0 +1,11 @@
+<svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+  <rect x="2" y="2" width="136" height="136" rx="26" fill="#FCEEE0"/>
+  <g transform="translate(20,20)">
+
+    <path d="M50 8L86 26V70L50 88L14 70V26L50 8Z" fill="#1E1D1C" stroke="#2B2A28" stroke-width="2"/>
+    <path d="M14 26L50 44L86 26" fill="none" stroke="#FCEEE0" stroke-width="2.5"/>
+    <path d="M50 44V88" stroke="#FCEEE0" stroke-width="2.5"/>
+    <path d="M50 44L86 26V70L50 88V44Z" fill="#F0801E"/>
+
+  </g>
+</svg>

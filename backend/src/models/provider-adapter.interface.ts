@@ -14,6 +14,7 @@ export interface NormalizedChatRequest {
   model: string;
   messages: Message[];
   tools?: ToolDefinition[];
+  allowedTools?: string[];
   temperature?: number;
   maxTokens?: number;
 }

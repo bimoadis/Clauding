@@ -26,7 +26,17 @@ export class AnthropicAdapter implements ProviderAdapter {
     if (lowerPrompt.includes('solana') || lowerPrompt.includes('balance')) {
       matchedTools.push('solana_balance');
     }
-    if (lowerPrompt.includes('price') || lowerPrompt.includes('dex')) {
+    if (
+      lowerPrompt.includes('price') ||
+      lowerPrompt.includes('dex') ||
+      lowerPrompt.includes('scan') ||
+      lowerPrompt.includes('ca') ||
+      lowerPrompt.includes('address') ||
+      lowerPrompt.includes('contract') ||
+      lowerPrompt.includes('token') ||
+      lowerPrompt.includes('mint')
+    ) {
+      matchedTools.push('token_metadata');
       matchedTools.push('dex_token_price');
     }
     if (lowerPrompt.includes('trending') || lowerPrompt.includes('coingecko')) {
@@ -47,6 +57,10 @@ export class AnthropicAdapter implements ProviderAdapter {
 
     const dataInjections: string[] = [];
     for (const toolName of matchedTools) {
+      if (req.allowedTools && !req.allowedTools.includes(toolName)) {
+        dataInjections.push(`- Tool [${toolName}] blocked: Execution of this tool is not allowed in the user's agent specification review.`);
+        continue;
+      }
       const tool = toolCatalog.find(t => t.name === toolName);
       if (tool) {
         try {
@@ -64,9 +78,12 @@ export class AnthropicAdapter implements ProviderAdapter {
     }
 
     const originalSystem = req.messages.find(m => m.role === 'system')?.content || '';
-    const finalSystem = dataInjections.length > 0
-      ? `${originalSystem}\n\n[Layer 3: Session Context - Real-time Data Access]\nThe user requested info requiring live data. The backend automatically ran these catalog tools and fetched this live data:\n${dataInjections.join('\n\n')}\nIntegrate this live data and answer the user prompt accurately.`
+    const scopeSystem = req.allowedTools && req.allowedTools.length > 0
+      ? `${originalSystem}\n\n[Strict Scope Guardrail]\nYou are restricted ONLY to the following allowed capabilities (tools): ${req.allowedTools.join(', ')}.\nYou must strictly refuse to answer any questions, write code (such as HTML, Python, JS), or discuss topics that are not directly related to these allowed capabilities.\nIf the user asks about anything else, politely decline and state that you are configured only as a specialized agent with capabilities: ${req.allowedTools.join(', ')}.`
       : originalSystem;
+    const finalSystem = dataInjections.length > 0
+      ? `${scopeSystem}\n\n[Layer 3: Session Context - Real-time Data Access]\nThe user requested info requiring live data. The backend automatically ran these catalog tools and fetched this live data:\n${dataInjections.join('\n\n')}\nIntegrate this live data and answer the user prompt accurately.`
+      : scopeSystem;
 
     console.log(`[DEBUG] Invoking custom Anthropic API via endpoint: ${endpoint} (model: ${activeModel})`);
 
@@ -158,6 +175,14 @@ export class AnthropicAdapter implements ProviderAdapter {
       // 2. Execute matching tools and stream output
       const toolResults: string[] = [];
       for (const toolName of matchedTools) {
+        if (req.allowedTools && !req.allowedTools.includes(toolName)) {
+          let guardrailLog = `⚠️ [GUARDRAIL] Eksekusi tool [${toolName}] diblokir karena tool ini tidak diizinkan dalam review spesifikasi agen.\n\n`;
+          for (const char of guardrailLog) {
+            yield { delta: char };
+            await new Promise(resolve => setTimeout(resolve, 5));
+          }
+          continue;
+        }
         const tool = toolCatalog.find(t => t.name === toolName);
         if (tool) {
           let execLog = `⚙️ Action: Executing tool [${toolName}]...\n`;
@@ -194,7 +219,9 @@ export class AnthropicAdapter implements ProviderAdapter {
 
       // 3. Stream final synthesis
       let finalSynthesis = `📝 Final Synthesis:\n`;
-      if (matchedTools.length > 0) {
+      if (req.allowedTools && req.allowedTools.length > 0 && matchedTools.length === 0) {
+        finalSynthesis += `Maaf, saya dikonfigurasi sebagai agen khusus dengan keahlian: [${req.allowedTools.join(', ')}]. Saya tidak dapat menjawab pertanyaan atau menulis kode di luar keahlian tersebut.`;
+      } else if (matchedTools.length > 0) {
         finalSynthesis += `Based on the active tool results above, the agent confirms all operations completed successfully and the ledger records have been updated accordingly.`;
       } else {
         finalSynthesis += `Here is the response to your message: "${userPrompt}"`;
