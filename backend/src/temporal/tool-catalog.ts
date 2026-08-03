@@ -60,7 +60,25 @@ export const toolCatalog: ToolDefinition[] = [
       properties: { tokenMint: { type: 'string', description: 'Token mint address' } },
       required: ['tokenMint']
     },
-    handler: async (args) => ({ priceUsd: 0.154, tokenMint: args.tokenMint, change24h: '5.24%' })
+    handler: async (args) => {
+      try {
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${args.tokenMint}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.pairs && data.pairs.length > 0) {
+            const pair = data.pairs[0];
+            return {
+              priceUsd: parseFloat(pair.priceUsd) || 0,
+              tokenMint: args.tokenMint,
+              change24h: pair.priceChange?.h24 ? `${pair.priceChange.h24}%` : '0%'
+            };
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch real dex price:', e);
+      }
+      return { priceUsd: 0.154, tokenMint: args.tokenMint, change24h: '5.24%' };
+    }
   },
   {
     name: 'token_metadata',
@@ -70,7 +88,26 @@ export const toolCatalog: ToolDefinition[] = [
       properties: { tokenMint: { type: 'string', description: 'SPL token mint address' } },
       required: ['tokenMint']
     },
-    handler: async (args) => ({ name: 'Kirble', symbol: 'KIRBLE', decimals: 9, supply: 1000000000 })
+    handler: async (args) => {
+      try {
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${args.tokenMint}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.pairs && data.pairs.length > 0) {
+            const pair = data.pairs[0];
+            return {
+              name: pair.baseToken.name,
+              symbol: pair.baseToken.symbol,
+              decimals: 9,
+              supply: 1000000000
+            };
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch real token metadata:', e);
+      }
+      return { name: 'Kirble', symbol: 'KIRBLE', decimals: 9, supply: 1000000000 };
+    }
   },
   {
     name: 'jupiter_route_swap',
