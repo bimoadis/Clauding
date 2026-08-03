@@ -1420,8 +1420,7 @@ function DashboardContent() {
             {/* Sandbox Chat Playground */}
             <section className="responsive-chat-window" style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'transparent', padding: '0 24px 24px' }}>
               <div style={{
-                height: '550px',
-                maxHeight: '550px',
+                flex: 1,
                 background: 'rgba(255, 255, 255, 0.35)',
                 backdropFilter: 'blur(12px)',
                 border: '1px solid rgba(255, 255, 255, 0.45)',
