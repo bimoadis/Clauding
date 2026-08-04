@@ -58,6 +58,11 @@ export class OpenAIAdapter implements ProviderAdapter {
       }
     }
 
+    // Extract Solana address (CA) from prompt if present
+    const solanaAddressRegex = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g;
+    const addresses = userPrompt.match(solanaAddressRegex) || [];
+    const extractedCA = addresses[0] || '';
+
     const dataInjections: string[] = [];
     for (const toolName of matchedTools) {
       if (req.allowedTools && !req.allowedTools.includes(toolName)) {
@@ -69,7 +74,10 @@ export class OpenAIAdapter implements ProviderAdapter {
         try {
           const res = await tool.handler({
             query: userPrompt,
-            wallet: req.wallet || '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
+            wallet: req.wallet || extractedCA || '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
+            tokenMint: extractedCA || '',
+            account: extractedCA || '',
+            slot: parseInt(userPrompt.match(/\d+/)?.[0] || '0') || 0,
             code: '',
             text: ''
           });
