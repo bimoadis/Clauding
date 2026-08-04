@@ -70,6 +70,9 @@ let API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 if (API_BASE_URL && !API_BASE_URL.startsWith('http://') && !API_BASE_URL.startsWith('https://')) {
   API_BASE_URL = `https://${API_BASE_URL}`;
 }
+if (API_BASE_URL.endsWith('/')) {
+  API_BASE_URL = API_BASE_URL.slice(0, -1);
+}
 
 // Logo / Mascot mini icon
 const LogoIconMini: React.FC = () => (
