@@ -141,7 +141,9 @@ export default function Home() {
           display: 'flex',
           alignItems: 'center',
           gap: '4px',
-          background: 'rgba(0, 0, 0, 0.05)',
+          background: 'rgba(255, 255, 255, 0.45)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.5)',
           padding: '4px 6px',
           borderRadius: '999px',
           zIndex: 110
@@ -253,7 +255,7 @@ export default function Home() {
           </h1>
 
           <p style={{ fontSize: 'clamp(16px, 1.8vw, 20px)', color: '#475569', maxWidth: '600px', margin: '0 auto 32px auto', lineHeight: 1.5 }}>
-            describe what you want, give it a character, and launch an agent powered by the best AI models. no code, no setup, just ship.
+            describe what you want and launch an agent powered by the best AI models. no code, no setup, just ship.
           </p>
 
           {/* CTA Link to Dashboard */}
@@ -274,7 +276,16 @@ export default function Home() {
           {/* Model Badges */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', opacity: 0.8, marginBottom: '32px' }}>
             {['Claude 3.5', 'GPT-4o', 'Gemini Pro', 'Grok 2', 'Llama 3'].map((m) => (
-              <span key={m} style={{ fontSize: '12px', fontWeight: 'bold', background: '#fff', padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>{m}</span>
+              <span key={m} style={{
+                fontSize: '12px',
+                fontWeight: 'bold',
+                background: 'rgba(255, 255, 255, 0.45)',
+                backdropFilter: 'blur(8px)',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.5)',
+                color: '#334155'
+              }}>{m}</span>
             ))}
           </div>
 
@@ -282,24 +293,25 @@ export default function Home() {
           <div style={{
             width: '100%',
             maxWidth: '960px',
-            background: '#fff',
-            border: '1px solid #e2e8f0',
+            background: 'rgba(255, 255, 255, 0.35)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255, 255, 255, 0.45)',
             borderRadius: '16px',
             boxShadow: '0 24px 60px rgba(0, 0, 0, 0.05)',
             overflow: 'hidden',
             textAlign: 'left'
           }}>
             {/* macOS window title bar */}
-            <div style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.4)', borderBottom: '1px solid rgba(255, 255, 255, 0.45)', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ff5f56' }}></div>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ffbd2e' }}></div>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#27c93f' }}></div>
               <span style={{ margin: '0 auto', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>kirble-console-v1.0.app</span>
             </div>
             {/* Mock Console Content */}
-            <div className="console-mockup-content" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', height: '360px', background: '#FAFAF8' }}>
-              <div className="console-mockup-sidebar" style={{ borderRight: '1px solid #e2e8f0', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ background: '#ffedd5', color: '#c2410c', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="console-mockup-content" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', height: '360px', background: 'rgba(255, 255, 255, 0.1)' }}>
+              <div className="console-mockup-sidebar" style={{ borderRight: '1px solid rgba(255, 255, 255, 0.45)', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ background: 'rgba(254, 237, 213, 0.5)', color: '#c2410c', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <img src="/icons/general-chat.svg" alt="" style={{ width: '24px', height: '24px' }} />
                   Agents Sandbox
                 </div>
@@ -317,13 +329,13 @@ export default function Home() {
                   <div style={{ alignSelf: 'flex-end', background: '#F5601C', color: '#fff', padding: '10px 16px', borderRadius: '12px', fontSize: '13px' }}>
                     check solana balance and search the web
                   </div>
-                  <div style={{ alignSelf: 'flex-start', background: '#fff', border: '1px solid #e2e8f0', padding: '12px 16px', borderRadius: '12px', fontSize: '13px', maxWidth: '85%' }}>
+                  <div style={{ alignSelf: 'flex-start', background: 'rgba(255, 255, 255, 0.5)', border: '1px solid rgba(255, 255, 255, 0.45)', padding: '12px 16px', borderRadius: '12px', fontSize: '13px', maxWidth: '85%' }}>
                     <strong>AGENT (KIRBLE-V1.0-PRO)</strong><br />
                     Analyzing query... Executing tool [solana_balance]... Balance is 50.4 SOL. Executing [web_search]... Finished task!
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
-                  <input disabled placeholder="Describe a task or compile a new instruction..." style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff' }} />
+                  <input disabled placeholder="Describe a task or compile a new instruction..." style={{ flex: 1, padding: '10px', border: '1px solid rgba(255, 255, 255, 0.45)', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.5)' }} />
                   <button disabled style={{ background: '#0A0A0A', color: '#fff', border: 0, padding: '0 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold' }}>Send</button>
                 </div>
               </div>
@@ -386,7 +398,7 @@ export default function Home() {
               flexDirection: 'column',
               justifyContent: 'space-between'
             }}>
-              
+
               <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '32px', color: '#fff' }}>
                 Time to Ship Agent (Hours)
               </h3>
@@ -551,19 +563,19 @@ export default function Home() {
               <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Get $KIRBLE Token</h3>
               <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>Hold 50,000 $KIRBLE to unlock unlimited compiler access, live cloud launches, and zero-fee agent execution.</p>
             </div>
-            <a 
-              href="https://pump.fun" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              style={{ 
-                background: '#F5601C', 
-                color: '#fff', 
+            <a
+              href="https://pump.fun"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                background: '#F5601C',
+                color: '#fff',
                 textDecoration: 'none',
-                padding: '16px 32px', 
-                borderRadius: '8px', 
-                fontWeight: 'bold', 
-                fontSize: '16px', 
-                cursor: 'pointer', 
+                padding: '16px 32px',
+                borderRadius: '8px',
+                fontWeight: 'bold',
+                fontSize: '16px',
+                cursor: 'pointer',
                 boxShadow: '0 8px 20px rgba(245, 96, 28, 0.3)',
                 display: 'inline-block',
                 textAlign: 'center'

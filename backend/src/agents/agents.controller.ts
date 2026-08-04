@@ -1,7 +1,7 @@
-import { Controller, Post, Body, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, Delete } from '@nestjs/common';
 import { db } from '../db/db';
-import { users, agents, agentVersions } from '../db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { users, agents, agentVersions, threads } from '../db/schema';
+import { eq, desc, and } from 'drizzle-orm';
 import { toolCatalog } from '../temporal/tool-catalog';
 
 export interface AgentSpec {
@@ -223,6 +223,45 @@ export class AgentsController {
     } catch (err) {
       console.error('Failed to fetch agents list:', err);
       return [];
+    }
+  }
+
+  @Delete('delete')
+  public async deleteAgent(
+    @Query('agentId') agentId: string,
+    @Query('wallet') wallet: string
+  ) {
+    if (!agentId || !wallet) {
+      return { success: false, error: 'agentId and wallet are required' };
+    }
+    try {
+      // Find user
+      const userRecord = await db.select().from(users).where(eq(users.wallet, wallet)).limit(1).then(r => r[0]);
+      if (!userRecord) {
+        return { success: false, error: 'User not found' };
+      }
+
+      // Find agent to make sure owner matches
+      const agentRecord = await db.select().from(agents)
+        .where(and(eq(agents.id, agentId), eq(agents.ownerId, userRecord.id)))
+        .limit(1)
+        .then(r => r[0]);
+
+      if (!agentRecord) {
+        return { success: false, error: 'Agent not found or unauthorized' };
+      }
+
+      // Delete all threads belonging to this agent (which cascades to messages)
+      await db.delete(threads).where(eq(threads.agentId, agentId));
+
+      // Delete the agent itself (which cascades to agent_versions and memory_chunks)
+      await db.delete(agents).where(eq(agents.id, agentId));
+
+      console.log(`[DB] Agent ${agentId} and its associated chat threads were deleted.`);
+      return { success: true };
+    } catch (err) {
+      console.error('Failed to delete agent:', err);
+      return { success: false, error: err.message };
     }
   }
 }

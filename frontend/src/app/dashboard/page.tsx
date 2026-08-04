@@ -1316,11 +1316,98 @@ function DashboardContent() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
                   <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Active Agent</span>
-                  <div style={{ background: 'rgba(255, 255, 255, 0.4)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.45)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.4)',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255, 255, 255, 0.45)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
                     <span style={{ fontSize: '24px' }}>🤖</span>
                     <div>
                       <strong style={{ display: 'block', fontSize: '14px', color: '#0A0A0A' }}>{name}</strong>
-                      <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 600 }}>● Running Live</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 600 }}>● Running Live</span>
+                        <button
+                          onClick={async () => {
+                            if (!selectedAgentId) return;
+                            if (!confirm(`Are you sure you want to delete agent "${name}" and all of its chat logs?`)) return;
+
+                            try {
+                              const res = await fetch(`http://localhost:3001/v1/agents/delete?agentId=${selectedAgentId}&wallet=${publicKey!.toBase58()}`, {
+                                method: 'DELETE'
+                              });
+                              if (res.ok) {
+                                const data = await res.json();
+                                if (data.success) {
+                                  setModalConfig({
+                                    isOpen: true,
+                                    title: 'Agent Deleted',
+                                    message: `Successfully deleted agent "${name}" and its chat history.`,
+                                    type: 'success'
+                                  });
+                                  // Reload agent list
+                                  const listRes = await fetch(`http://localhost:3001/v1/agents/list?wallet=${publicKey!.toBase58()}`);
+                                  if (listRes.ok) {
+                                    const listData = await listRes.json();
+                                    setMyAgents(listData);
+                                    if (listData.length > 0) {
+                                      const latestAgent = listData[listData.length - 1];
+                                      setSelectedAgentId(latestAgent.id);
+                                      setName(latestAgent.name);
+                                      if (latestAgent.spec) {
+                                        setDescription(latestAgent.spec.description || '');
+                                        setInstructions(latestAgent.spec.instructions || '');
+                                        setTools(latestAgent.spec.tools || []);
+                                        if (latestAgent.spec.modelPolicy && latestAgent.spec.modelPolicy.costTier) {
+                                          setCostTier(latestAgent.spec.modelPolicy.costTier);
+                                        }
+                                      }
+                                      // Fetch history for the new selected agent
+                                      const histRes = await fetch(`http://localhost:3001/v1/chat/history?wallet=${publicKey!.toBase58()}&agentId=${latestAgent.id}`);
+                                      if (histRes.ok) {
+                                        const histData = await histRes.json();
+                                        setChatLog(histData.length > 0 ? histData : [{ role: 'assistant', content: `🤖 Switched to agent **${latestAgent.name}**. Ready for instructions.` }]);
+                                      }
+                                    } else {
+                                      // No agents left, reset to prompt wizard step!
+                                      setSelectedAgentId('');
+                                      setName('');
+                                      setChatLog([]);
+                                      setStep('prompt');
+                                    }
+                                  }
+                                } else {
+                                  alert('Failed to delete: ' + (data.error || 'Unknown error'));
+                                }
+                              }
+                            } catch (e) {
+                              console.error('Failed to delete agent:', e);
+                            }
+                          }}
+                          title="Delete Current Agent"
+                          style={{
+                            background: 'transparent',
+                            border: 0,
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                            padding: '2px 4px',
+                            borderRadius: '4px',
+                            color: '#dc2626',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            outline: 'none',
+                            transition: 'background 0.2s'
+                          }}
+                          onMouseOver={(e) => e.currentTarget.style.background = 'rgba(220, 38, 38, 0.15)'}
+                          onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
