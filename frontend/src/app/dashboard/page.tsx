@@ -196,6 +196,15 @@ function DashboardContent() {
     type: 'info'
   });
 
+  // Sandbox Chat viewport ref for auto-scrolling
+  const chatViewportRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatViewportRef.current) {
+      chatViewportRef.current.scrollTop = chatViewportRef.current.scrollHeight;
+    }
+  }, [chatLog, currentResponse, isStreaming]);
+
   useEffect(() => {
     setHasMounted(true);
     console.log('Console mounted. Initializing dashboard components.');
@@ -1528,7 +1537,7 @@ function DashboardContent() {
               }}>
 
                 {/* Chat window viewport */}
-                <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div ref={chatViewportRef} style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {chatLog.map((log, idx) => (
                     <div key={idx} style={{ alignSelf: log.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
                       <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '4px', textAlign: log.role === 'user' ? 'right' : 'left' }}>
