@@ -39,5 +39,13 @@
     "drizzle-kit": "^0.23.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
-  }
+  },
+  "onlyBuiltDependencies": [
+    "@nestjs/core",
+    "@swc/core",
+    "bufferutil",
+    "esbuild",
+    "protobufjs",
+    "utf-8-validate"
+  ]
 }

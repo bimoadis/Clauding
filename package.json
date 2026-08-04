@@ -6,5 +6,13 @@
     "dev:frontend": "pnpm --filter frontend dev",
     "build:backend": "pnpm --filter backend build",
     "build:frontend": "pnpm --filter frontend build"
-  }
+  },
+  "onlyBuiltDependencies": [
+    "@nestjs/core",
+    "@swc/core",
+    "bufferutil",
+    "esbuild",
+    "protobufjs",
+    "utf-8-validate"
+  ]
 }
