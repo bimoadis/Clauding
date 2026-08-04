@@ -23,36 +23,35 @@ export class AnthropicAdapter implements ProviderAdapter {
     const lowerPrompt = userPrompt.toLowerCase();
     const matchedTools: string[] = [];
 
-    if (lowerPrompt.includes('solana') || lowerPrompt.includes('balance')) {
-      matchedTools.push('solana_balance');
-    }
-    if (
-      lowerPrompt.includes('price') ||
-      lowerPrompt.includes('dex') ||
-      lowerPrompt.includes('scan') ||
-      lowerPrompt.includes('ca') ||
-      lowerPrompt.includes('address') ||
-      lowerPrompt.includes('contract') ||
-      lowerPrompt.includes('token') ||
-      lowerPrompt.includes('mint')
-    ) {
-      matchedTools.push('token_metadata');
-      matchedTools.push('dex_token_price');
-    }
-    if (lowerPrompt.includes('trending') || lowerPrompt.includes('coingecko')) {
-      matchedTools.push('coingecko_trending');
-    }
-    if (
-      lowerPrompt.includes('search') ||
-      lowerPrompt.includes('web') ||
-      lowerPrompt.includes('http') ||
-      lowerPrompt.includes('internet') ||
-      lowerPrompt.includes('online') ||
-      lowerPrompt.includes('google') ||
-      lowerPrompt.includes('cek') ||
-      lowerPrompt.includes('cari')
-    ) {
-      matchedTools.push('web_search');
+    const keywordMappings: { [key: string]: string[] } = {
+      solana_balance: ['saldo', 'balance', 'sol', 'wallet', 'dompet', 'cek', 'check'],
+      spl_token_balance: ['spl', 'token', 'balance', 'saldo', 'swap', 'kirim', 'send', 'check'],
+      solana_transaction_history: ['history', 'riwayat', 'transaksi', 'transaction', 'transfer', 'swaps', 'kirim'],
+      solana_sign_message: ['sign', 'tanda', 'verify', 'verifikasi', 'message', 'pesan', 'signature'],
+      solana_validators: ['validator', 'validators', 'status', 'performance'],
+      solana_block_details: ['block', 'slot', 'hash', 'details', 'detail'],
+      solana_airdrop_request: ['airdrop', 'faucet', 'sol', 'gratis', 'free'],
+      solana_priority_fees: ['fee', 'fees', 'priority', 'biaya', 'gas', 'congestion', 'price'],
+      token_metadata: ['metadata', 'ca', 'contract', 'address', 'analisis', 'analyze', 'token', 'symbol', 'nama', 'name', 'scan', 'kontrak'],
+      dex_token_price: ['price', 'harga', 'dex', 'liquidity', 'likuiditas', 'ca', 'contract', 'swap', 'pool', 'scan', 'kontrak'],
+      liquidity_pool_depth: ['liquidity', 'likuiditas', 'pool', 'depth', 'lock', 'burn', 'kunci', 'ca', 'contract', 'scan', 'kontrak'],
+      web_search: ['search', 'web', 'http', 'internet', 'online', 'google', 'cek', 'cari']
+    };
+
+    if (req.allowedTools) {
+      for (const allowedTool of req.allowedTools) {
+        if (lowerPrompt.includes(allowedTool.toLowerCase())) {
+          matchedTools.push(allowedTool);
+          continue;
+        }
+        const mappedKws = keywordMappings[allowedTool];
+        if (mappedKws) {
+          const hasMatch = mappedKws.some(kw => lowerPrompt.includes(kw));
+          if (hasMatch) {
+            matchedTools.push(allowedTool);
+          }
+        }
+      }
     }
 
     const dataInjections: string[] = [];
@@ -131,32 +130,36 @@ export class AnthropicAdapter implements ProviderAdapter {
       const userPrompt = req.messages[req.messages.length - 1].content;
       const lowerPrompt = userPrompt.toLowerCase();
       
-      const matchedTools = [];
-      
-      // Keyword matching matching
-      if (lowerPrompt.includes('solana') || lowerPrompt.includes('balance')) {
-        matchedTools.push('solana_balance');
-      }
-      if (lowerPrompt.includes('price') || lowerPrompt.includes('dex')) {
-        matchedTools.push('dex_token_price');
-      }
-      if (lowerPrompt.includes('trending') || lowerPrompt.includes('coingecko')) {
-        matchedTools.push('coingecko_trending');
-      }
-      if (lowerPrompt.includes('python') || lowerPrompt.includes('sandbox')) {
-        matchedTools.push('python_sandbox');
-      }
-      if (lowerPrompt.includes('tweet') || lowerPrompt.includes('twitter')) {
-        matchedTools.push('twitter_post');
-      }
-      if (lowerPrompt.includes('ocr') || lowerPrompt.includes('scan') || lowerPrompt.includes('image')) {
-        matchedTools.push('image_ocr');
-      }
-      if (lowerPrompt.includes('speech') || lowerPrompt.includes('tts') || lowerPrompt.includes('audio')) {
-        matchedTools.push('text_to_speech');
-      }
-      if (lowerPrompt.includes('search') || lowerPrompt.includes('web') || lowerPrompt.includes('http')) {
-        matchedTools.push('web_search');
+      const matchedTools: string[] = [];
+      const keywordMappings: { [key: string]: string[] } = {
+        solana_balance: ['saldo', 'balance', 'sol', 'wallet', 'dompet', 'cek', 'check'],
+        spl_token_balance: ['spl', 'token', 'balance', 'saldo', 'swap', 'kirim', 'send', 'check'],
+        solana_transaction_history: ['history', 'riwayat', 'transaksi', 'transaction', 'transfer', 'swaps', 'kirim'],
+        solana_sign_message: ['sign', 'tanda', 'verify', 'verifikasi', 'message', 'pesan', 'signature'],
+        solana_validators: ['validator', 'validators', 'status', 'performance'],
+        solana_block_details: ['block', 'slot', 'hash', 'details', 'detail'],
+        solana_airdrop_request: ['airdrop', 'faucet', 'sol', 'gratis', 'free'],
+        solana_priority_fees: ['fee', 'fees', 'priority', 'biaya', 'gas', 'congestion', 'price'],
+        token_metadata: ['metadata', 'ca', 'contract', 'address', 'analisis', 'analyze', 'token', 'symbol', 'nama', 'name', 'scan', 'kontrak'],
+        dex_token_price: ['price', 'harga', 'dex', 'liquidity', 'likuiditas', 'ca', 'contract', 'swap', 'pool', 'scan', 'kontrak'],
+        liquidity_pool_depth: ['liquidity', 'likuiditas', 'pool', 'depth', 'lock', 'burn', 'kunci', 'ca', 'contract', 'scan', 'kontrak'],
+        web_search: ['search', 'web', 'http', 'internet', 'online', 'google', 'cek', 'cari']
+      };
+
+      if (req.allowedTools) {
+        for (const allowedTool of req.allowedTools) {
+          if (lowerPrompt.includes(allowedTool.toLowerCase())) {
+            matchedTools.push(allowedTool);
+            continue;
+          }
+          const mappedKws = keywordMappings[allowedTool];
+          if (mappedKws) {
+            const hasMatch = mappedKws.some(kw => lowerPrompt.includes(kw));
+            if (hasMatch) {
+              matchedTools.push(allowedTool);
+            }
+          }
+        }
       }
 
       // 1. Stream thinking process
