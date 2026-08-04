@@ -66,7 +66,10 @@ const ALL_CATALOG_TOOLS = [
   'image_ocr'
 ];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+let API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+if (API_BASE_URL && !API_BASE_URL.startsWith('http://') && !API_BASE_URL.startsWith('https://')) {
+  API_BASE_URL = `https://${API_BASE_URL}`;
+}
 
 // Logo / Mascot mini icon
 const LogoIconMini: React.FC = () => (
