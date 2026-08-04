@@ -69,7 +69,7 @@ export class OpenAIAdapter implements ProviderAdapter {
         try {
           const res = await tool.handler({
             query: userPrompt,
-            wallet: '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
+            wallet: req.wallet || '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
             code: '',
             text: ''
           });
@@ -212,7 +212,7 @@ Integrate this live data and answer the user prompt accurately.`
           try {
             const res = await tool.handler({
               query: 'latest Solana trend',
-              wallet: '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
+              wallet: req.wallet || '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
               code: 'print("Running Python Sandbox Code")',
               text: 'Simulated Audio Transcription Result'
             });

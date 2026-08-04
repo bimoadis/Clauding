@@ -174,7 +174,8 @@ export class ChatController {
           const stream = adapter.stream({
             model: activeModel.id,
             messages: finalMessages,
-            allowedTools
+            allowedTools,
+            wallet: wallet || undefined
           });
 
           let fullResponse = '';

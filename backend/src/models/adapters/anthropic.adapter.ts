@@ -65,7 +65,7 @@ export class AnthropicAdapter implements ProviderAdapter {
         try {
           const res = await tool.handler({
             query: userPrompt,
-            wallet: '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
+            wallet: req.wallet || '',
             code: '',
             text: ''
           });
@@ -111,7 +111,7 @@ export class AnthropicAdapter implements ProviderAdapter {
     }
 
     const data = await response.json();
-    
+
     return {
       message: data.content[0].text,
       usage: {
@@ -129,7 +129,7 @@ export class AnthropicAdapter implements ProviderAdapter {
       // Dynamic Local ReAct Agent Mock Runner
       const userPrompt = req.messages[req.messages.length - 1].content;
       const lowerPrompt = userPrompt.toLowerCase();
-      
+
       const matchedTools: string[] = [];
       const keywordMappings: { [key: string]: string[] } = {
         solana_balance: ['saldo', 'balance', 'sol', 'wallet', 'dompet', 'cek', 'check'],
@@ -169,7 +169,7 @@ export class AnthropicAdapter implements ProviderAdapter {
       } else {
         intro += `👉 No specialized external tools required for this request. Processing general response...\n\n`;
       }
-      
+
       for (const char of intro) {
         yield { delta: char };
         await new Promise(resolve => setTimeout(resolve, 5));
@@ -198,13 +198,13 @@ export class AnthropicAdapter implements ProviderAdapter {
           try {
             const res = await tool.handler({
               query: 'latest Solana trend',
-              wallet: '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
+              wallet: req.wallet || '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
               code: 'print("Running Python Sandbox Code")',
               text: 'Simulated Audio Transcription Result'
             });
             const resStr = JSON.stringify(res, null, 2);
             toolResults.push(`[${toolName}]: ${resStr}`);
-            
+
             let resLog = `📥 Observation: \n\`\`\`json\n${resStr}\n\`\`\`\n\n`;
             for (const char of resLog) {
               yield { delta: char };
@@ -234,7 +234,7 @@ export class AnthropicAdapter implements ProviderAdapter {
         yield { delta: char };
         await new Promise(resolve => setTimeout(resolve, 5));
       }
-      
+
       yield { usage: { inputTokens: 50, outputTokens: 90 } };
       return;
     }

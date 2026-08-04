@@ -17,6 +17,7 @@ export interface NormalizedChatRequest {
   allowedTools?: string[];
   temperature?: number;
   maxTokens?: number;
+  wallet?: string;
 }
 
 export interface ToolCall {
