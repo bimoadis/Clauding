@@ -266,7 +266,15 @@ export const toolCatalog: ToolDefinition[] = [
       },
       required: ['text', 'pattern']
     },
-    handler: async (args) => ({ matches: ['Solana', 'KIRBLE'] })
+    handler: async (args) => {
+      try {
+        const regex = new RegExp(args.pattern, 'g');
+        const matches = args.text.match(regex) || [];
+        return { matches };
+      } catch (e) {
+        return { matches: [], error: e instanceof Error ? e.message : 'Invalid regex pattern' };
+      }
+    }
   },
   {
     name: 'json_validator',
@@ -406,7 +414,15 @@ export const toolCatalog: ToolDefinition[] = [
       properties: { expression: { type: 'string' } },
       required: ['expression']
     },
-    handler: async (args) => ({ result: 256 })
+    handler: async (args) => {
+      try {
+        const sanitized = args.expression.replace(/[^0-9+\-*/().\s]/g, '');
+        const result = new Function(`return (${sanitized})`)();
+        return { result: Number(result) };
+      } catch (e) {
+        return { result: 0, error: 'Invalid expression' };
+      }
+    }
   },
   {
     name: 'format_data_table',
@@ -429,7 +445,26 @@ export const toolCatalog: ToolDefinition[] = [
       type: 'object',
       properties: { limit: { type: 'integer', default: 5 } }
     },
-    handler: async (args) => ({ trending: ['Solana', 'Kirble', 'Jupiter'] })
+    handler: async (args) => {
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/search/trending', {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.coins && data.coins.length > 0) {
+            return {
+              trending: data.coins.slice(0, args.limit || 5).map((c: any) => c.item.name)
+            };
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch coingecko trending:', e);
+      }
+      return { trending: ['Solana', 'Bitcoin', 'Ethereum', 'Cardano', 'Ripple'].slice(0, args.limit || 5) };
+    }
   },
   {
     name: 'fear_greed_index',
