@@ -62,7 +62,11 @@ export const toolCatalog: ToolDefinition[] = [
     },
     handler: async (args) => {
       try {
-        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${args.tokenMint}`);
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${args.tokenMint}`, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          }
+        });
         if (res.ok) {
           const data = await res.json();
           if (data.pairs && data.pairs.length > 0) {
@@ -73,6 +77,8 @@ export const toolCatalog: ToolDefinition[] = [
               change24h: pair.priceChange?.h24 ? `${pair.priceChange.h24}%` : '0%'
             };
           }
+        } else {
+          console.warn(`DexScreener price fetch returned status ${res.status} for ${args.tokenMint}`);
         }
       } catch (e) {
         console.error('Failed to fetch real dex price:', e);
@@ -90,7 +96,11 @@ export const toolCatalog: ToolDefinition[] = [
     },
     handler: async (args) => {
       try {
-        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${args.tokenMint}`);
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${args.tokenMint}`, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          }
+        });
         if (res.ok) {
           const data = await res.json();
           if (data.pairs && data.pairs.length > 0) {
@@ -102,6 +112,8 @@ export const toolCatalog: ToolDefinition[] = [
               supply: 1000000000
             };
           }
+        } else {
+          console.warn(`DexScreener metadata fetch returned status ${res.status} for ${args.tokenMint}`);
         }
       } catch (e) {
         console.error('Failed to fetch real token metadata:', e);
