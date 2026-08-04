@@ -66,6 +66,8 @@ const ALL_CATALOG_TOOLS = [
   'image_ocr'
 ];
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 // Logo / Mascot mini icon
 const LogoIconMini: React.FC = () => (
   <div style={{
@@ -209,7 +211,7 @@ function DashboardContent() {
       (async () => {
         try {
           console.log(`Fetching compiled agents list for wallet: ${publicKey.toBase58()}...`);
-          const res = await fetch(`http://localhost:3001/v1/agents/list?wallet=${publicKey.toBase58()}`);
+          const res = await fetch(`${API_BASE_URL}/v1/agents/list?wallet=${publicKey.toBase58()}`);
           if (res.ok) {
             const data = await res.json();
             setMyAgents(data);
@@ -229,7 +231,7 @@ function DashboardContent() {
               }
               // Fetch history for the latest agent
               try {
-                const histRes = await fetch(`http://localhost:3001/v1/chat/history?wallet=${publicKey.toBase58()}&agentId=${latestAgent.id}`);
+                const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?wallet=${publicKey.toBase58()}&agentId=${latestAgent.id}`);
                 if (histRes.ok) {
                   const histData = await histRes.json();
                   if (histData.length > 0) {
@@ -272,10 +274,10 @@ function DashboardContent() {
     console.log('Active toggles - AUTONOMOUS:', fullStackToggle, 'EXPERT TOOLS:', noVibeToggle);
 
     setStep('compiling');
-    console.log('Step 2: Switch to compiling state screen. Sending request to http://localhost:3001/v1/agents/compile');
+    console.log(`Step 2: Switch to compiling state screen. Sending request to ${API_BASE_URL}/v1/agents/compile`);
 
     try {
-      const response = await fetch('http://localhost:3001/v1/agents/compile', {
+      const response = await fetch(`${API_BASE_URL}/v1/agents/compile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -345,8 +347,8 @@ function DashboardContent() {
     setIsPublishing(true);
 
     try {
-      console.log('Step 3: Sending agent launch compile payload to http://localhost:3001/v1/agents/compile...');
-      const response = await fetch('http://localhost:3001/v1/agents/compile', {
+      console.log(`Step 3: Sending agent launch compile payload to ${API_BASE_URL}/v1/agents/compile...`);
+      const response = await fetch(`${API_BASE_URL}/v1/agents/compile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -370,7 +372,7 @@ function DashboardContent() {
       }
 
       try {
-        const listRes = await fetch(`http://localhost:3001/v1/agents/list?wallet=${publicKey.toBase58()}`);
+        const listRes = await fetch(`${API_BASE_URL}/v1/agents/list?wallet=${publicKey.toBase58()}`);
         if (listRes.ok) {
           const listData = await listRes.json();
           setMyAgents(listData);
@@ -416,7 +418,7 @@ function DashboardContent() {
 
     const walletParam = publicKey ? `&wallet=${publicKey.toBase58()}` : '';
     const agentParam = selectedAgentId ? `&agentId=${selectedAgentId}` : '';
-    const targetUrl = `http://localhost:3001/v1/chat/stream?message=${encodeURIComponent(sandboxPrompt)}&costTier=${costTier}&tools=${encodeURIComponent(JSON.stringify(tools))}${walletParam}${agentParam}`;
+    const targetUrl = `${API_BASE_URL}/v1/chat/stream?message=${encodeURIComponent(sandboxPrompt)}&costTier=${costTier}&tools=${encodeURIComponent(JSON.stringify(tools))}${walletParam}${agentParam}`;
     console.log('Step 4: Opening SSE (Server-Sent Events) network chat stream connection at:', targetUrl);
 
     try {
@@ -1336,7 +1338,7 @@ function DashboardContent() {
                             if (!confirm(`Are you sure you want to delete agent "${name}" and all of its chat logs?`)) return;
 
                             try {
-                              const res = await fetch(`http://localhost:3001/v1/agents/delete?agentId=${selectedAgentId}&wallet=${publicKey!.toBase58()}`, {
+                              const res = await fetch(`${API_BASE_URL}/v1/agents/delete?agentId=${selectedAgentId}&wallet=${publicKey!.toBase58()}`, {
                                 method: 'DELETE'
                               });
                               if (res.ok) {
@@ -1349,7 +1351,7 @@ function DashboardContent() {
                                     type: 'success'
                                   });
                                   // Reload agent list
-                                  const listRes = await fetch(`http://localhost:3001/v1/agents/list?wallet=${publicKey!.toBase58()}`);
+                                  const listRes = await fetch(`${API_BASE_URL}/v1/agents/list?wallet=${publicKey!.toBase58()}`);
                                   if (listRes.ok) {
                                     const listData = await listRes.json();
                                     setMyAgents(listData);
@@ -1366,7 +1368,7 @@ function DashboardContent() {
                                         }
                                       }
                                       // Fetch history for the new selected agent
-                                      const histRes = await fetch(`http://localhost:3001/v1/chat/history?wallet=${publicKey!.toBase58()}&agentId=${latestAgent.id}`);
+                                      const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?wallet=${publicKey!.toBase58()}&agentId=${latestAgent.id}`);
                                       if (histRes.ok) {
                                         const histData = await histRes.json();
                                         setChatLog(histData.length > 0 ? histData : [{ role: 'assistant', content: `🤖 Switched to agent **${latestAgent.name}**. Ready for instructions.` }]);
@@ -1434,7 +1436,7 @@ function DashboardContent() {
                           // Fetch and load chat history for this agent!
                           (async () => {
                             try {
-                              const histRes = await fetch(`http://localhost:3001/v1/chat/history?wallet=${publicKey!.toBase58()}&agentId=${targetAgent.id}`);
+                              const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?wallet=${publicKey!.toBase58()}&agentId=${targetAgent.id}`);
                               if (histRes.ok) {
                                 const histData = await histRes.json();
                                 if (histData.length > 0) {
