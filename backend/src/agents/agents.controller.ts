@@ -48,15 +48,25 @@ export class AgentsController {
     const rawPrompt = body.prompt || 'general assistant';
     const wallet = body.wallet;
     
-    const isCrypto = rawPrompt.toLowerCase().includes('crypto') || rawPrompt.toLowerCase().includes('sol');
-    const isNews = rawPrompt.toLowerCase().includes('news') || rawPrompt.toLowerCase().includes('track');
+    const promptLower = rawPrompt.toLowerCase();
+    const isCrypto = promptLower.includes('crypto') || promptLower.includes('sol') || promptLower.includes('token') || promptLower.includes('ca') || promptLower.includes('saldo') || promptLower.includes('wallet');
+    const isNews = promptLower.includes('news') || promptLower.includes('berita') || promptLower.includes('track');
 
     // Prioritize client-provided overrides from Step 3 editing form
-    const name = body.name || (isCrypto
-      ? 'Crypto Scout Agent'
-      : isNews
-      ? 'News Crawler Agent'
-      : 'General Assistant Agent');
+    let name = body.name;
+    if (!name) {
+      if (promptLower.includes('ca') || promptLower.includes('token') || promptLower.includes('scan') || promptLower.includes('kontrak')) {
+        name = 'Token Analyzer Agent';
+      } else if (promptLower.includes('saldo') || promptLower.includes('balance') || promptLower.includes('wallet') || promptLower.includes('dompet')) {
+        name = 'Solana Wallet Monitor';
+      } else if (isNews) {
+        name = 'News Crawler Agent';
+      } else if (isCrypto) {
+        name = 'Crypto Scout Agent';
+      } else {
+        name = 'General Assistant Agent';
+      }
+    }
 
     const description = body.description || `Compiled from prompt: "${rawPrompt}"`;
 
@@ -71,16 +81,31 @@ export class AgentsController {
     if (body.tools && Array.isArray(body.tools)) {
       tools = body.tools;
     } else {
-      // Dynamic keyword matching from the tools catalog
-      const words = rawPrompt.toLowerCase().split(/\s+/);
-      const compiledTools = toolCatalog
-        .filter(tool => {
-          const nameMatch = words.some(w => w.length > 2 && tool.name.toLowerCase().includes(w));
-          const descMatch = words.some(w => w.length > 3 && tool.description.toLowerCase().includes(w));
-          return nameMatch || descMatch;
-        })
-        .map(tool => tool.name);
+      // Indonesian & English keyword synonym mapping for tools
+      const keywordMappings: { [key: string]: string[] } = {
+        solana_balance: ['saldo', 'balance', 'sol', 'wallet', 'dompet', 'cek', 'check'],
+        spl_token_balance: ['spl', 'token', 'balance', 'saldo', 'swap', 'kirim', 'send', 'check'],
+        solana_transaction_history: ['history', 'riwayat', 'transaksi', 'transaction', 'transfer', 'swaps', 'kirim'],
+        solana_sign_message: ['sign', 'tanda', 'verify', 'verifikasi', 'message', 'pesan', 'signature'],
+        solana_validators: ['validator', 'validators', 'status', 'performance'],
+        solana_block_details: ['block', 'slot', 'hash', 'details', 'detail'],
+        solana_airdrop_request: ['airdrop', 'faucet', 'sol', 'gratis', 'free'],
+        solana_priority_fees: ['fee', 'fees', 'priority', 'biaya', 'gas', 'congestion', 'price'],
+        token_metadata: ['metadata', 'ca', 'contract', 'address', 'analisis', 'analyze', 'token', 'symbol', 'nama', 'name', 'scan', 'kontrak'],
+        dex_token_price: ['price', 'harga', 'dex', 'liquidity', 'likuiditas', 'ca', 'contract', 'swap', 'pool', 'scan', 'kontrak'],
+        liquidity_pool_depth: ['liquidity', 'likuiditas', 'pool', 'depth', 'lock', 'burn', 'kunci', 'ca', 'contract', 'scan', 'kontrak']
+      };
 
+      const matchedTools = new Set<string>();
+      for (const [toolName, keywords] of Object.entries(keywordMappings)) {
+        for (const kw of keywords) {
+          if (promptLower.includes(kw)) {
+            matchedTools.add(toolName);
+          }
+        }
+      }
+
+      const compiledTools = Array.from(matchedTools);
       // Fallback default tools if no keyword matches
       tools = compiledTools.length > 0 ? compiledTools : ['web_search', 'http_fetch'];
     }
