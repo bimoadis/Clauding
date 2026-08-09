@@ -76,20 +76,16 @@ if (API_BASE_URL.endsWith('/')) {
 
 // Logo / Mascot mini icon
 const LogoIconMini: React.FC = () => (
-  <div style={{
-    width: '28px',
-    height: '28px',
-    background: '#F5601C',
-    borderRadius: '6px',
-    display: 'grid',
-    placeItems: 'center',
-    color: '#fff',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    boxShadow: '0 4px 10px rgba(245, 96, 28, 0.2)'
-  }}>
-    🤖
-  </div>
+  <img
+    src="/logo.png"
+    alt="Kirble Logo"
+    style={{
+      width: '41px',
+      height: '41px',
+      objectFit: 'contain',
+      borderRadius: '6px'
+    }}
+  />
 );
 
 // Message renderer helper for chat logs

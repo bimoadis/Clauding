@@ -13,20 +13,16 @@ const WalletMultiButton = dynamic(
 
 // Mascot component that renders the logo icon
 const LogoIcon: React.FC = () => (
-  <div style={{
-    width: '32px',
-    height: '32px',
-    background: '#F5601C',
-    borderRadius: '8px',
-    display: 'grid',
-    placeItems: 'center',
-    color: '#fff',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    boxShadow: '0 4px 10px rgba(245, 96, 28, 0.2)'
-  }}>
-    🤖
-  </div>
+  <img
+    src="/logo.png"
+    alt="Kirble Logo"
+    style={{
+      width: '46px',
+      height: '46px',
+      objectFit: 'contain',
+      borderRadius: '8px'
+    }}
+  />
 );
 
 export default function Home() {
