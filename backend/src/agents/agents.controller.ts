@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Get, Query, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, Delete, Req, UseGuards } from '@nestjs/common';
 import { db } from '../db/db';
 import { users, agents, agentVersions, threads } from '../db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import { toolCatalog } from '../temporal/tool-catalog';
+import { AuthGuard } from '../auth/auth.guard';
 
 export interface AgentSpec {
   name: string;
@@ -36,24 +37,36 @@ export interface AgentSpec {
 @Controller('v1/agents')
 export class AgentsController {
   @Post('compile')
-  public async compileAgent(@Body() body: {
-    prompt: string;
-    wallet?: string;
-    name?: string;
-    description?: string;
-    instructions?: string;
-    tools?: string[];
-    costTier?: 'economy' | 'balanced' | 'premium';
-  }): Promise<any> {
-    const rawPrompt = body.prompt || 'general assistant';
-    const wallet = body.wallet;
+  @UseGuards(AuthGuard)
+  public async compileAgent(
+    @Req() req: any,
+    @Body() body?: {
+      prompt: string;
+      name?: string;
+      description?: string;
+      instructions?: string;
+      tools?: string[];
+      costTier?: 'economy' | 'balanced' | 'premium';
+    }
+  ): Promise<any> {
+    // Support test scripts calling the controller directly with a single argument
+    let actualBody = body;
+    let wallet: string | undefined = undefined;
+
+    if (!body && req && 'prompt' in req) {
+      actualBody = req;
+    } else if (req && req.user) {
+      wallet = req.user.sub;
+    }
+
+    const rawPrompt = actualBody?.prompt || 'general assistant';
     
     const promptLower = rawPrompt.toLowerCase();
     const isCrypto = promptLower.includes('crypto') || promptLower.includes('sol') || promptLower.includes('token') || promptLower.includes('ca') || promptLower.includes('saldo') || promptLower.includes('wallet');
     const isNews = promptLower.includes('news') || promptLower.includes('berita') || promptLower.includes('track');
 
     // Prioritize client-provided overrides from Step 3 editing form
-    let name = body.name;
+    let name = actualBody?.name;
     if (!name) {
       if (promptLower.includes('ca') || promptLower.includes('token') || promptLower.includes('scan') || promptLower.includes('kontrak')) {
         name = 'Token Analyzer Agent';
@@ -68,9 +81,9 @@ export class AgentsController {
       }
     }
 
-    const description = body.description || `Compiled from prompt: "${rawPrompt}"`;
+    const description = actualBody?.description || `Compiled from prompt: "${rawPrompt}"`;
 
-    const instructions = body.instructions || (isCrypto
+    const instructions = actualBody?.instructions || (isCrypto
       ? 'Monitor crypto sources. Surface high-signal Solana and SPL token announcements. Always verify information before alerts.'
       : isNews
       ? 'Scan RSS feeds and fetch URLs to track market developments. Categorize key events.'
@@ -78,8 +91,8 @@ export class AgentsController {
 
     // Prioritize custom tools list
     let tools: string[];
-    if (body.tools && Array.isArray(body.tools)) {
-      tools = body.tools;
+    if (actualBody?.tools && Array.isArray(actualBody.tools)) {
+      tools = actualBody.tools;
     } else {
       // Indonesian & English keyword synonym mapping for tools
       const keywordMappings: { [key: string]: string[] } = {
@@ -93,7 +106,13 @@ export class AgentsController {
         solana_priority_fees: ['fee', 'fees', 'priority', 'biaya', 'gas', 'congestion', 'price'],
         token_metadata: ['metadata', 'ca', 'contract', 'address', 'analisis', 'analyze', 'token', 'symbol', 'nama', 'name', 'scan', 'kontrak'],
         dex_token_price: ['price', 'harga', 'dex', 'liquidity', 'likuiditas', 'ca', 'contract', 'swap', 'pool', 'scan', 'kontrak'],
-        liquidity_pool_depth: ['liquidity', 'likuiditas', 'pool', 'depth', 'lock', 'burn', 'kunci', 'ca', 'contract', 'scan', 'kontrak']
+        liquidity_pool_depth: ['liquidity', 'likuiditas', 'pool', 'depth', 'lock', 'burn', 'kunci', 'ca', 'contract', 'scan', 'kontrak'],
+        twitter_post: ['twitter', 'tweet', 'post', 'cuit', 'cuitan'],
+        text_translator: ['translate', 'translation', 'terjemah', 'terjemahan', 'bahasa'],
+        text_to_speech: ['speech', 'suara', 'audio', 'voice', 'bicara'],
+        speech_to_text: ['transcribe', 'transcription', 'rekaman', 'dengar'],
+        image_ocr: ['ocr', 'scanner', 'scan', 'baca gambar', 'image'],
+        text_sentiment_score: ['sentiment', 'score', 'nilai', 'sentiment score', 'emosi']
       };
 
       const matchedTools = new Set<string>();
@@ -110,7 +129,7 @@ export class AgentsController {
       tools = compiledTools.length > 0 ? compiledTools : ['web_search', 'http_fetch'];
     }
 
-    const costTier = body.costTier || 'balanced';
+    const costTier = actualBody?.costTier || 'balanced';
 
     const spec: AgentSpec = {
       name,
@@ -185,7 +204,9 @@ export class AgentsController {
   }
 
   @Get('list')
-  public async getAgentsByWallet(@Query('wallet') wallet: string) {
+  @UseGuards(AuthGuard)
+  public async getAgentsByWallet(@Req() req: any) {
+    const wallet = req.user.sub;
     if (!wallet || wallet.trim().length === 0) {
       return [];
     }
@@ -227,12 +248,14 @@ export class AgentsController {
   }
 
   @Delete('delete')
+  @UseGuards(AuthGuard)
   public async deleteAgent(
-    @Query('agentId') agentId: string,
-    @Query('wallet') wallet: string
+    @Req() req: any,
+    @Query('agentId') agentId: string
   ) {
+    const wallet = req.user.sub;
     if (!agentId || !wallet) {
-      return { success: false, error: 'agentId and wallet are required' };
+      return { success: false, error: 'agentId is required' };
     }
     try {
       // Find user

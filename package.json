@@ -1,5 +1,5 @@
 {
-  "name": "kirble-monorepo",
+  "name": "clauding-monorepo",
   "private": true,
   "scripts": {
     "dev:backend": "pnpm --filter backend dev",

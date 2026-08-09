@@ -16,6 +16,6 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   await app.listen(3001, '0.0.0.0');
-  console.log(`Kirble Backend running on: http://localhost:3001`);
+  console.log(`Clauding Backend running on: http://localhost:3001`);
 }
 bootstrap();

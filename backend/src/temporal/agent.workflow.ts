@@ -29,10 +29,14 @@ export async function runAgentWorkflow(params: WorkflowParams): Promise<void> {
   conversationHistory.push({ role: 'user', content: params.userMessage });
 
   let steps = 0;
-  const maxSteps = spec.guardrails?.max_steps || 5;
+  // Free tier has max 5 steps, Pro tier has max 15 steps (enforced via spec.guardrails)
+  // We apply a hard cap of 15 steps as maximum absolute limit.
+  const maxSteps = Math.min(spec.guardrails?.maxSteps || spec.guardrails?.max_steps || 5, 15);
+  const maxTokens = spec.guardrails?.maxTokensPerRun || 20000;
+  let totalTokens = 0;
   let isDone = false;
 
-  while (steps < maxSteps && !isDone) {
+  while (steps < maxSteps && totalTokens < maxTokens && !isDone) {
     steps++;
 
     // Execute completion model call Activity
@@ -42,6 +46,13 @@ export async function runAgentWorkflow(params: WorkflowParams): Promise<void> {
       history: conversationHistory,
       runId: params.runId
     });
+
+    // Track tokens if usage data is returned
+    if (response.usage) {
+      const input = response.usage.inputTokens || 0;
+      const output = response.usage.outputTokens || 0;
+      totalTokens += (input + output);
+    }
 
     conversationHistory.push({ role: 'assistant', content: response.message });
 

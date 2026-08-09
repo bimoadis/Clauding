@@ -1,5 +1,6 @@
-import { Controller, Post, Get, Body, Query, Headers, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, Headers, BadRequestException, Req, UseGuards } from '@nestjs/common';
 import { BillingService } from './billing.service';
+import { AuthGuard } from '../auth/auth.guard';
 
 interface HeliusWebhookDto {
   signature: string;
@@ -47,18 +48,18 @@ export class BillingController {
         }
       }
 
-      // 2. Process $KIRBLE SPL Token transfers
+      // 2. Process $CLAUDING SPL Token transfers
       if (tx.tokenTransfers && tx.tokenTransfers.length > 0) {
         for (const transfer of tx.tokenTransfers) {
           if (transfer.toUserAccount === 'KIRB_TREASURY_TOKEN_ADDRESS') {
             const credited = this.billingService.creditDeposit(
               transfer.fromUserAccount,
               tx.signature,
-              'KIRBLE',
+              'CLAUDING',
               BigInt(Math.floor(transfer.tokenAmount * 1e9)),
-              0.15 // Mock $KIRBLE Token Price Oracle TWAP ($0.15 USD)
+              0.15 // Mock $CLAUDING Token Price Oracle TWAP ($0.15 USD)
             );
-            console.log(`Credited KIRBLE transfer: ${credited.toString()} micro-USD to ${transfer.fromUserAccount}`);
+            console.log(`Credited CLAUDING transfer: ${credited.toString()} micro-USD to ${transfer.fromUserAccount}`);
           }
         }
       }
@@ -68,15 +69,17 @@ export class BillingController {
   }
 
   @Get('wallet')
-  public getWalletDetails(@Query('userId') userId: string) {
-    if (!userId) throw new BadRequestException('userId query is required');
+  @UseGuards(AuthGuard)
+  public getWalletDetails(@Req() req: any) {
+    const userId = req.user.sub;
+    if (!userId) throw new BadRequestException('userId is required');
     const wallet = this.billingService.getOrCreateWallet(userId);
     const ledger = this.billingService.getLedgerEntries(userId);
 
     return {
       balanceUsd: (Number(wallet.balanceMicroUsd) / 1000000).toFixed(2),
       balanceMicroUsd: wallet.balanceMicroUsd.toString(),
-      kirbleBalance: wallet.kirbleBalance.toString(),
+      claudingBalance: wallet.claudingBalance.toString(),
       ledger: ledger.map(l => ({
         ...l,
         amountMicroUsd: l.amountMicroUsd.toString()

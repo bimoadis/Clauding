@@ -1,13 +1,13 @@
-# 🤖 Kirble — Monorepo
+# 🤖 Clauding — Monorepo
 
 > **One prompt. Any AI agent.** 
-> Kirble is a platform to design, compile, and launch autonomous AI agents using just a single line of natural language instruction. Powered by Solana wallet integration, thread-based message history, a ReAct execution loop, and real-time on-chain analysis tools.
+> Clauding is a platform to design, compile, and launch autonomous AI agents using just a single line of natural language instruction. Powered by Solana wallet integration, thread-based message history, a ReAct execution loop, and real-time on-chain analysis tools.
 
 ---
 
 ## 🌟 Key Features
 
-- **One-Prompt Compiler**: Describe the agent you want (in English or Indonesian), and Kirble will automatically analyze and configure its persona, rules, appropriate LLM models, and required capabilities (tools).
+- **One-Prompt Compiler**: Describe the agent you want (in English or Indonesian), and Clauding will automatically analyze and configure its persona, rules, appropriate LLM models, and required capabilities (tools).
 - **Dynamic ReAct Loop System**: Agents don't just answer questions—they autonomously reason, make decisions, and execute a sequence of tools to achieve your goals.
 - **Solana Wallet Integration**: Authentication and chat thread history are securely bound to the user's public address via Phantom Wallet / Solana Wallet Adapter.
 - **Agent Capabilities (Tools Catalog)**:
@@ -21,7 +21,7 @@
 ## 📁 Monorepo Structure
 
 ```
-KIRBLE/
+CLAUDING/
 ├── backend/               # NestJS & Temporal Backend Service
 │   ├── src/
 │   │   ├── agents/        # Agent Management Controller (Create, List, Delete)
@@ -65,7 +65,7 @@ pnpm install
 ### 2. Configure Environment Variables (.env)
 Create a `.env` file inside the `/backend` folder:
 ```env
-DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5432/kirble
+DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5432/clauding
 OPENAI_API_KEY=your_openai_api_key
 ANTHROPIC_API_KEY=your_anthropic_api_key
 ```

@@ -124,7 +124,7 @@ export const memoryChunks = pgTable('memory_chunks', {
 export const wallets = pgTable('wallets', {
   userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
   balanceMicroUsd: bigint('balance_micro_usd', { mode: 'bigint' }).default(0n).notNull(),
-  kirbleBalance: bigint('kirble_balance', { mode: 'bigint' }).default(0n).notNull(),
+  claudingBalance: bigint('clauding_balance', { mode: 'bigint' }).default(0n).notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 });
 

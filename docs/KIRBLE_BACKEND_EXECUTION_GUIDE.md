@@ -1,4 +1,4 @@
-# Kirble Backend — Complete Execution Guide & System Architecture
+# Clauding Backend — Complete Execution Guide & System Architecture
 **Version:** 1.0 (Production Blueprint)  
 **Author:** Senior Backend Architect (20+ Years Experience)  
 **Target Audience:** Backend Engineers, DevOps, and Lead Architects  
@@ -7,12 +7,12 @@
 
 ## 1. System Topology & Infrastructure Layout
 
-The Kirble backend is designed as a highly scalable, event-driven, and durable service mesh. It decouples the low-latency API Gateway from the long-lived, high-latency Agent Execution runs using **Temporal Orchestration**.
+The Clauding backend is designed as a highly scalable, event-driven, and durable service mesh. It decouples the low-latency API Gateway from the long-lived, high-latency Agent Execution runs using **Temporal Orchestration**.
 
 ```mermaid
 flowchart TB
   subgraph Clients [Client Layer]
-    WebClient[Kirble Web App / Landing]
+    WebClient[Clauding Web App / Landing]
     APIClient[External CLI / API Keys]
   end
 
@@ -42,7 +42,7 @@ flowchart TB
 
   %% Client Routing
   WebClient -->|HTTPS / WSS / JWT| NGINX
-  APIClient -->|HTTPS / SSE / Kirble Key| NGINX
+  APIClient -->|HTTPS / SSE / Clauding Key| NGINX
   NGINX --> NestAPI
 
   %% Gateway Interactions
@@ -304,7 +304,7 @@ create index idx_memory_chunks_vector on memory_chunks using ivfflat (embedding 
 create table wallets (
   user_id       uuid primary key references users(id) on delete cascade,
   balance_micro_usd bigint not null default 0,  -- Denominated in USD (1 USD = 1,000,000 micro-USD)
-  kirble_balance bigint not null default 0,      -- Deposited SPL token balance
+  clauding_balance bigint not null default 0,      -- Deposited SPL token balance
   updated_at    timestamptz not null default now()
 );
 
@@ -323,7 +323,7 @@ create index idx_ledger_user_created on ledger_entries(user_id, created_at);
 create table deposits (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid not null references users(id),
-  asset         text not null,                   -- SOL | KIRBLE
+  asset         text not null,                   -- SOL | CLAUDING
   tx_signature  text unique not null,            -- Solana transaction hash for deduplication
   amount_native bigint not null,                 -- Lamports / Token atomic units
   credited_micro_usd bigint not null,            -- Final credited amount in micro USD
@@ -536,7 +536,7 @@ export async function runAgentWorkflow(params: WorkflowParams): Promise<void> {
 ## 5. Directory Structure / Clean Architecture Layout
 
 ```
-kirble-backend/
+clauding-backend/
 ├── dist/                          # Compiled build output
 ├── src/
 │   ├── main.ts                    # Application bootstrapping (Fastify entrypoint)
@@ -609,7 +609,7 @@ kirble-backend/
 - **Key Actions:**
   1. Create the Helius deposit processing handler.
   2. Secure the credit reservation and ledger settlement script.
-  3. Apply `$KIRBLE` token-based price discounts during transaction execution.
+  3. Apply `$CLAUDING` token-based price discounts during transaction execution.
 
 ---
 

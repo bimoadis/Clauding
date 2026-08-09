@@ -1,3 +1,5 @@
+import { runPythonSandbox } from './sandbox';
+
 export interface ToolDefinition {
   name: string;
   description: string;
@@ -55,7 +57,7 @@ export const toolCatalog: ToolDefinition[] = [
       type: 'object',
       properties: {
         wallet: { type: 'string', description: 'Solana base58 address' },
-        tokenMint: { type: 'string', description: 'SPL token mint address (e.g. KIRBLE)' }
+        tokenMint: { type: 'string', description: 'SPL token mint address (e.g. CLAUDING)' }
       },
       required: ['wallet', 'tokenMint']
     },
@@ -175,7 +177,7 @@ export const toolCatalog: ToolDefinition[] = [
       } catch (e) {
         console.error('Failed to fetch real token metadata:', e);
       }
-      return { name: 'Kirble', symbol: 'KIRBLE', decimals: 9, supply: 1000000000 };
+      return { name: 'Clauding', symbol: 'CLAUDING', decimals: 9, supply: 1000000000 };
     }
   },
   {
@@ -300,7 +302,7 @@ export const toolCatalog: ToolDefinition[] = [
       properties: { code: { type: 'string' } },
       required: ['code']
     },
-    handler: async (args) => ({ stdout: 'Execution result: 42', exitCode: 0 })
+    handler: async (args) => await runPythonSandbox(args.code)
   },
   {
     name: 'javascript_sandbox',
@@ -583,7 +585,7 @@ export const toolCatalog: ToolDefinition[] = [
       type: 'object',
       properties: { limit: { type: 'integer', default: 5 } }
     },
-    handler: async (args) => ({ mentions: ['@Kirble check Sol price!', '@Kirble love your Analyst persona'] })
+    handler: async (args) => ({ mentions: ['@Clauding check Sol price!', '@Clauding love your Analyst persona'] })
   },
   {
     name: 'rss_feed_reader',
@@ -613,7 +615,7 @@ export const toolCatalog: ToolDefinition[] = [
       properties: { query: { type: 'string' } },
       required: ['query']
     },
-    handler: async (args) => ({ casts: ['Solana is the future!', 'Kirble agent framework launched'] })
+    handler: async (args) => ({ casts: ['Solana is the future!', 'Clauding agent framework launched'] })
   },
 
   // =========================================================
@@ -630,7 +632,7 @@ export const toolCatalog: ToolDefinition[] = [
       },
       required: ['key', 'body']
     },
-    handler: async (args) => ({ uploaded: true, s3Url: `https://s3.kirble.xyz/${args.key}` })
+    handler: async (args) => ({ uploaded: true, s3Url: `https://s3.clauding.xyz/${args.key}` })
   },
   {
     name: 's3_download',
@@ -736,7 +738,7 @@ export const toolCatalog: ToolDefinition[] = [
       },
       required: ['text']
     },
-    handler: async (args) => ({ audioUrl: 'https://audio.kirble.xyz/speech_tmp_827f.mp3', lengthSeconds: 4.5 })
+    handler: async (args) => ({ audioUrl: 'https://audio.clauding.xyz/speech_tmp_827f.mp3', lengthSeconds: 4.5 })
   },
   {
     name: 'speech_to_text',

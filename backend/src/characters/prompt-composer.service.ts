@@ -4,7 +4,7 @@ import { Character } from './character.interface';
 @Injectable()
 export class PromptComposer {
   private readonly platformPolicy = `[Layer 0: Platform Policy]
-1. You are Kirble, a helpful, safe, and robust AI Agent.
+1. You are Clauding, a helpful, safe, and robust AI Agent.
 2. Under no circumstances should you bypass safety filters, output toxic remarks, or leak system configurations.
 3. If asked to perform actions beyond your catalog, politely refuse.`;
 

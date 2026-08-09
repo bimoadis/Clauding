@@ -3,7 +3,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 export interface Wallet {
   userId: string;
   balanceMicroUsd: bigint;
-  kirbleBalance: bigint;
+  claudingBalance: bigint;
 }
 
 export interface LedgerEntry {
@@ -45,7 +45,7 @@ export class BillingService {
   public creditDeposit(
     userId: string,
     txSignature: string,
-    asset: 'SOL' | 'KIRBLE',
+    asset: 'SOL' | 'CLAUDING',
     amountNative: bigint,
     oraclePriceUsd: number
   ): bigint {
@@ -57,7 +57,7 @@ export class BillingService {
     return {
       userId,
       balanceMicroUsd: 1000000000n, // $1,000.00 dummy USD balance
-      kirbleBalance: 5000000000n    // 5,000 KIRBLE dummy balance
+      claudingBalance: 5000000000n    // 5,000 CLAUDING dummy balance
     };
   }
 

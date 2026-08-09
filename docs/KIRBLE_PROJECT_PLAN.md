@@ -1,4 +1,4 @@
-# Kirble — Project Plan, Tech Stack & Preparation Blueprint
+# Clauding — Project Plan, Tech Stack & Preparation Blueprint
 **Prepared by:** Senior Developer / Architect  
 **Project Scope:** Fullstack Implementation (Web Application + Backend Gateway + Agent Runtime)
 
@@ -6,7 +6,7 @@
 
 ## 1. Recommended Tech Stack
 
-Based on the [KIRBLE_BACKEND_DEV_BRIEF.md](file:///d:/Real%20Kerja/KIRBLE/docs/KIRBLE_BACKEND_DEV_BRIEF.md) and the existing [index (1).html](file:///d:/Real%20Kerja/KIRBLE/docs/index%20(1).html) landing page design, here is the optimal fullstack setup:
+Based on the [CLAUDING_BACKEND_DEV_BRIEF.md](file:///d:/Real%20Kerja/CLAUDING/docs/CLAUDING_BACKEND_DEV_BRIEF.md) and the existing [index (1).html](file:///d:/Real%20Kerja/CLAUDING/docs/index%20(1).html) landing page design, here is the optimal fullstack setup:
 
 ### Frontend (FE) Stack
 *   **Framework:** **Next.js 14/15 (App Router)** or **Vite + React (TypeScript)**
@@ -47,7 +47,7 @@ To begin coding and deployment, you must set up the following accounts, API cred
     *   xAI API Key (Grok models)
     *   *Alternative:* OpenRouter / LiteLLM API key for consolidated development access.
 *   [ ] **Target Wallet Addresses:**
-    *   A Treasury Wallet address to receive crypto deposits (SOL and `$KIRBLE` token).
+    *   A Treasury Wallet address to receive crypto deposits (SOL and `$CLAUDING` token).
 
 ### C. Developer Local Setup
 *   [ ] **Node.js 20.x** and **pnpm** installed.
@@ -61,7 +61,7 @@ This roadmap organizes the development into logical steps, keeping the Frontend 
 
 ```mermaid
 gantt
-    title Kirble Project Schedule
+    title Clauding Project Schedule
     dateFormat  YYYY-MM-DD
     section Backend (BE)
     M0: Base & Auth           :a1, 2026-08-01, 5d
@@ -122,7 +122,7 @@ gantt
 *   **BE Tasks:**
     *   [ ] Integrate Helius Webhooks to listen to transfer events towards the Treasury wallet.
     *   [ ] Write transaction-safe ledger adjustments for balance reservations (Holds) and usages (Settles).
-    *   [ ] Incorporate `$KIRBLE` token-based balance discounts.
+    *   [ ] Incorporate `$CLAUDING` token-based balance discounts.
 *   **FE Tasks:**
     *   [ ] Build the billing/wallet page showing real-time balance (in USD credits), deposits, and transactional ledger logs.
     *   [ ] Implement the "Top up" modal producing QR codes, wallet transfer requests, or instructions.

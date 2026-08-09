@@ -3,6 +3,7 @@ import { AgentsController } from './agents.controller';
 async function runIntegratedSkillsTests() {
   console.log('--- Starting Integrated Skills Compiler Verification ---');
   const controller = new AgentsController();
+  let hasFailed = false;
 
   // Test Case 1: Solana and Twitter keywords
   const prompt1 = 'Verify Solana balance and tweet the update';
@@ -13,6 +14,7 @@ async function runIntegratedSkillsTests() {
     console.log('✅ TEST PASSED: Successfully mapped Solana and Twitter tools.');
   } else {
     console.error('❌ TEST FAILED: Mismatched tools for prompt 1.');
+    hasFailed = true;
   }
 
   // Test Case 2: Translation and voice keywords
@@ -24,6 +26,7 @@ async function runIntegratedSkillsTests() {
     console.log('✅ TEST PASSED: Successfully mapped Translation and Speech tools.');
   } else {
     console.error('❌ TEST FAILED: Mismatched tools for prompt 2.');
+    hasFailed = true;
   }
 
   // Test Case 3: Sentiment and OCR keywords
@@ -35,6 +38,14 @@ async function runIntegratedSkillsTests() {
     console.log('✅ TEST PASSED: Successfully mapped OCR and Sentiment tools.');
   } else {
     console.error('❌ TEST FAILED: Mismatched tools for prompt 3.');
+    hasFailed = true;
+  }
+
+  if (hasFailed) {
+    console.error('❌ SOME INTEGRATED SKILLS TESTS FAILED.');
+    process.exit(1);
+  } else {
+    console.log('🎉 ALL INTEGRATED SKILLS TESTS PASSED.');
   }
 }
 

@@ -11,7 +11,7 @@ async function testSiws() {
   console.log(`Generated Wallet Address: ${walletAddress}`);
 
   // 2. Prepare SIWS Message
-  const message = `kirble.xyz wants you to sign in with your Solana account:
+  const message = `clauding.xyz wants you to sign in with your Solana account:
 ${walletAddress}
 
 To authenticate and access your agent dashboard.
@@ -56,7 +56,7 @@ Expiration Time: ${new Date(Date.now() + 10 * 60 * 1000).toISOString()}`;
 
   // 6. Test Expired Message Verification
   try {
-    const expiredMessage = `kirble.xyz wants you to sign in with your Solana account:
+    const expiredMessage = `clauding.xyz wants you to sign in with your Solana account:
 ${walletAddress}
 Expiration Time: ${new Date(Date.now() - 1000).toISOString()}`; // Expired
 

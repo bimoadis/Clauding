@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 
 // Dynamically import WalletMultiButton with SSR disabled to prevent hydration mismatches
 const WalletMultiButton = dynamic(
-  async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
+  () => import('@solana/wallet-adapter-react-ui').then((mod) => mod.WalletMultiButton),
   { ssr: false }
 );
 
@@ -15,7 +15,7 @@ const WalletMultiButton = dynamic(
 const LogoIcon: React.FC = () => (
   <img
     src="/logo.png"
-    alt="Kirble Logo"
+    alt="Clauding Logo"
     style={{
       width: '46px',
       height: '46px',
@@ -35,11 +35,11 @@ export default function Home() {
 
   // Accordion FAQs
   const faqs = [
-    { q: "Do I need to code?", a: "No. You describe your agent in plain language and pick a character. Kirble builds and runs it for you — developers can still drop into the API if they want." },
-    { q: "Which models can my agent use?", a: "Claude, GPT, Gemini, Grok, Llama and more. Kirble picks the best model for each task automatically, or you can pin a favorite." },
-    { q: "How do I pay?", a: "Top up once with crypto and spend across every model from one balance. No cards, no per-provider subscriptions." },
+    { q: "Do I need to code?", a: "No. You describe your agent in plain language and pick a character. Clauding builds and runs it for you — developers can still drop into the API if they want." },
+    { q: "Which models can my agent use?", a: "Claude and GPT. The compiler selects the best model from Claude 3.5 Sonnet and GPT-4o automatically, or you can pin a favorite model." },
+    { q: "How do I pay?", a: "Top up with crypto (Coming Soon) or run locally using your own API keys. No cards or per-provider subscriptions required." },
     { q: "Can I change my agent's character later?", a: "Anytime. Swap characters to change your agent's tone and style without rebuilding it." },
-    { q: "Is my agent always online?", a: "Yes. Once launched, your agent runs on Kirble's infrastructure and stays available across the tools you connect it to." }
+    { q: "Is my agent always online?", a: "Yes. Once launched, your agent runs on Clauding's infrastructure and stays available across the tools you connect it to." }
   ];
   const [openFaq, setOpenFaq] = useState(0 as number | null);
 
@@ -129,7 +129,7 @@ export default function Home() {
         {/* Left: Brand */}
         <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800', fontSize: '20px', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
           <LogoIcon />
-          Kirble
+          Clauding
         </span>
 
         {/* Center: Navigation Links in Capsule (Desktop Only) */}
@@ -145,7 +145,6 @@ export default function Home() {
           zIndex: 110
         }}>
           <a href="#how" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>How it works</a>
-          <a href="#comparison" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>Comparison</a>
           <a href="#pricing" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>Pricing</a>
           <a href="#faq" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 16px', borderRadius: '999px', transition: 'background 0.2s' }}>FAQ</a>
         </div>
@@ -203,7 +202,6 @@ export default function Home() {
             zIndex: 99
           }}>
             <a href="#how" onClick={() => setIsMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: 700, color: '#334155', textDecoration: 'none', width: '100%', textAlign: 'center', padding: '8px 0' }}>How it works</a>
-            <a href="#comparison" onClick={() => setIsMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: 700, color: '#334155', textDecoration: 'none', width: '100%', textAlign: 'center', padding: '8px 0' }}>Comparison</a>
             <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: 700, color: '#334155', textDecoration: 'none', width: '100%', textAlign: 'center', padding: '8px 0' }}>Pricing</a>
             <a href="#faq" onClick={() => setIsMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: 700, color: '#334155', textDecoration: 'none', width: '100%', textAlign: 'center', padding: '8px 0' }}>FAQ</a>
 
@@ -302,7 +300,7 @@ export default function Home() {
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ff5f56' }}></div>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ffbd2e' }}></div>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#27c93f' }}></div>
-              <span style={{ margin: '0 auto', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>kirble-console-v1.0.app</span>
+              <span style={{ margin: '0 auto', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>clauding-console-v1.0.app</span>
             </div>
             {/* Mock Console Content */}
             <div className="console-mockup-content" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', height: '360px', background: 'rgba(255, 255, 255, 0.1)' }}>
@@ -326,7 +324,7 @@ export default function Home() {
                     check solana balance and search the web
                   </div>
                   <div style={{ alignSelf: 'flex-start', background: 'rgba(255, 255, 255, 0.5)', border: '1px solid rgba(255, 255, 255, 0.45)', padding: '12px 16px', borderRadius: '12px', fontSize: '13px', maxWidth: '85%' }}>
-                    <strong>AGENT (KIRBLE-V1.0-PRO)</strong><br />
+                    <strong>AGENT (CLAUDING-V1.0-PRO)</strong><br />
                     Analyzing query... Executing tool [solana_balance]... Balance is 50.4 SOL. Executing [web_search]... Finished task!
                   </div>
                 </div>
@@ -351,7 +349,7 @@ export default function Home() {
             <div style={{ padding: '24px', background: '#FAFAF8', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
               <img src="/icons/step-1-describe-it.svg" alt="Step 1" style={{ width: '64px', height: '64px', marginBottom: '12px', display: 'block' }} />
               <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>1. Describe It</h3>
-              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6 }}>Describe what your agent should do in plain English. Kirble interprets your logic and maps required tools.</p>
+              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6 }}>Describe what your agent should do in plain English. Clauding interprets your logic and maps required tools.</p>
             </div>
             <div style={{ padding: '24px', background: '#FAFAF8', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
               <img src="/icons/step-2-select-persona.svg" alt="Step 2" style={{ width: '64px', height: '64px', marginBottom: '12px', display: 'block' }} />
@@ -367,134 +365,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Comparison & Benchmarks */}
-      <section id="comparison" style={{ padding: '80px 24px', background: '#FAFAF8' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
 
-          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Benchmarks</span>
-            <h2 style={{ fontSize: '38px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>High speed compilation. Zero waste.</h2>
-            <p style={{ color: '#475569', fontSize: '16px' }}>Proven engineering metrics comparing compilation loops against standard coding practices.</p>
-          </div>
-
-          <div className="benchmarks-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))',
-            gap: '32px'
-          }}>
-
-            {/* Card 1: Time to Ship (Dark Theme) */}
-            <div style={{
-              background: '#0C0C0E',
-              borderRadius: '28px',
-              padding: '40px',
-              color: '#fff',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between'
-            }}>
-
-              <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '32px', color: '#fff' }}>
-                Time to Ship Agent (Hours)
-              </h3>
-
-              {/* Rows List */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-                {/* Row 1: Kirble Agent Spec */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#fff' }}>
-                    <span>Kirble Agent Spec</span> <span style={{ color: '#F5601C' }}>instant</span>
-                  </div>
-                  <div style={{ width: '100%', height: '12px', background: '#1C1C1E', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '8%', height: '100%', background: '#F5601C', borderRadius: '999px' }}></div>
-                  </div>
-                </div>
-
-                {/* Row 2: Traditional Dev / Code */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#A1A1AA' }}>
-                    <span>Traditional Dev / Code</span> <span>72 hours</span>
-                  </div>
-                  <div style={{ width: '100%', height: '12px', background: '#1C1C1E', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '90%', height: '100%', background: '#3A3A3C', borderRadius: '999px' }}></div>
-                  </div>
-                </div>
-
-                {/* Row 3: Visual Builder Tools */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#A1A1AA' }}>
-                    <span>Visual Builder Tools</span> <span>48 hours</span>
-                  </div>
-                  <div style={{ width: '100%', height: '12px', background: '#1C1C1E', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '60%', height: '100%', background: '#3A3A3C', borderRadius: '999px' }}></div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Card 2: Cost to Ship (Light Warm Cream Theme) */}
-            <div style={{
-              background: '#F7F6F0',
-              borderRadius: '28px',
-              padding: '40px',
-              color: '#0A0A0A',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.05)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              border: '2px solid #F5601C'
-            }}>
-
-              <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '32px', color: '#0A0A0A' }}>
-                Cost for 1,000 runs (USD)
-              </h3>
-
-              {/* Horizontal Rows List */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-                {/* Row 1: Kirble Compiler */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', color: '#0A0A0A' }}>
-                    <span>Kirble Compiler</span> <span style={{ color: '#F5601C' }}>$0.00</span>
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#F5601C', fontWeight: 'bold', marginBottom: '8px' }}>
-                    *must hold 50,000 $KIRBLE
-                  </div>
-                  <div style={{ width: '100%', height: '12px', background: '#EFE4D9', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '2%', height: '100%', background: '#F5601C', borderRadius: '999px' }}></div>
-                  </div>
-                </div>
-
-                {/* Row 2: Standard AI SaaS Tier */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#475569' }}>
-                    <span>Standard AI SaaS Tier</span> <span>$150.00</span>
-                  </div>
-                  <div style={{ width: '100%', height: '12px', background: '#EFE4D9', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '75%', height: '100%', background: '#94a3b8', borderRadius: '999px' }}></div>
-                  </div>
-                </div>
-
-                {/* Row 3: No-Code Platforms */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#475569' }}>
-                    <span>No-Code Platforms</span> <span>$220.00</span>
-                  </div>
-                  <div style={{ width: '100%', height: '12px', background: '#EFE4D9', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ width: '95%', height: '100%', background: '#94a3b8', borderRadius: '999px' }}></div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
 
       {/* Pricing Section */}
       <section id="pricing" style={{ padding: '80px 24px' }}>
@@ -502,7 +373,7 @@ export default function Home() {
           <div style={{ textAlign: 'center', marginBottom: '56px' }}>
             <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Flexible Access</span>
             <h2 style={{ fontSize: '38px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>Access built for compilers.</h2>
-            <p style={{ color: '#475569' }}>Hold $KIRBLE tokens for free agent compilation, or subscribe to Pro for managed cloud loops.</p>
+            <p style={{ color: '#475569' }}>Hold $CLAUDING tokens for free agent compilation, or subscribe to Pro for managed cloud loops.</p>
           </div>
 
           <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '32px' }}>
@@ -534,17 +405,17 @@ export default function Home() {
                 </p>
 
                 <div style={{ fontSize: '26px', fontWeight: '800', color: '#F5601C', marginBottom: '2px', letterSpacing: '-0.02em' }}>
-                  Hold 50,000 $KIRBLE
+                  Hold 50,000 $CLAUDING
                 </div>
                 <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 'bold', marginBottom: '24px' }}>
                   for unlimited active agents
                 </div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#cbd5e1' }}>
-                  <li>✓ Unlimited active agents via 50,000 $KIRBLE hold</li>
+                  <li>✓ Unlimited active agents via 50,000 $CLAUDING hold</li>
                   <li>✓ 24h+ Autonomous agentic loops</li>
                   <li>✓ 1-click cloud ship</li>
                   <li>✓ Zero-fee compilation loops</li>
-                  <li>✓ Access to kirble-v1.0-pro models</li>
+                  <li>✓ Access to clauding-v1.0-pro models</li>
                   <li>✓ Priority custom catalog tools</li>
                 </ul>
               </div>
@@ -556,8 +427,8 @@ export default function Home() {
           <div className="token-buy-card" style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', marginTop: '40px' }}>
             <div style={{ textAlign: 'left', flex: 1 }}>
               <span style={{ background: '#F5601C', fontSize: '11px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '999px', marginRight: '10px' }}>LAUNCH OFFER</span>
-              <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Get $KIRBLE Token</h3>
-              <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>Hold 50,000 $KIRBLE to unlock unlimited compiler access, live cloud launches, and zero-fee agent execution.</p>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Get $CLAUDING Token</h3>
+              <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>Hold 50,000 $CLAUDING to unlock unlimited compiler access, live cloud launches, and zero-fee agent execution.</p>
             </div>
             <a
               href="https://pump.fun"
@@ -648,13 +519,13 @@ export default function Home() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '20px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800', fontSize: '24px', color: '#0A0A0A', letterSpacing: '-0.03em' }}>
                 <LogoIcon />
-                Kirble
+                Clauding
               </span>
               <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.05, color: '#0A0A0A', margin: 0, maxWidth: '420px' }}>
                 Ship agents without burning credits.
               </h2>
               <p style={{ color: '#475569', fontSize: '15px', lineHeight: 1.5, maxWidth: '380px', margin: 0 }}>
-                Unlock autonomous agentic dev powered by $KIRBLE compilation loops.
+                Unlock autonomous agentic dev powered by $CLAUDING compilation loops.
               </p>
 
               {/* Social Buttons */}
@@ -709,8 +580,8 @@ export default function Home() {
             <div>
               <h4 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'lowercase', color: '#F5601C', marginBottom: '20px', letterSpacing: '0.05em' }}>legal</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Privacy Policy</a>
-                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>EULA</a>
+                <a href="/privacy" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Privacy Policy</a>
+                <a href="/eula" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>EULA</a>
               </div>
             </div>
 
@@ -736,8 +607,13 @@ export default function Home() {
             flexWrap: 'wrap',
             gap: '16px'
           }}>
-            <span>© 2026 Kirble. All rights reserved.</span>
-            <span>powered by <span style={{ color: '#F5601C', fontWeight: 'bold' }}>Kirble Autonomous Compiler</span></span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <span>© 2026 Clauding. All rights reserved.</span>
+              <span style={{ fontSize: '11px', color: '#94a3b8', maxWidth: '600px', lineHeight: '1.4' }}>
+                Disclaimer: CLAUDING is an independent product and is not affiliated, partnered, endorsed, or officially associated with Anthropic or OpenAI. CLAUDING runs on Anthropic and OpenAI models.
+              </span>
+            </div>
+            <span>powered by <span style={{ color: '#F5601C', fontWeight: 'bold' }}>Clauding Autonomous Compiler</span></span>
           </div>
         </div>
       </footer>

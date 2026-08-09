@@ -1,7 +1,7 @@
-# Kirble Backend Developer Brief
+# Clauding Backend Developer Brief
 
 **Version:** 1.0
-**Audience:** Backend engineer(s) implementing the Kirble platform
+**Audience:** Backend engineer(s) implementing the Clauding platform
 **Status:** Ready for build
 **Owner:** Ronald
 
@@ -9,7 +9,7 @@
 
 ## 1. Product context
 
-Kirble lets anyone build a custom AI agent by describing it in plain language, giving it a **character** (persona), and launching it. Each agent is backed by multiple AI models (Claude, GPT, Gemini, Grok, Llama) behind a single Kirble API key. Users top up once with crypto (SOL or the `$KIRBLE` token) and spend across every model from one balance.
+Clauding lets anyone build a custom AI agent by describing it in plain language, giving it a **character** (persona), and launching it. Each agent is backed by multiple AI models (Claude, GPT, Gemini, Grok, Llama) behind a single Clauding API key. Users top up once with crypto (SOL or the `$CLAUDING` token) and spend across every model from one balance.
 
 The frontend (landing page and app) is already designed. This brief specifies the **backend**: the services, data model, APIs, agent runtime, model router, character system, auth, and billing needed to make it real.
 
@@ -22,7 +22,7 @@ The frontend (landing page and app) is already designed. This brief specifies th
 | **Model** | A provider model (e.g. `claude-opus-4-8`, `gpt-5.6-terra`). Exposed through a normalized adapter. |
 | **Run** | One execution of an agent (a conversation turn or a triggered background job). Durable and replayable. |
 | **Thread** | A conversation context grouping messages and runs. |
-| **Kirble key** | A single API key that unlocks every model, usable inside Kirble or in external tools. |
+| **Clauding key** | A single API key that unlocks every model, usable inside Clauding or in external tools. |
 | **Ledger** | The double entry record of every credit (top up) and debit (usage) against a user balance. |
 
 ### 1.2 Goals
@@ -31,7 +31,7 @@ The frontend (landing page and app) is already designed. This brief specifies th
 2. Route each task to the best model automatically, with graceful fallback.
 3. Preserve an agent's character consistently across model switches.
 4. Meter usage precisely and bill it against a crypto funded balance.
-5. Expose one clean API and one key that work both inside Kirble and in external tools.
+5. Expose one clean API and one key that work both inside Clauding and in external tools.
 
 ### 1.3 Non goals (v1)
 
@@ -54,7 +54,7 @@ Chosen for developer velocity, first class streaming, mature provider SDKs, and 
 | Cache / queues / rate limit | **Redis 7** | Sessions, token bucket rate limiting, hot config, lightweight queues. |
 | Object storage | **S3 compatible** (R2 or S3) | File uploads, run artifacts, exported logs. |
 | Model gateway | **Custom adapter layer** (LiteLLM optional behind it) | Normalize every provider to one interface; own the routing logic. |
-| Crypto | **Solana web3.js + Helius** (RPC + webhooks) | Deposit detection, `$KIRBLE` SPL token, wallet auth. |
+| Crypto | **Solana web3.js + Helius** (RPC + webhooks) | Deposit detection, `$CLAUDING` SPL token, wallet auth. |
 | Auth | **Sign In With Solana (SIWS)** to JWT | Wallet native login, no passwords. API keys for programmatic access. |
 | Streaming transport | **SSE** for chat, **WebSocket** for the live app | SSE is simplest for token streams; WS where bidirectional is needed. |
 | Observability | **OpenTelemetry + Grafana/Tempo/Prometheus + Sentry** | Trace every run, step, and model call end to end. |
@@ -68,11 +68,11 @@ Chosen for developer velocity, first class streaming, mature provider SDKs, and 
 flowchart TB
   subgraph Client
     Web[Web app / landing]
-    Ext[External tools using Kirble key]
+    Ext[External tools using Clauding key]
   end
 
   Web -->|SIWS, JWT| GW
-  Ext -->|Kirble API key| GW
+  Ext -->|Clauding API key| GW
 
   subgraph Edge
     GW[API Gateway - NestJS]
@@ -115,7 +115,7 @@ flowchart TB
 ```
 
 **Data flow, chat turn:**
-1. Client opens an SSE stream to `POST /v1/chat/stream` with a Kirble key or JWT.
+1. Client opens an SSE stream to `POST /v1/chat/stream` with a Clauding key or JWT.
 2. Gateway authenticates, checks rate limit, and confirms the user has a positive balance (or a reserved hold).
 3. Agent service resolves the agent config + character, starts a Temporal run.
 4. Worker composes the system prompt, asks the **model router** for a model, calls the provider adapter, and streams tokens back through the gateway.
@@ -126,11 +126,11 @@ flowchart TB
 
 ## 4. Agent runtime and model routing (deep dive)
 
-This is the heart of Kirble. It has four parts: the **spec compiler** (build an agent from a sentence), the **execution loop** (run it), the **model router** (pick the model), and the **provider adapters** (call it).
+This is the heart of Clauding. It has four parts: the **spec compiler** (build an agent from a sentence), the **execution loop** (run it), the **model router** (pick the model), and the **provider adapters** (call it).
 
 ### 4.1 Agent spec compiler
 
-When a user types "an agent that tracks crypto news and DMs me the alpha", Kirble compiles that into a structured, validated `AgentSpec`. Do this with a single strong model call constrained to a JSON schema, then show the result to the user for confirmation (human in the loop) before saving.
+When a user types "an agent that tracks crypto news and DMs me the alpha", Clauding compiles that into a structured, validated `AgentSpec`. Do this with a single strong model call constrained to a JSON schema, then show the result to the user for confirmation (human in the loop) before saving.
 
 ```mermaid
 sequenceDiagram
@@ -347,7 +347,7 @@ Map the numeric `voice` knobs to concrete instructions and to model sampling par
 
 ### 5.4 Character preservation across models (critical)
 
-Because Kirble routes across providers, the same character must feel identical on Claude, GPT, or Gemini. Enforce this by:
+Because Clauding routes across providers, the same character must feel identical on Claude, GPT, or Gemini. Enforce this by:
 1. Re rendering the **full** Layer 0 to Layer 3 prompt for every model call, never relying on provider side state.
 2. Normalizing sampling: translate the character's intended `temperature`/`top_p` to each provider's equivalent range.
 3. Running a **character consistency eval** in CI: a fixed set of prompts run against each model, scored for tone adherence. Fail the build if a model drifts beyond threshold.
@@ -360,7 +360,7 @@ Characters are versioned (`character_versions`). Editing creates a new version; 
 
 ## 6. API design (deep dive)
 
-**Base:** `https://api.kirble.xyz/v1`
+**Base:** `https://api.clauding.xyz/v1`
 **Conventions:** JSON, cursor pagination, `Idempotency-Key` on all writes, RFC 9457 `application/problem+json` errors, semantic versioning in the path (`/v1`).
 
 ### 6.1 Authentication
@@ -368,7 +368,7 @@ Characters are versioned (`character_versions`). Editing creates a new version; 
 Two mechanisms:
 
 1. **Sign In With Solana (SIWS)** for the web app, producing a short lived access JWT and a refresh token.
-2. **Kirble API key** for programmatic use and external tools ("one key, every model"). Keys are scoped and rate limited per plan.
+2. **Clauding API key** for programmatic use and external tools ("one key, every model"). Keys are scoped and rate limited per plan.
 
 ```
 POST /v1/auth/nonce        { wallet } -> { nonce, expiresAt }
@@ -411,8 +411,8 @@ POST   /v1/runs/:id/cancel
 GET    /v1/models                -> normalized catalog (id, provider, price, capabilities)
 
 # Billing
-GET    /v1/billing/wallet        -> { balanceUsd, kirbleBalance, address }
-POST   /v1/billing/topup/intent  { asset: "SOL"|"KIRBLE", amount } -> { depositAddress, memo, expiresAt }
+GET    /v1/billing/wallet        -> { balanceUsd, claudingBalance, address }
+POST   /v1/billing/topup/intent  { asset: "SOL"|"CLAUDING", amount } -> { depositAddress, memo, expiresAt }
 GET    /v1/billing/usage         ?from&to -> aggregated usage + cost
 GET    /v1/billing/ledger        -> paginated ledger entries
 ```
@@ -584,7 +584,7 @@ create table model_catalog (
 create table wallets (
   user_id       uuid primary key references users(id) on delete cascade,
   balance_micro_usd bigint not null default 0,
-  kirble_balance bigint not null default 0,      -- token base units
+  clauding_balance bigint not null default 0,      -- token base units
   updated_at    timestamptz not null default now()
 );
 
@@ -604,7 +604,7 @@ create index on ledger_entries (user_id, created_at);
 create table deposits (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid not null references users(id),
-  asset         text not null,                   -- SOL|KIRBLE
+  asset         text not null,                   -- SOL|CLAUDING
   tx_signature  text unique not null,            -- on chain, idempotency anchor
   amount_native bigint not null,                 -- lamports or token base units
   credited_micro_usd bigint not null,            -- after oracle conversion
@@ -642,9 +642,9 @@ Balance is denominated in micro USD credits. Crypto is the **funding rail**, not
 
 **Top up flow:**
 1. `POST /v1/billing/topup/intent` returns a deposit address (or program instruction) and a `memo` that ties the deposit to the user.
-2. User sends SOL or `$KIRBLE`.
+2. User sends SOL or `$CLAUDING`.
 3. **Helius webhook** notifies the backend of the transfer. Verify on chain confirmation depth.
-4. Convert native amount to micro USD via a price oracle (e.g. Pyth for SOL; internal or DEX TWAP for `$KIRBLE`). Apply the `$KIRBLE` discount tier (paying in the token unlocks better rates).
+4. Convert native amount to micro USD via a price oracle (e.g. Pyth for SOL; internal or DEX TWAP for `$CLAUDING`). Apply the `$CLAUDING` discount tier (paying in the token unlocks better rates).
 5. Insert a `deposits` row keyed by `tx_signature` (idempotent), then a `ledger_entries` credit, then bump `wallets.balance_micro_usd` in one transaction.
 
 **Metering and holds:**
@@ -694,11 +694,11 @@ Balance is denominated in micro USD credits. Crypto is the **funding rail**, not
 
 | Milestone | Scope | Outcome |
 |-----------|-------|---------|
-| **M0 Foundations** | Repo, CI, Postgres + Redis, auth (SIWS + keys), model catalog, one provider adapter | You can log in with a wallet and call one model through Kirble. |
+| **M0 Foundations** | Repo, CI, Postgres + Redis, auth (SIWS + keys), model catalog, one provider adapter | You can log in with a wallet and call one model through Clauding. |
 | **M1 Chat + router** | Provider adapters for all 5, model router with fallback, SSE streaming, threads/messages | Real multi model chat with automatic routing. |
 | **M2 Characters** | Character schema, prompt composition, picker preview endpoint, consistency eval | Agents have consistent personas across models. |
 | **M3 Agents runtime** | Spec compiler, Temporal runs, tools, memory, triggers | Users build and run real agents from a sentence. |
-| **M4 Billing** | Wallet, deposits via Helius, holds + metering + ledger, `$KIRBLE` discount | Usage is metered and paid from a crypto balance. |
+| **M4 Billing** | Wallet, deposits via Helius, holds + metering + ledger, `$CLAUDING` discount | Usage is metered and paid from a crypto balance. |
 | **M5 Hardening** | Rate limits, RLS, audit, observability dashboards, load tests | Production ready. |
 
 ---
@@ -706,12 +706,12 @@ Balance is denominated in micro USD credits. Crypto is the **funding rail**, not
 ## 13. Open questions for Ronald
 
 1. **Llama hosting**: self host (vLLM) or a hosted inference provider? Affects the adapter and cost model.
-2. **`$KIRBLE` price source**: which oracle/DEX pair is canonical for the token to USD conversion?
-3. **Discount tiers**: exact `$KIRBLE` discount curve (flat percentage, or tiered by holdings)?
+2. **`$CLAUDING` price source**: which oracle/DEX pair is canonical for the token to USD conversion?
+3. **Discount tiers**: exact `$CLAUDING` discount curve (flat percentage, or tiered by holdings)?
 4. **Agent triggers in v1**: ship cron + chat only, or also inbound webhooks at launch?
 5. **External tool delivery** (DMs, notifications): which channels at launch (in app only, or X/Telegram)?
 6. **Data retention**: how long do we keep prompts, memory, and run logs, and what is user deletable?
 
 ---
 
-*Prepared for the Kirble backend build. Pair this with the existing frontend (`index.html`). Sections 4, 5, and 6/7 are the priority per product focus.*
+*Prepared for the Clauding backend build. Pair this with the existing frontend (`index.html`). Sections 4, 5, and 6/7 are the priority per product focus.*

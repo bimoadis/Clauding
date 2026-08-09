@@ -122,7 +122,7 @@ create table if not exists memory_chunks (
 create table if not exists wallets (
   user_id       uuid primary key references users(id) on delete cascade,
   balance_micro_usd bigint not null default 0,
-  kirble_balance bigint not null default 0,
+  clauding_balance bigint not null default 0,
   updated_at    timestamptz not null default now()
 );
 

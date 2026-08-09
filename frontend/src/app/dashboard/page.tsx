@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 
 // Dynamically import WalletMultiButton with SSR disabled to prevent hydration mismatches
 const WalletMultiButton = dynamic(
-  async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
+  () => import('@solana/wallet-adapter-react-ui').then((mod) => mod.WalletMultiButton),
   { ssr: false }
 );
 
@@ -78,7 +78,7 @@ if (API_BASE_URL.endsWith('/')) {
 const LogoIconMini: React.FC = () => (
   <img
     src="/logo.png"
-    alt="Kirble Logo"
+    alt="Clauding Logo"
     style={{
       width: '41px',
       height: '41px',
@@ -627,7 +627,7 @@ function DashboardContent() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', fontSize: '18px', color: '#0A0A0A' }}>
           <LogoIconMini />
-          Kirble Builder
+          Clauding Builder
         </div>
 
         {/* Stepper Wizard Indicator (Desktop Only) */}
@@ -809,7 +809,7 @@ function DashboardContent() {
               Compile AI Agent
             </h1>
             <p style={{ color: '#475569', fontSize: 'clamp(15px, 2vw, 18px)', textAlign: 'center', maxWidth: '580px', marginBottom: '32px', lineHeight: 1.5 }}>
-              Give Kirble the idea. Auto-compile capabilities, review system prompts, and launch your agent.
+              Give Clauding the idea. Auto-compile capabilities, review system prompts, and launch your agent.
             </p>
 
             {/* Dark input prompt window card */}
@@ -877,7 +877,7 @@ function DashboardContent() {
                       boxShadow: '0 4px 14px rgba(245, 96, 28, 0.3)'
                     }}
                   >
-                    KIRBLE IT
+                    CLAUDING IT
                   </button>
                 </div>
               </div>

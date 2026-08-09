@@ -2,13 +2,13 @@ import { Worker } from '@temporalio/worker';
 import * as activities from './activities';
 
 async function runWorker() {
-  console.log('Starting Kirble Temporal Worker pool...');
+  console.log('Starting Clauding Temporal Worker pool...');
 
   // Connect to local Temporal server instance
   const worker = await Worker.create({
     workflowsPath: require.resolve('./agent.workflow'),
     activities,
-    taskQueue: 'kirble-agent-tasks',
+    taskQueue: 'clauding-agent-tasks',
   });
 
   await worker.run();

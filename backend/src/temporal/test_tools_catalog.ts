@@ -10,7 +10,7 @@ async function testToolsCatalog() {
     },
     {
       name: 'dex_token_price',
-      args: { tokenMint: 'KIRBLE_MINT_ADDRESS' }
+      args: { tokenMint: 'CLAUDING_MINT_ADDRESS' }
     },
     {
       name: 'python_sandbox',
@@ -18,7 +18,7 @@ async function testToolsCatalog() {
     },
     {
       name: 'telegram_send',
-      args: { chatId: 'user_123', message: 'Hello from Kirble!' }
+      args: { chatId: 'user_123', message: 'Hello from Clauding!' }
     },
     {
       name: 'coingecko_trending',
@@ -26,15 +26,15 @@ async function testToolsCatalog() {
     },
     {
       name: 'text_to_speech',
-      args: { text: 'Welcome to Kirble agent platform.' }
+      args: { text: 'Welcome to Clauding agent platform.' }
     },
     {
       name: 'speech_to_text',
-      args: { audioUrl: 'https://audio.kirble.xyz/user_voice.mp3' }
+      args: { audioUrl: 'https://audio.clauding.xyz/user_voice.mp3' }
     },
     {
       name: 'image_ocr',
-      args: { imageUrl: 'https://images.kirble.xyz/snap_tx.png' }
+      args: { imageUrl: 'https://images.clauding.xyz/snap_tx.png' }
     }
   ];
 

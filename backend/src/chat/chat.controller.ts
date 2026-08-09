@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req, Sse, MessageEvent, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, Sse, MessageEvent, Query, UseGuards } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { OpenAIAdapter } from '../models/adapters/openai.adapter';
 import { AnthropicAdapter } from '../models/adapters/anthropic.adapter';
@@ -7,6 +7,8 @@ import { ModelRef } from '../models/model-router.interface';
 import { db } from '../db/db';
 import { users, threads, messages, agents } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
+import { AuthGuard } from '../auth/auth.guard';
+import { TemporalService } from '../temporal/temporal.service';
 
 interface ChatStreamDto {
   message: string;
@@ -19,6 +21,8 @@ export class ChatController {
   private openai = new OpenAIAdapter();
   private anthropic = new AnthropicAdapter();
   private router = new ModelRouter();
+
+  constructor(private readonly temporalService: TemporalService) {}
 
   // Mock database model catalog
   private modelsCatalog: ModelRef[] = [
@@ -58,14 +62,16 @@ export class ChatController {
   ];
 
   @Get('stream')
+  @UseGuards(AuthGuard)
   @Sse() // Marks it as an SSE stream
   public handleChatStream(
     @Query('message') message: string,
+    @Req() req: any,
     @Query('costTier') costTier?: 'economy' | 'balanced' | 'premium',
     @Query('tools') toolsStr?: string,
-    @Query('wallet') wallet?: string,
     @Query('agentId') agentId?: string
   ): Observable<MessageEvent> {
+    const wallet = req.user.sub;
     return new Observable<MessageEvent>((subscriber) => {
       (async () => {
         try {
@@ -163,11 +169,25 @@ export class ChatController {
             }
           }
 
+          const runId = 'run_' + Math.random().toString(36).substring(7);
+
           // Send run.started event
           subscriber.next({
             type: 'run.started',
-            data: JSON.stringify({ runId: 'run_' + Math.random().toString(36).substring(7), model: activeModel.id })
+            data: JSON.stringify({ runId, model: activeModel.id })
           });
+
+          // Dispatch to Temporal workflow as a background process
+          if (dbThread && agentId) {
+            this.temporalService.startAgentRun({
+              runId,
+              agentId,
+              threadId: dbThread.id,
+              userMessage: message
+            }).catch((err) => {
+              console.error('[Temporal] Asynchronous startAgentRun failed:', err);
+            });
+          }
 
           // 2. Stream tokens from the adapter
           const adapter = activeModel.provider === 'openai' ? this.openai : this.anthropic;
@@ -227,10 +247,12 @@ export class ChatController {
   }
 
   @Get('history')
+  @UseGuards(AuthGuard)
   public async getChatHistory(
-    @Query('wallet') wallet: string,
+    @Req() req: any,
     @Query('agentId') agentId?: string
   ) {
+    const wallet = req.user.sub;
     if (!wallet) {
       return [];
     }
@@ -274,5 +296,13 @@ export class ChatController {
       console.error('Failed to fetch chat history:', err);
       return [];
     }
+  }
+
+  @Get('health')
+  public checkHealth() {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString()
+    };
   }
 }
