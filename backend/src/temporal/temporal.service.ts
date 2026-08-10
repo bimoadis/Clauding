@@ -6,17 +6,17 @@ export class TemporalService implements OnModuleInit {
   private client: Client | null = null;
 
   async onModuleInit() {
-    try {
-      const connection = await Connection.connect({
-        address: process.env.TEMPORAL_ADDRESS || 'localhost:7233'
-      });
+    // Connect in the background so it doesn't block NestJS bootstrap and health check probes
+    Connection.connect({
+      address: process.env.TEMPORAL_ADDRESS || 'localhost:7233'
+    }).then(connection => {
       this.client = new Client({
         connection
       });
       console.log('[Temporal] Successfully connected to Temporal server.');
-    } catch (err: any) {
+    }).catch(err => {
       console.warn('[Temporal] Failed to connect to Temporal server (running in standalone mock mode):', err.message);
-    }
+    });
   }
 
   public getClient(): Client | null {
