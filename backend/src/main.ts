@@ -12,7 +12,12 @@ async function bootstrap() {
     new FastifyAdapter()
   );
 
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: '*',
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   const port = process.env.PORT || 3001;
