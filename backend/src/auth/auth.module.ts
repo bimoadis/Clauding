@@ -6,10 +6,18 @@ import { AuthGuard } from './auth.guard';
 
 @Module({
   imports: [
-    JwtModule.register({
+    JwtModule.registerAsync({
       global: true,
-      secret: process.env.JWT_SECRET || 'clauding_super_secret_key_123!',
-      signOptions: { expiresIn: '7d' },
+      useFactory: () => {
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+          throw new Error('JWT_SECRET env variable is not configured');
+        }
+        return {
+          secret,
+          signOptions: { expiresIn: '7d' },
+        };
+      },
     }),
   ],
   controllers: [AuthController],

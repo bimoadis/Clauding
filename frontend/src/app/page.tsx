@@ -39,7 +39,7 @@ export default function Home() {
     { q: "Which models can my agent use?", a: "Claude and GPT. The compiler selects the best model from Claude 3.5 Sonnet and GPT-4o automatically, or you can pin a favorite model." },
     { q: "How do I pay?", a: "Top up with crypto (Coming Soon) or run locally using your own API keys. No cards or per-provider subscriptions required." },
     { q: "Can I change my agent's character later?", a: "Anytime. Swap characters to change your agent's tone and style without rebuilding it." },
-    { q: "Is my agent always online?", a: "Yes. Once launched, your agent runs on Clauding's infrastructure and stays available across the tools you connect it to." }
+    { q: "Is my agent always online?", a: "Yes. Once launched, your agent runs as a persistent Temporal workflow on our infrastructure and stays available to handle tasks asynchronously." }
   ];
   const [openFaq, setOpenFaq] = useState(0 as number | null);
 
