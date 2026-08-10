@@ -1,13 +1,14 @@
 packages:
   - 'backend'
   - 'frontend'
-allowBuilds:
-  '@nestjs/core': true
-  '@stellar/stellar-sdk': true
-  blake-hash: true
-  bufferutil: true
-  esbuild: true
-  protobufjs: true
-  tiny-secp256k1: true
-  usb: true
-  utf-8-validate: true
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@stellar/stellar-sdk'
+  - '@swc/core'
+  - blake-hash
+  - bufferutil
+  - esbuild
+  - protobufjs
+  - tiny-secp256k1
+  - usb
+  - utf-8-validate
