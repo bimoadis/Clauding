@@ -357,7 +357,7 @@ function DashboardContent() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/agents/compile`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${jwtToken || localStorage.getItem('jwt_token_' + publicKey?.toBase58()) || ''}`
         },
@@ -431,7 +431,7 @@ function DashboardContent() {
       console.log(`Step 3: Sending agent launch compile payload to ${API_BASE_URL}/v1/agents/compile...`);
       const response = await fetch(`${API_BASE_URL}/v1/agents/compile`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${jwtToken || localStorage.getItem('jwt_token_' + publicKey?.toBase58()) || ''}`
         },
@@ -507,7 +507,7 @@ function DashboardContent() {
     console.log('Step 4: Opening SSE (Server-Sent Events) network chat stream connection at:', targetUrl);
 
     try {
-      const response = await fetch(targetUrl, { 
+      const response = await fetch(targetUrl, {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -1107,21 +1107,7 @@ function DashboardContent() {
               boxShadow: '0 10px 30px rgba(0, 0, 0, 0.03)'
             }}>
 
-              <button style={{
-                background: 'rgba(255, 255, 255, 0.5)',
-                border: '1px solid rgba(255, 255, 255, 0.6)',
-                borderRadius: '999px',
-                padding: '10px 24px',
-                fontWeight: 'bold',
-                fontSize: '13px',
-                color: '#475569',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                Explore All Capabilities →
-              </button>
+
             </div>
           </div>
         )}

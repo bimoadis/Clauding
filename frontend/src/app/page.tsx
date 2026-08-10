@@ -377,8 +377,7 @@ export default function Home() {
           </div>
 
           <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '32px' }}>
-            {/* Free Card */}
-            <div style={{ background: '#FAFAF8', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div style={{ background: '#FAFAF8', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.04)' }}>
               <div>
                 <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Free Mode</h3>
                 <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>For hobbyists testing prompts.</p>
@@ -389,17 +388,17 @@ export default function Home() {
                   <li>✓ standard LLM catalog models</li>
                   <li>✓ 1 Active agent connection</li>
                 </ul>
-                     <button 
+              </div>
+              <button 
                 onClick={() => router.push('/dashboard')}
                 style={{ background: 'transparent', border: '2px solid #e2e8f0', color: '#0a0a0a', padding: '12px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '32px', cursor: 'pointer' }}
               >
                 Get Started
               </button>
             </div>
-          </div>
  
             {/* Pro Card */}
-            <div style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transform: 'scale(1.02)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)' }}>
+            <div style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transform: 'scale(1.02)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.12)' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <h3 style={{ fontSize: '20px', fontWeight: 'bold' }}>Pro Tier</h3>
@@ -435,9 +434,9 @@ export default function Home() {
               </button>
             </div>
           </div>
-
+ 
           {/* Token Buy Card */}
-          <div className="token-buy-card" style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', marginTop: '40px' }}>
+          <div className="token-buy-card" style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', marginTop: '40px', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
             <div style={{ textAlign: 'left', flex: 1 }}>
               <span style={{ background: '#F5601C', fontSize: '11px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '999px', marginRight: '10px' }}>LAUNCH OFFER</span>
               <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Get $CLAUDING Token</h3>
