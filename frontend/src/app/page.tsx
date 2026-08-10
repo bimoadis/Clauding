@@ -373,7 +373,7 @@ export default function Home() {
           <div style={{ textAlign: 'center', marginBottom: '56px' }}>
             <span style={{ fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#F5601C' }}>Flexible Access</span>
             <h2 style={{ fontSize: '38px', fontWeight: 800, margin: '12px 0', letterSpacing: '-0.02em' }}>Access built for compilers.</h2>
-            <p style={{ color: '#475569' }}>Hold $CLAUDING tokens for free agent compilation, or subscribe to Pro for managed cloud loops.</p>
+            <p style={{ color: '#475569' }}>Hold $CLDG tokens for free agent compilation, or subscribe to Pro for managed cloud loops.</p>
           </div>
 
           <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '32px' }}>
@@ -410,13 +410,13 @@ export default function Home() {
                 </p>
 
                 <div style={{ fontSize: '26px', fontWeight: '800', color: '#F5601C', marginBottom: '2px', letterSpacing: '-0.02em' }}>
-                  Hold 50,000 $CLAUDING
+                  Hold 50,000 $CLDG
                 </div>
                 <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 'bold', marginBottom: '24px' }}>
                   for unlimited active agents
                 </div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#cbd5e1' }}>
-                  <li>✓ Unlimited active agents via 50,000 $CLAUDING hold</li>
+                  <li>✓ Unlimited active agents via 50,000 $CLDG hold</li>
                   <li>✓ 24h+ Autonomous agentic loops</li>
                   <li>✓ 1-click cloud ship</li>
                   <li>✓ Zero-fee compilation loops</li>
@@ -426,7 +426,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => {
-                  alert("You will be redirected to Pump.fun to buy $CLAUDING tokens to unlock Pro Tier!");
+                  alert("You will be redirected to Pump.fun to buy $CLDG tokens to unlock Pro Tier!");
                   window.open("https://pump.fun", "_blank");
                 }}
                 style={{ background: '#fff', color: '#0a0a0a', border: 0, padding: '12px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '32px', cursor: 'pointer' }}
@@ -440,8 +440,8 @@ export default function Home() {
           <div className="token-buy-card" style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', marginTop: '40px', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
             <div style={{ textAlign: 'left', flex: 1 }}>
               <span style={{ background: '#F5601C', fontSize: '11px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '999px', marginRight: '10px' }}>LAUNCH OFFER</span>
-              <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Get $CLAUDING Token</h3>
-              <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>Hold 50,000 $CLAUDING to unlock unlimited compiler access, live cloud launches, and zero-fee agent execution.</p>
+              <h3 style={{ fontSize: '22px', fontWeight: 'bold', display: 'inline' }}>Get $CLDG Token</h3>
+              <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>Hold 50,000 $CLDG to unlock unlimited compiler access, live cloud launches, and zero-fee agent execution.</p>
             </div>
             <a
               href="https://pump.fun"
@@ -538,7 +538,7 @@ export default function Home() {
                 Ship agents without burning credits.
               </h2>
               <p style={{ color: '#475569', fontSize: '15px', lineHeight: 1.5, maxWidth: '380px', margin: 0 }}>
-                Unlock autonomous agentic dev powered by $CLAUDING compilation loops.
+                Unlock autonomous agentic dev powered by $CLDG compilation loops.
               </p>
 
               {/* Social Buttons */}

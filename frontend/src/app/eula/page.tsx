@@ -34,7 +34,7 @@ export default function Eula() {
 
           <section>
             <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#0A0A0A', marginBottom: '12px' }}>3. Crypto Assets & Smart Contracts</h2>
-            <p>Usage of the CLAUDING platform requires holding the $CLAUDING utility token or depositing SOL/crypto. Blockchain transactions are irreversible, and you acknowledge that cryptocurrency prices are highly volatile. CLAUDING is not responsible for any token loss, transaction failures, or gas fees incurred.</p>
+            <p>Usage of the CLAUDING platform requires holding the $CLDG utility token or depositing SOL/crypto. Blockchain transactions are irreversible, and you acknowledge that cryptocurrency prices are highly volatile. CLAUDING is not responsible for any token loss, transaction failures, or gas fees incurred.</p>
           </section>
 
           <section>
