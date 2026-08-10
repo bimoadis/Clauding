@@ -379,14 +379,15 @@ export default function Home() {
           <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '32px' }}>
             <div style={{ background: '#FAFAF8', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.04)' }}>
               <div>
-                <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Free Mode</h3>
-                <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>For hobbyists testing prompts.</p>
-                <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '24px' }}>$0 <span style={{ fontSize: '16px', fontWeight: 'normal', color: '#64748b' }}>/ forever</span></div>
+                <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>Free Trial</h3>
+                <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>For hobbyists testing prompts & prototyping ideas.</p>
+                <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '24px' }}>Free <span style={{ fontSize: '16px', fontWeight: 'normal', color: '#64748b' }}>/ rate-limited</span></div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#334155' }}>
-                  <li>✓ Manual sandbox runs</li>
-                  <li>✓ Basic prompt translation</li>
-                  <li>✓ standard LLM catalog models</li>
-                  <li>✓ 1 Active agent connection</li>
+                  <li>✓ 20 Free Messages Every Hour</li>
+                  <li>✓ 100 Daily Agent Launches</li>
+                  <li>✓ 5-Step Autonomous ReAct Loop</li>
+                  <li>✓ Claude & GPT Standard Models</li>
+                  <li>✓ 1 Active Live Agent Workspace</li>
                 </ul>
               </div>
               <button 
@@ -581,11 +582,9 @@ export default function Home() {
             <div>
               <h4 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'lowercase', color: '#F5601C', marginBottom: '20px', letterSpacing: '0.05em' }}>product</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <a href="#how" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Generate</a>
-                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Blueprints</a>
-                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Skills</a>
-                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Gallery</a>
-                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Upgrade</a>
+                <a href="/dashboard" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Dashboard</a>
+                <a href="#how" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>How it Works</a>
+                <a href="#pricing" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Pricing</a>
               </div>
             </div>
 
@@ -600,8 +599,8 @@ export default function Home() {
             <div>
               <h4 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'lowercase', color: '#F5601C', marginBottom: '20px', letterSpacing: '0.05em' }}>more</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>CreatorHunter</a>
-                <a href="#" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Clockout</a>
+                <a href="https://x.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Twitter (X)</a>
+                <a href="https://github.com/bimoadis/KIRBLE" target="_blank" rel="noopener noreferrer" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>GitHub</a>
               </div>
             </div>
 
