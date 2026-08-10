@@ -3,7 +3,7 @@ packages:
   - 'frontend'
 allowBuilds:
   '@nestjs/core': true
-  '@stellar/stellar-sdk': true
+  '@stellar/stellar-sdk': false
   '@swc/core': true
   blake-hash: true
   bufferutil: true
