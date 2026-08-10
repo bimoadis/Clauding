@@ -390,14 +390,14 @@ export default function Home() {
                   <li>✓ 1 Active Live Agent Workspace</li>
                 </ul>
               </div>
-              <button 
+              <button
                 onClick={() => router.push('/dashboard')}
                 style={{ background: 'transparent', border: '2px solid #e2e8f0', color: '#0a0a0a', padding: '12px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '32px', cursor: 'pointer' }}
               >
                 Get Started
               </button>
             </div>
- 
+
             {/* Pro Card */}
             <div style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transform: 'scale(1.02)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.12)' }}>
               <div>
@@ -408,7 +408,7 @@ export default function Home() {
                 <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '24px' }}>
                   For active autonomous loops.
                 </p>
- 
+
                 <div style={{ fontSize: '26px', fontWeight: '800', color: '#F5601C', marginBottom: '2px', letterSpacing: '-0.02em' }}>
                   Hold 50,000 $CLAUDING
                 </div>
@@ -424,7 +424,7 @@ export default function Home() {
                   <li>✓ Priority custom catalog tools</li>
                 </ul>
               </div>
-              <button 
+              <button
                 onClick={() => {
                   alert("You will be redirected to Pump.fun to buy $CLAUDING tokens to unlock Pro Tier!");
                   window.open("https://pump.fun", "_blank");
@@ -435,7 +435,7 @@ export default function Home() {
               </button>
             </div>
           </div>
- 
+
           {/* Token Buy Card */}
           <div className="token-buy-card" style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', marginTop: '40px', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)' }}>
             <div style={{ textAlign: 'left', flex: 1 }}>
@@ -461,7 +461,7 @@ export default function Home() {
                 textAlign: 'center'
               }}
             >
-              Buy on Pump.fun 💊
+              Buy on Pump.fun
             </a>
           </div>
         </div>
