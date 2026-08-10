@@ -10,7 +10,7 @@ import fastifyCors from '@fastify/cors';
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter()
+    new FastifyAdapter({ trustProxy: true })
   );
  
   const instance = app.getHttpAdapter().getInstance();

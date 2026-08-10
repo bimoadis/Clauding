@@ -11,6 +11,11 @@ export class WalletThrottlerGuard extends ThrottlerGuard {
   ): Promise<boolean> {
     const { context, limit, ttl, throttler, blockDuration } = requestProps;
     const request = context.switchToHttp().getRequest();
+ 
+    if (request.method === 'OPTIONS') {
+      return true;
+    }
+ 
     const walletAddress = request.user?.sub;
 
     if (!walletAddress) {
