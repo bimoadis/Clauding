@@ -959,16 +959,7 @@ function DashboardContent() {
                 </div>
               </div>
 
-              {/* Floating mascot cute peek */}
-              <div style={{
-                position: 'absolute',
-                top: '-32px',
-                right: '40px',
-                fontSize: '44px',
-                pointerEvents: 'none'
-              }}>
-                🤖
-              </div>
+
             </div>
 
             {/* Badges footer list */}
@@ -1188,7 +1179,7 @@ function DashboardContent() {
                 boxShadow: '0 12px 40px rgba(0, 0, 0, 0.02)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px' }}>
-                  <div style={{ fontSize: '36px', background: '#ffedd5', padding: '8px', borderRadius: '12px' }}>🤖</div>
+
                   <div>
                     <h2 style={{ fontSize: '28px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>Review Agent Settings</h2>
                     <p style={{ color: '#64748b', fontSize: '13px', margin: '4px 0 0 0' }}>Review your agent configuration before launching it live.</p>
@@ -1254,7 +1245,7 @@ function DashboardContent() {
                       maxWidth: '360px'
                     }}
                   >
-                    {isPublishing ? 'Launching Live...' : '🚀 Launch Agent Live'}
+                    {isPublishing ? 'Launching Live...' : 'Launch Agent Live'}
                   </button>
                   <div style={{ fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
                     Secure • Private • Encrypted
