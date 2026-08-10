@@ -269,7 +269,7 @@ export default function Home() {
 
           {/* Model Badges */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', opacity: 0.8, marginBottom: '32px' }}>
-            {['Claude 3.5', 'GPT-4o', 'Gemini Pro', 'Grok 2', 'Llama 3'].map((m) => (
+            {['Claude 3.5', 'GPT-4o'].map((m) => (
               <span key={m} style={{
                 fontSize: '12px',
                 fontWeight: 'bold',

@@ -5,11 +5,7 @@ export class OpenAIAdapter implements ProviderAdapter {
   readonly provider = 'openai';
 
   async chat(req: NormalizedChatRequest): Promise<NormalizedChatResponse> {
-    const openaiKey = process.env.OPENAI_API_KEY;
-    const xaiKey = process.env.XAI_API_KEY;
-
-    const useXAI = (!openaiKey || openaiKey.includes('proj-...')) && xaiKey && !xaiKey.includes('your-');
-    const apiKey = useXAI ? xaiKey : openaiKey;
+    const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey || apiKey.includes('proj-...') || apiKey.includes('your-')) {
       // Mock Response for Development
@@ -19,8 +15,8 @@ export class OpenAIAdapter implements ProviderAdapter {
       };
     }
 
-    const endpoint = useXAI ? 'https://token-plan-sgp.xiaomimimo.com/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
-    const activeModel = useXAI ? 'mimo-v2.5-pro' : req.model;
+    const endpoint = 'https://api.openai.com/v1/chat/completions';
+    const activeModel = req.model;
 
     // Real-time Tool Data Injection Interceptor
     const userPrompt = req.messages[req.messages.length - 1].content;
@@ -143,9 +139,7 @@ Integrate this live data and answer the user prompt accurately.`
 
   async *stream(req: NormalizedChatRequest): AsyncIterable<ChatChunk> {
     const openaiKey = process.env.OPENAI_API_KEY;
-    const xaiKey = process.env.XAI_API_KEY;
-
-    const useRealAPI = (openaiKey && !openaiKey.includes('proj-...')) || (xaiKey && !xaiKey.includes('your-'));
+    const useRealAPI = openaiKey && !openaiKey.includes('proj-...');
 
     if (!useRealAPI) {
       // Dynamic Local ReAct Agent Mock Runner

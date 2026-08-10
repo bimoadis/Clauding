@@ -17,9 +17,13 @@ export class AuthGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException('Missing authentication token');
     }
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error('JWT_SECRET env variable is not configured');
+    }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET || 'clauding_super_secret_key_123!'
+        secret
       });
       // Assign payload to request object so we can access it in controllers
       request['user'] = payload;

@@ -31,6 +31,22 @@ jobs:
       run: |
         pnpm --filter backend build
 
+    - name: Start backend and run tests
+      env:
+        DATABASE_URL: postgres://username:password@localhost:5432/postgres
+        JWT_SECRET: clauding_super_secret_key_123!
+        PORT: 3005
+      run: |
+        # Run backend server in background
+        pnpm --filter backend run start &
+        # Wait for backend to be healthy
+        until curl -s http://localhost:3005/v1/chat/health; do
+          echo "Waiting for backend server to boot..."
+          sleep 2
+        done
+        # Run test master runner
+        pnpm --filter backend exec ts-node src/test_master.ts
+
     - name: Build frontend
       run: |
         pnpm --filter frontend build

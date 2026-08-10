@@ -5,9 +5,9 @@ export class AnthropicAdapter implements ProviderAdapter {
   readonly provider = 'anthropic';
 
   async chat(req: NormalizedChatRequest): Promise<NormalizedChatResponse> {
-    const xaiKey = process.env.XAI_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
 
-    if (!xaiKey || xaiKey.includes('your-')) {
+    if (!apiKey || apiKey.includes('your-')) {
       // Mock Response for Development
       return {
         message: `[Mock Anthropic - ${req.model}] This is a mocked Claude response to: "${req.messages[req.messages.length - 1].content}"`,
@@ -15,8 +15,8 @@ export class AnthropicAdapter implements ProviderAdapter {
       };
     }
 
-    const endpoint = 'https://token-plan-sgp.xiaomimimo.com/anthropic/v1/messages';
-    const activeModel = 'mimo-v2.5-pro';
+    const endpoint = 'https://api.anthropic.com/v1/messages';
+    const activeModel = req.model;
 
     // Real-time Tool Data Injection Interceptor
     const userPrompt = req.messages[req.messages.length - 1].content;
@@ -92,11 +92,11 @@ export class AnthropicAdapter implements ProviderAdapter {
       ? `${scopeSystem}\n\n[Layer 3: Session Context - Real-time Data Access]\nThe user requested info requiring live data. The backend automatically ran these catalog tools and fetched this live data:\n${dataInjections.join('\n\n')}\nIntegrate this live data and answer the user prompt accurately.`
       : scopeSystem;
 
-    console.log(`[DEBUG] Invoking custom Anthropic API via endpoint: ${endpoint} (model: ${activeModel})`);
+    console.log(`[DEBUG] Invoking official Anthropic API via endpoint: ${endpoint} (model: ${activeModel})`);
 
     const headers: Record<string, string> = {
       'content-type': 'application/json',
-      'x-api-key': xaiKey,
+      'x-api-key': apiKey || '',
       'anthropic-version': '2023-06-01'
     };
 
@@ -115,7 +115,7 @@ export class AnthropicAdapter implements ProviderAdapter {
     });
 
     if (!response.ok) {
-      throw new Error(`Custom Anthropic API failed (${response.status}): ${await response.text()}`);
+      throw new Error(`Official Anthropic API failed (${response.status}): ${await response.text()}`);
     }
 
     const data = await response.json();
@@ -130,8 +130,8 @@ export class AnthropicAdapter implements ProviderAdapter {
   }
 
   async *stream(req: NormalizedChatRequest): AsyncIterable<ChatChunk> {
-    const xaiKey = process.env.XAI_API_KEY;
-    const useRealAPI = xaiKey && !xaiKey.includes('your-');
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const useRealAPI = apiKey && !apiKey.includes('your-');
 
     if (!useRealAPI) {
       // Dynamic Local ReAct Agent Mock Runner

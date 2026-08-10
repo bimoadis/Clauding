@@ -4,7 +4,8 @@ import bs58 from 'bs58';
 async function testAuthFlow() {
   console.log('--- Starting Integration Test for Solana SIWS & JWT Auth Flow ---');
 
-  const BASE_URL = 'http://localhost:3001';
+  const PORT = process.env.PORT || '3001';
+  const BASE_URL = `http://localhost:${PORT}`;
 
   // 1. Generate two test Solana keypairs (Wallet A and Wallet B)
   const walletA = nacl.sign.keyPair();

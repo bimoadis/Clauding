@@ -174,3 +174,9 @@ export const modelCatalog = pgTable('model_catalog', {
   qualityRank: integer('quality_rank').default(100).notNull(),
   enabled: boolean('enabled').default(true).notNull()
 });
+
+export const nonces = pgTable('nonces', {
+  nonce: text('nonce').primaryKey(),
+  wallet: text('wallet').notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull()
+});

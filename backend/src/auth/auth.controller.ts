@@ -2,7 +2,7 @@ import { Controller, Post, Body, UnauthorizedException, Delete, Req, UseGuards, 
 import { JwtService } from '@nestjs/jwt';
 import { SiwsService, SiwsVerifyDto } from './siws.service';
 import { db } from '../db/db';
-import { users } from '../db/schema';
+import { users, nonces } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { AuthGuard } from './auth.guard';
 
@@ -13,23 +13,28 @@ interface NonceResponse {
 
 @Controller('v1/auth')
 export class AuthController {
-  // In-memory store for nonces with TTL
-  private static nonces = new Map<string, { nonce: string; expiresAt: Date }>();
-
   constructor(
     private readonly siwsService: SiwsService,
     private readonly jwtService: JwtService
   ) {}
 
   @Post('nonce')
-  public generateNonce(@Body() body: { publicKey: string }): NonceResponse {
+  public async generateNonce(@Body() body: { publicKey: string }): Promise<NonceResponse> {
     if (!body.publicKey) {
       throw new UnauthorizedException('Public key is required');
     }
     const nonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes TTL
     
-    AuthController.nonces.set(body.publicKey, { nonce, expiresAt });
+    // Clear any previous nonce for this wallet
+    await db.delete(nonces).where(eq(nonces.wallet, body.publicKey));
+    
+    // Insert new nonce to DB
+    await db.insert(nonces).values({
+      nonce,
+      wallet: body.publicKey,
+      expiresAt
+    });
     
     return {
       nonce,
@@ -46,14 +51,14 @@ export class AuthController {
       throw new UnauthorizedException('publicKey, message, and signature are required');
     }
 
-    // 1. Retrieve nonce
-    const nonceRecord = AuthController.nonces.get(publicKey);
+    // 1. Retrieve nonce from database
+    const nonceRecord = await db.select().from(nonces).where(eq(nonces.wallet, publicKey)).limit(1).then(r => r[0]);
     if (!nonceRecord) {
       throw new UnauthorizedException('Nonce not found or expired. Request a new nonce first.');
     }
 
     if (nonceRecord.expiresAt.getTime() < Date.now()) {
-      AuthController.nonces.delete(publicKey);
+      await db.delete(nonces).where(eq(nonces.wallet, publicKey));
       throw new UnauthorizedException('Nonce has expired');
     }
 
@@ -75,7 +80,7 @@ export class AuthController {
     }
 
     // Nonce is single-use: invalidate it immediately
-    AuthController.nonces.delete(publicKey);
+    await db.delete(nonces).where(eq(nonces.wallet, publicKey));
 
     // 4. Find or create user record
     let userRecord = await db.select().from(users).where(eq(users.wallet, publicKey)).limit(1).then(r => r[0]);

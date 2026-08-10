@@ -9,7 +9,8 @@ async function runTest(scriptPath: string): Promise<boolean> {
   console.log(`\n=== Running Test: ${path.basename(scriptPath)} ===`);
   try {
     const { stdout, stderr } = await execAsync(`pnpm ts-node "${absolutePath}"`, {
-      cwd: path.join(__dirname, '..')
+      cwd: path.join(__dirname, '..'),
+      env: { ...process.env }
     });
     console.log(stdout);
     if (stderr) console.error(stderr);

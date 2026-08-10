@@ -15,7 +15,8 @@ async function bootstrap() {
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-  await app.listen(3001, '0.0.0.0');
-  console.log(`Clauding Backend running on: http://localhost:3001`);
+  const port = process.env.PORT || 3001;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Clauding Backend running on: http://localhost:${port}`);
 }
 bootstrap();

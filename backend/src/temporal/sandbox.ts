@@ -97,52 +97,11 @@ export async function runPythonSandbox(code: string): Promise<{ stdout: string; 
       };
     }
   } else {
-    // 3. Fallback to local python (for dev machine without docker) with timeout and empty env
-    try {
-      // Escape double quotes for shell execution
-      const escapedCode = code.replace(/"/g, '\\"').replace(/\n/g, ' ');
-      
-      const child = exec(`python -c "${escapedCode}"`, {
-        timeout: 10000, // 10 seconds timeout limit
-        env: {} // Completely empty env variables
-      });
-
-      const promise = new Promise<{ stdout: string; stderr: string; exitCode: number }>((resolve) => {
-        let stdout = '';
-        let stderr = '';
-        
-        child.stdout?.on('data', (data) => {
-          stdout += data;
-        });
-        
-        child.stderr?.on('data', (data) => {
-          stderr += data;
-        });
-
-        child.on('close', (code, signal) => {
-          if (signal) {
-            resolve({
-              stdout: stdout.trim(),
-              stderr: `Process terminated by signal: ${signal} (Sandbox Timeout Limit Exceeded)`,
-              exitCode: 124
-            });
-          } else {
-            resolve({ stdout: stdout.trim(), stderr: stderr.trim(), exitCode: code || 0 });
-          }
-        });
-
-        child.on('error', (err) => {
-          resolve({ stdout: '', stderr: err.message, exitCode: 1 });
-        });
-      });
-
-      return await promise;
-    } catch (fallbackError: any) {
-      return {
-        stdout: '',
-        stderr: `Python Sandbox failed to execute locally: ${fallbackError.message}`,
-        exitCode: 1
-      };
-    }
+    // Local fallback is disabled for security reasons to prevent host RCE
+    return {
+      stdout: '',
+      stderr: 'Execution Error: Python Sandbox is disabled because Docker is not running or available on the host system.',
+      exitCode: 1
+    };
   }
 }
