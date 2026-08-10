@@ -512,6 +512,24 @@ function DashboardContent() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) {
+        if (response.status === 429) {
+          let resetMsg = "";
+          try {
+            const errJson = await response.json();
+            if (errJson && typeof errJson.resetInSecs === 'number') {
+              const minutes = Math.floor(errJson.resetInSecs / 60);
+              const seconds = errJson.resetInSecs % 60;
+              if (minutes > 0) {
+                resetMsg = ` for ${minutes}m ${seconds}s`;
+              } else {
+                resetMsg = ` for ${seconds}s`;
+              }
+            }
+          } catch (e) {
+            // Ignore parsing error
+          }
+          throw new Error(`Rate limit exceeded. Please wait${resetMsg} before trying again, or hold 50,000 $CLDG to unlock Pro Tier for unlimited access!`);
+        }
         throw new Error(`Chat stream connection failed with status: ${response.status}`);
       }
 

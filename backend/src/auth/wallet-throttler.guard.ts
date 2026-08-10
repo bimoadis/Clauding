@@ -22,7 +22,7 @@ export class WalletThrottlerGuard extends ThrottlerGuard {
       // Default to IP tracker if not logged in
       const tracker = request.ip || 'anonymous';
       const key = this.generateKey(context, tracker, throttler.name);
-      const { totalHits } = await this.storageService.increment(
+      const { totalHits, timeToExpire } = await this.storageService.increment(
         key,
         ttl,
         limit,
@@ -30,7 +30,11 @@ export class WalletThrottlerGuard extends ThrottlerGuard {
         throttler.name
       );
       if (totalHits > limit) {
-        throw new HttpException('Rate limit exceeded', HttpStatus.TOO_MANY_REQUESTS);
+        throw new HttpException({
+          statusCode: HttpStatus.TOO_MANY_REQUESTS,
+          message: 'Rate limit exceeded',
+          resetInSecs: timeToExpire
+        }, HttpStatus.TOO_MANY_REQUESTS);
       }
       return true;
     }
@@ -62,7 +66,7 @@ export class WalletThrottlerGuard extends ThrottlerGuard {
 
     const tracker = walletAddress;
     const key = this.generateKey(context, tracker, throttler.name);
-    const { totalHits } = await this.storageService.increment(
+    const { totalHits, timeToExpire } = await this.storageService.increment(
       key,
       ttl,
       finalLimit,
@@ -75,7 +79,8 @@ export class WalletThrottlerGuard extends ThrottlerGuard {
         statusCode: HttpStatus.TOO_MANY_REQUESTS,
         message: `Rate limit exceeded for tier: ${isPro ? 'Pro' : 'Free'}.`,
         tier: isPro ? 'Pro' : 'Free',
-        limit: finalLimit
+        limit: finalLimit,
+        resetInSecs: timeToExpire
       }, HttpStatus.TOO_MANY_REQUESTS);
     }
 

@@ -383,7 +383,7 @@ export default function Home() {
                 <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px' }}>For hobbyists testing prompts & prototyping ideas.</p>
                 <div style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '24px' }}>Free <span style={{ fontSize: '16px', fontWeight: 'normal', color: '#64748b' }}>/ rate-limited</span></div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', color: '#334155' }}>
-                  <li>✓ 20 Free Messages Every Hour</li>
+                  <li>✓ 20 Free Messages Every 2 Hours</li>
                   <li>✓ 100 Daily Agent Launches</li>
                   <li>✓ 5-Step Autonomous ReAct Loop</li>
                   <li>✓ Claude & GPT Standard Models</li>

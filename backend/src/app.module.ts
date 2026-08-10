@@ -17,13 +17,13 @@ import { TemporalService } from './temporal/temporal.service';
     ThrottlerModule.forRoot([
       {
         name: 'hourly',
-        ttl: 3600 * 1000,
-        limit: 20, // Free hourly rate limit
+        ttl: 2 * 3600 * 1000, // 2 hours TTL (20 questions per 2 hours)
+        limit: 20,
       },
       {
         name: 'daily',
         ttl: 24 * 3600 * 1000,
-        limit: 100, // Free daily rate limit
+        limit: 100,
       }
     ])
   ],
