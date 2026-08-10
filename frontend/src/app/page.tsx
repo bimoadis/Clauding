@@ -396,6 +396,7 @@ export default function Home() {
                 Get Started
               </button>
             </div>
+          </div>
  
             {/* Pro Card */}
             <div style={{ background: '#0A0A0A', color: '#fff', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transform: 'scale(1.02)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)' }}>
@@ -432,7 +433,6 @@ export default function Home() {
               >
                 Upgrade to Pro
               </button>
-            </div>
             </div>
           </div>
 
