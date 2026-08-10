@@ -115,5 +115,35 @@ pnpm --filter frontend start
 
 ---
 
+## 🌐 Production Deployment Guide
+
+Untuk mendeploy monorepo ini ke lingkungan produksi agar dapat diakses oleh publik, ikuti panduan berikut:
+
+### 1. Deploy Backend (Railway / Render / Fly.io)
+Platform yang sangat direkomendasikan adalah **Railway.app** karena dukungan native untuk monorepo pnpm dan add-on database:
+1. Hubungkan akun Railway Anda ke repositori GitHub `KIRBLE`.
+2. Tambahkan database **PostgreSQL** add-on di dalam proyek Railway Anda.
+3. Di dalam setelan service backend:
+   * **Root Directory:** Set ke `backend`.
+   * **Build Command:** `pnpm install && pnpm --filter backend build`
+   * **Start Command:** `pnpm --filter backend start:prod`
+4. Konfigurasikan Environment Variables pada service backend:
+   * `DATABASE_URL` (secara otomatis terhubung ke add-on PostgreSQL Railway).
+   * `JWT_SECRET` (generate kunci acak yang kuat).
+   * `OPENAI_API_KEY` dan `ANTHROPIC_API_KEY` (kunci API resmi Anda).
+   * `HELIUS_API_KEY` dan `TREASURY_WALLET_ADDRESS` (integrasi Solana).
+
+### 2. Deploy Frontend (Vercel)
+1. Hubungkan akun Vercel Anda ke repositori GitHub `KIRBLE`.
+2. Konfigurasikan setelan proyek Next.js:
+   * **Framework Preset:** `Next.js`.
+   * **Root Directory:** `frontend`.
+   * **Build Command:** `pnpm build`
+3. Masukkan **Environment Variable** di tab settings Vercel:
+   * **`NEXT_PUBLIC_API_URL`**: Masukkan URL publik backend Railway Anda (contoh: `https://your-backend.up.railway.app`). *Penting:* Jangan tambahkan tanda garis miring (`/`) di akhir URL.
+4. Klik **Deploy** dan verifikasi koneksi dashboard ke backend.
+
+---
+
 ## 🔒 License
 This project is developed and maintained privately.

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
+import bs58 from 'bs58';
 import dynamic from 'next/dynamic';
 
 // Dynamically import WalletMultiButton with SSR disabled to prevent hydration mismatches
@@ -137,7 +138,58 @@ function renderTextWithBold(text: string) {
 
 function DashboardContent() {
   const router = useRouter();
-  const { connected, publicKey } = useWallet();
+  const { connected, publicKey, signMessage } = useWallet();
+  const [jwtToken, setJwtToken] = useState<string | null>(null);
+
+  const loginSIWS = async (walletAddress: string): Promise<string | null> => {
+    try {
+      console.log('Initiating SIWS login...');
+      const nonceRes = await fetch(`${API_BASE_URL}/v1/auth/nonce`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ publicKey: walletAddress })
+      });
+      if (!nonceRes.ok) {
+        throw new Error('Failed to fetch nonce from backend');
+      }
+      const { nonce, expiresAt } = await nonceRes.json();
+
+      const message = `clauding.xyz wants you to sign in with your Solana account:\n${walletAddress}\n\nNonce: ${nonce}\nExpiration Time: ${expiresAt}`;
+
+      if (!signMessage) {
+        throw new Error('Wallet does not support message signing!');
+      }
+      const messageBytes = new TextEncoder().encode(message);
+      const signatureBytes = await signMessage(messageBytes);
+      const signature = bs58.encode(signatureBytes);
+
+      const verifyRes = await fetch(`${API_BASE_URL}/v1/auth/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          publicKey: walletAddress,
+          message,
+          signature
+        })
+      });
+      if (!verifyRes.ok) {
+        throw new Error('Cryptographic signature verification failed');
+      }
+      const { accessToken } = await verifyRes.json();
+      localStorage.setItem(`jwt_token_${walletAddress}`, accessToken);
+      setJwtToken(accessToken);
+      return accessToken;
+    } catch (e: any) {
+      console.error('SIWS Login failed:', e.message);
+      setModalConfig({
+        isOpen: true,
+        title: 'Authentication Failed',
+        message: `Failed to sign in with wallet: ${e.message}`,
+        type: 'error'
+      });
+      return null;
+    }
+  };
 
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -219,10 +271,22 @@ function DashboardContent() {
 
   useEffect(() => {
     if (connected && publicKey) {
+      const walletAddress = publicKey.toBase58();
       (async () => {
         try {
-          console.log(`Fetching compiled agents list for wallet: ${publicKey.toBase58()}...`);
-          const res = await fetch(`${API_BASE_URL}/v1/agents/list?wallet=${publicKey.toBase58()}`);
+          let token = localStorage.getItem(`jwt_token_${walletAddress}`);
+          if (!token) {
+            token = await loginSIWS(walletAddress);
+          } else {
+            setJwtToken(token);
+          }
+
+          if (!token) return;
+
+          console.log(`Fetching compiled agents list for wallet: ${walletAddress}...`);
+          const res = await fetch(`${API_BASE_URL}/v1/agents/list`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
           if (res.ok) {
             const data = await res.json();
             setMyAgents(data);
@@ -242,7 +306,9 @@ function DashboardContent() {
               }
               // Fetch history for the latest agent
               try {
-                const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?wallet=${publicKey.toBase58()}&agentId=${latestAgent.id}`);
+                const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?agentId=${latestAgent.id}`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (histRes.ok) {
                   const histData = await histRes.json();
                   if (histData.length > 0) {
@@ -272,6 +338,7 @@ function DashboardContent() {
     } else {
       setMyAgents([]);
       setSelectedAgentId('');
+      setJwtToken(null);
     }
   }, [connected, publicKey]);
 
@@ -290,7 +357,10 @@ function DashboardContent() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/agents/compile`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken || localStorage.getItem('jwt_token_' + publicKey?.toBase58()) || ''}`
+        },
         body: JSON.stringify({
           prompt: promptText
         })
@@ -361,10 +431,12 @@ function DashboardContent() {
       console.log(`Step 3: Sending agent launch compile payload to ${API_BASE_URL}/v1/agents/compile...`);
       const response = await fetch(`${API_BASE_URL}/v1/agents/compile`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken || localStorage.getItem('jwt_token_' + publicKey?.toBase58()) || ''}`
+        },
         body: JSON.stringify({
           prompt: aiPrompt || `Name: ${name}`,
-          wallet: publicKey.toBase58(),
           name: name,
           description: description,
           instructions: instructions,
@@ -383,7 +455,9 @@ function DashboardContent() {
       }
 
       try {
-        const listRes = await fetch(`${API_BASE_URL}/v1/agents/list?wallet=${publicKey.toBase58()}`);
+        const listRes = await fetch(`${API_BASE_URL}/v1/agents/list`, {
+          headers: { 'Authorization': `Bearer ${jwtToken || localStorage.getItem('jwt_token_' + publicKey?.toBase58()) || ''}` }
+        });
         if (listRes.ok) {
           const listData = await listRes.json();
           setMyAgents(listData);
@@ -427,13 +501,16 @@ function DashboardContent() {
     setChatLog(prev => [...prev, userMsg]);
     setSandboxPrompt('');
 
-    const walletParam = publicKey ? `&wallet=${publicKey.toBase58()}` : '';
     const agentParam = selectedAgentId ? `&agentId=${selectedAgentId}` : '';
-    const targetUrl = `${API_BASE_URL}/v1/chat/stream?message=${encodeURIComponent(sandboxPrompt)}&costTier=${costTier}&tools=${encodeURIComponent(JSON.stringify(tools))}${walletParam}${agentParam}`;
+    const token = jwtToken || (publicKey ? localStorage.getItem(`jwt_token_${publicKey.toBase58()}`) : null) || '';
+    const targetUrl = `${API_BASE_URL}/v1/chat/stream?message=${encodeURIComponent(sandboxPrompt)}&costTier=${costTier}&tools=${encodeURIComponent(JSON.stringify(tools))}&token=${token}${agentParam}`;
     console.log('Step 4: Opening SSE (Server-Sent Events) network chat stream connection at:', targetUrl);
 
     try {
-      const response = await fetch(targetUrl, { method: 'GET' });
+      const response = await fetch(targetUrl, { 
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (!response.ok) {
         throw new Error(`Chat stream connection failed with status: ${response.status}`);
       }
@@ -1349,8 +1426,10 @@ function DashboardContent() {
                             if (!confirm(`Are you sure you want to delete agent "${name}" and all of its chat logs?`)) return;
 
                             try {
-                              const res = await fetch(`${API_BASE_URL}/v1/agents/delete?agentId=${selectedAgentId}&wallet=${publicKey!.toBase58()}`, {
-                                method: 'DELETE'
+                              const token = jwtToken || localStorage.getItem(`jwt_token_${publicKey!.toBase58()}`) || '';
+                              const res = await fetch(`${API_BASE_URL}/v1/agents/delete?agentId=${selectedAgentId}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${token}` }
                               });
                               if (res.ok) {
                                 const data = await res.json();
@@ -1362,7 +1441,9 @@ function DashboardContent() {
                                     type: 'success'
                                   });
                                   // Reload agent list
-                                  const listRes = await fetch(`${API_BASE_URL}/v1/agents/list?wallet=${publicKey!.toBase58()}`);
+                                  const listRes = await fetch(`${API_BASE_URL}/v1/agents/list`, {
+                                    headers: { 'Authorization': `Bearer ${token}` }
+                                  });
                                   if (listRes.ok) {
                                     const listData = await listRes.json();
                                     setMyAgents(listData);
@@ -1379,7 +1460,9 @@ function DashboardContent() {
                                         }
                                       }
                                       // Fetch history for the new selected agent
-                                      const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?wallet=${publicKey!.toBase58()}&agentId=${latestAgent.id}`);
+                                      const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?agentId=${latestAgent.id}`, {
+                                        headers: { 'Authorization': `Bearer ${token}` }
+                                      });
                                       if (histRes.ok) {
                                         const histData = await histRes.json();
                                         setChatLog(histData.length > 0 ? histData : [{ role: 'assistant', content: `🤖 Switched to agent **${latestAgent.name}**. Ready for instructions.` }]);
@@ -1447,7 +1530,10 @@ function DashboardContent() {
                           // Fetch and load chat history for this agent!
                           (async () => {
                             try {
-                              const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?wallet=${publicKey!.toBase58()}&agentId=${targetAgent.id}`);
+                              const token = jwtToken || localStorage.getItem(`jwt_token_${publicKey!.toBase58()}`) || '';
+                              const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?agentId=${targetAgent.id}`, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                              });
                               if (histRes.ok) {
                                 const histData = await histRes.json();
                                 if (histData.length > 0) {
