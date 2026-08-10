@@ -13,6 +13,7 @@
     "db:migrate": "ts-node src/db/migrate.ts"
   },
   "dependencies": {
+    "@fastify/cors": "^8.4.1",
     "@fastify/static": "^7.0.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
