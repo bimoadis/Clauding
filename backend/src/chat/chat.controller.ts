@@ -22,14 +22,14 @@ export class ChatController {
   private anthropic = new AnthropicAdapter();
   private router = new ModelRouter();
 
-  constructor(private readonly temporalService: TemporalService) {}
+  constructor(private readonly temporalService: TemporalService) { }
 
   // Mock database model catalog
   private modelsCatalog: ModelRef[] = [
     {
       id: 'claude-3-5-sonnet',
       provider: 'anthropic',
-      displayName: 'Claude 3.5 Sonnet',
+      displayName: 'Claude Fable 5',
       inPriceMicroUsd: 3000000n,
       outPriceMicroUsd: 15000000n,
       qualityRank: 95,
@@ -157,7 +157,7 @@ export class ChatController {
               const pastMsgs = await db.select().from(messages)
                 .where(eq(messages.threadId, dbThread.id))
                 .orderBy(messages.createdAt);
-              
+
               if (pastMsgs.length > 0) {
                 finalMessages = pastMsgs.map(m => ({
                   role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',

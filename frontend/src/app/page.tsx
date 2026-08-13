@@ -36,7 +36,7 @@ export default function Home() {
   // Accordion FAQs
   const faqs = [
     { q: "Do I need to code?", a: "No. You describe your agent in plain language and pick a character. Clauding builds and runs it for you — developers can still drop into the API if they want." },
-    { q: "Which models can my agent use?", a: "Claude and GPT. The compiler selects the best model from Claude 3.5 Sonnet and GPT-4o automatically, or you can pin a favorite model." },
+    { q: "Which models can my agent use?", a: "Claude and GPT. The compiler selects the best model from Claude Fable 5 Sonnet and GPT-4o automatically, or you can pin a favorite model." },
     { q: "How do I pay?", a: "Top up with crypto (Coming Soon) or run locally using your own API keys. No cards or per-provider subscriptions required." },
     { q: "Can I change my agent's character later?", a: "Anytime. Swap characters to change your agent's tone and style without rebuilding it." },
     { q: "Is my agent always online?", a: "Yes. Once launched, your agent runs as a persistent Temporal workflow on our infrastructure and stays available to handle tasks asynchronously." }
@@ -269,7 +269,7 @@ export default function Home() {
 
           {/* Model Badges */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', opacity: 0.8, marginBottom: '32px' }}>
-            {['Claude 3.5', 'GPT-4o'].map((m) => (
+            {['Claude Fable 5', 'GPT-4o'].map((m) => (
               <span key={m} style={{
                 fontSize: '12px',
                 fontWeight: 'bold',
@@ -526,7 +526,7 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ padding: '80px 24px 40px 24px', background: '#FAFAF8', borderTop: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr', gap: '48px', marginBottom: '64px' }}>
+          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr 1fr', gap: '48px', marginBottom: '64px' }}>
 
             {/* Left Brand Column */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '20px' }}>
@@ -588,13 +588,13 @@ export default function Home() {
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <h4 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'lowercase', color: '#F5601C', marginBottom: '20px', letterSpacing: '0.05em' }}>legal</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <a href="/privacy" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>Privacy Policy</a>
                 <a href="/eula" style={{ fontSize: '16px', fontWeight: 800, color: '#0A0A0A', textDecoration: 'none', letterSpacing: '-0.02em' }}>EULA</a>
               </div>
-            </div>
+            </div> */}
 
             <div>
               <h4 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'lowercase', color: '#F5601C', marginBottom: '20px', letterSpacing: '0.05em' }}>more</h4>
