@@ -1,4 +1,3 @@
 {
-  "buildCommand": "pnpm --filter frontend build",
-  "outputDirectory": "frontend/.next"
+  "outputDirectory": ".next"
 }
