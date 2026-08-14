@@ -732,6 +732,53 @@ footer {
   opacity: .85 !important;
 }
 
+/* Solana Wallet Adapter Dropdown List Reset */
+.wallet-adapter-dropdown {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.wallet-adapter-dropdown-list {
+  position: absolute !important;
+  top: 100% !important;
+  right: 0 !important;
+  margin-top: 8px !important;
+  padding: 6px !important;
+  list-style: none !important;
+  list-style-type: none !important;
+  background: #0A0A0A !important;
+  border: 1px solid #222630 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25) !important;
+  z-index: 9999 !important;
+  min-width: 160px !important;
+}
+
+.wallet-adapter-dropdown-list-item {
+  list-style: none !important;
+  list-style-type: none !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #FFFFFF !important;
+  cursor: pointer !important;
+  border-radius: 8px !important;
+  transition: background 0.15s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+.wallet-adapter-dropdown-list-item:hover {
+  background: #222630 !important;
+}
+
+.wallet-adapter-dropdown-list-item::before,
+.wallet-adapter-dropdown-list-item::after {
+  content: none !important;
+  display: none !important;
+}
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 10px;

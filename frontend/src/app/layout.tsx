@@ -2,6 +2,21 @@ import './globals.css';
 import { Metadata } from 'next';
 import React from 'react';
 import WalletContextProvider from './WalletContextProvider';
+import { Inter, JetBrains_Mono } from 'next/font/google';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  weight: ['400', '500', '600', '700', '800']
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-mono',
+  weight: ['400', '500', '600', '700']
+});
 
 export const metadata: Metadata = {
   title: 'Clauding — One line. Any AI agent.',
@@ -14,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className={inter.className}>
         <WalletContextProvider>
           {children}
         </WalletContextProvider>

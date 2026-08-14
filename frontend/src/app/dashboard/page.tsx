@@ -596,20 +596,19 @@ function DashboardContent() {
 
   return (
     <div style={{
-      background: '#FAFAF8',
+      backgroundImage: "linear-gradient(rgba(250, 250, 249, 0.3), rgba(250, 250, 249, 0.3)), url('/hero-bg.png')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundAttachment: 'fixed',
+      backgroundColor: '#FAFAF9',
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       color: '#0A0A0A',
-      position: 'relative',
-      backgroundImage: "linear-gradient(to bottom, #FAFAF8 0%, rgba(250, 250, 248, 0) 15%, rgba(250, 250, 248, 0) 70%, #FAFAF8 85%, #FAFAF8 100%), url('/hero-bg.png')",
-      backgroundSize: 'cover',
-      backgroundPosition: 'center 80px',
-      backgroundRepeat: 'no-repeat'
+      position: 'relative'
     }}>
-      {/* Preload background image to optimize LCP and boost Lighthouse score */}
-      <link rel="preload" as="image" href="/hero-bg.png" />
 
       {/* Vanilla Responsive CSS Stylesheet */}
       <style dangerouslySetInnerHTML={{
@@ -703,90 +702,110 @@ function DashboardContent() {
           to { transform: rotate(360deg); }
         }
         .spin-gear {
-          animation: spin-slow 4s linear infinite;
+        animation: spin-slow 4s linear infinite;
         }
       `}} />
 
-      {/* Header bar (Styled exactly like Home page navbar with mobile hamburger support) */}
-      <header className="responsive-header" style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 10,
+      {/* Header bar (Styled exactly like Home page navbar) */}
+      <header style={{
+        width: '100%',
+        // background: '#FFFFFF',
+        // borderBottom: '1px solid #E5E7EB',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '30px 40px',
-        background: 'transparent'
+        padding: '16px 40px',
+        zIndex: 100
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', fontSize: '18px', color: '#0A0A0A' }}>
+        {/* Left: Brand Logo & Title */}
+        <div
+          onClick={() => router.push('/')}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 800, fontSize: '20px', color: '#0A0A0A', letterSpacing: '-0.02em', cursor: 'pointer' }}
+        >
           <LogoIconMini />
-          Clauding Builder
+          <span>Clauding Builder</span>
         </div>
 
-        {/* Stepper Wizard Indicator (Desktop Only) */}
-        <div className="desktop-stepper" style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step !== 'prompt' ? '#10b981' : '#F5601C' }}>
+        {/* Center: Stepper Wizard Indicator inside Floating White Pill Container */}
+        <div className="desktop-stepper" style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          height: '40px',
+          background: '#FFFFFF',
+          border: '1px solid #E5E7EB',
+          padding: '0 24px',
+          borderRadius: '999px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          fontSize: '13px',
+          fontWeight: 700,
+          color: '#64748B'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step !== 'prompt' ? '#10B981' : '#F5601C' }}>
             <span style={{
-              width: '18px',
-              height: '18px',
+              width: '20px',
+              height: '20px',
               borderRadius: '50%',
-              background: step !== 'prompt' ? '#10b981' : '#F5601C',
-              color: '#fff',
+              background: step !== 'prompt' ? '#10B981' : '#F5601C',
+              color: '#FFFFFF',
               display: 'grid',
               placeItems: 'center',
-              fontSize: '10px'
+              fontSize: '11px',
+              fontWeight: 800
             }}>{step !== 'prompt' ? '✓' : '1'}</span>
             <span>Prompt</span>
           </div>
-          <span style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
+          <span style={{ width: '20px', height: '1px', background: '#E2E8F0' }}></span>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: (step === 'configure' || step === 'playground') ? '#10b981' : (step === 'compiling' ? '#F5601C' : '#94a3b8') }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: (step === 'configure' || step === 'playground') ? '#10B981' : (step === 'compiling' ? '#F5601C' : '#94A3B8') }}>
             <span style={{
-              width: '18px',
-              height: '18px',
+              width: '20px',
+              height: '20px',
               borderRadius: '50%',
-              background: (step === 'configure' || step === 'playground') ? '#10b981' : (step === 'compiling' ? '#F5601C' : '#ecefef'),
-              color: (step === 'configure' || step === 'playground' || step === 'compiling') ? '#fff' : '#64748b',
+              background: (step === 'configure' || step === 'playground') ? '#10B981' : (step === 'compiling' ? '#F5601C' : '#E2E8F0'),
+              color: (step === 'configure' || step === 'playground' || step === 'compiling') ? '#FFFFFF' : '#64748B',
               display: 'grid',
               placeItems: 'center',
-              fontSize: '10px'
+              fontSize: '11px',
+              fontWeight: 800
             }}>{(step === 'configure' || step === 'playground') ? '✓' : '2'}</span>
             <span>Configure</span>
           </div>
-          <span style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
+          <span style={{ width: '20px', height: '1px', background: '#E2E8F0' }}></span>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step === 'playground' ? '#10b981' : (step === 'configure' ? '#F5601C' : '#94a3b8') }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step === 'playground' ? '#10B981' : (step === 'configure' ? '#F5601C' : '#94A3B8') }}>
             <span style={{
-              width: '18px',
-              height: '18px',
+              width: '20px',
+              height: '20px',
               borderRadius: '50%',
-              background: step === 'playground' ? '#10b981' : (step === 'configure' ? '#F5601C' : '#ecefef'),
-              color: (step === 'playground' || step === 'configure') ? '#fff' : '#64748b',
+              background: step === 'playground' ? '#10B981' : (step === 'configure' ? '#F5601C' : '#E2E8F0'),
+              color: (step === 'playground' || step === 'configure') ? '#FFFFFF' : '#64748B',
               display: 'grid',
               placeItems: 'center',
-              fontSize: '10px'
+              fontSize: '11px',
+              fontWeight: 800
             }}>{step === 'playground' ? '✓' : '3'}</span>
             <span>Review</span>
           </div>
-          <span style={{ width: '20px', height: '1px', background: '#cbd5e1' }}></span>
+          <span style={{ width: '20px', height: '1px', background: '#E2E8F0' }}></span>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step === 'playground' ? '#F5601C' : '#94a3b8' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: step === 'playground' ? '#F5601C' : '#94A3B8' }}>
             <span style={{
-              width: '18px',
-              height: '18px',
+              width: '20px',
+              height: '20px',
               borderRadius: '50%',
-              background: step === 'playground' ? '#F5601C' : '#ecefef',
-              color: step === 'playground' ? '#fff' : '#64748b',
+              background: step === 'playground' ? '#F5601C' : '#E2E8F0',
+              color: step === 'playground' ? '#FFFFFF' : '#64748B',
               display: 'grid',
               placeItems: 'center',
-              fontSize: '10px'
+              fontSize: '11px',
+              fontWeight: 800
             }}>4</span>
             <span>Launch</span>
           </div>
         </div>
 
+        {/* Right: Connected Wallet MultiButton */}
         <div className="desktop-wallet">
           <WalletMultiButton style={{
             background: '#F5601C',
@@ -796,8 +815,7 @@ function DashboardContent() {
             padding: '0 24px',
             height: '40px',
             border: 0,
-            color: '#fff',
-            boxShadow: '0 4px 12px rgba(245, 96, 28, 0.2)'
+            color: '#FFFFFF'
           }} />
         </div>
 
@@ -877,7 +895,7 @@ function DashboardContent() {
       </header>
 
       {/* Main Workspace Frame */}
-      <main className="responsive-main" style={{ flex: 1, zIndex: 1, display: 'flex', flexDirection: 'column', paddingTop: '90px' }}>
+      <main className="responsive-main" style={{ flex: 1, zIndex: 1, display: 'flex', flexDirection: 'column', paddingTop: 0 }}>
 
         {/* Step 1: Prompt AI View */}
         {step === 'prompt' && (
@@ -887,153 +905,174 @@ function DashboardContent() {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: '40px 20px'
+            padding: '40px 20px 80px 20px',
+            position: 'relative',
+            width: '100%'
           }}>
             {/* Mascot header badges */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <span style={{ fontSize: '12px', fontWeight: 'bold', background: '#fff', border: '1px solid #e2e8f0', color: '#F5601C', padding: '6px 14px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <span style={{ fontSize: '12px', fontWeight: 'bold', background: '#FFF7ED', border: '1px solid #FFEDD5', color: '#C2410C', padding: '6px 16px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
                 <span style={{ width: '6px', height: '6px', background: '#F5601C', borderRadius: '50%' }}></span>
                 1 wallet = unlimited agents
               </span>
-              <span style={{ fontSize: '12px', fontWeight: 'bold', background: '#fff', border: '1px solid #e2e8f0', color: '#64748b', padding: '6px 14px', borderRadius: '999px' }}>
-                ✓ Keep spec private
+              <span style={{ fontSize: '12px', fontWeight: 'bold', background: '#FFFFFF', border: '1px solid #E5E7EB', color: '#475569', padding: '6px 16px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <span>Keep spec private</span>
               </span>
             </div>
 
-            <h1 style={{ fontSize: 'clamp(28px, 5vw, 64px)', fontWeight: 800, textAlign: 'center', letterSpacing: '-0.03em', marginBottom: '12px', lineHeight: 1.1 }}>
+            <h1 style={{ fontSize: 'clamp(32px, 5vw, 64px)', fontWeight: 800, textAlign: 'center', letterSpacing: '-0.03em', marginBottom: '12px', color: '#0A0A0A', lineHeight: 1.1 }}>
               Compile AI Agent
             </h1>
-            <p style={{ color: '#475569', fontSize: 'clamp(15px, 2vw, 18px)', textAlign: 'center', maxWidth: '580px', marginBottom: '32px', lineHeight: 1.5 }}>
-              Give Clauding the idea. Auto-compile capabilities, review system prompts, and launch your agent.
+            <p style={{ color: '#475569', fontSize: 'clamp(15px, 2vw, 17px)', textAlign: 'center', maxWidth: '580px', marginBottom: '32px', lineHeight: 1.5 }}>
+              Turn your idea into a production-ready agent.<br />
+              Auto-compile capabilities, review the spec, and launch it.
             </p>
 
             {/* Dark input prompt window card */}
             <div style={{
               width: '100%',
-              maxWidth: '720px',
-              background: '#18181C',
-              border: '1px solid #2E2E34',
-              borderRadius: '24px',
+              maxWidth: '780px',
+              background: '#111318',
+              border: '1px solid #222630',
+              borderRadius: '16px',
               boxShadow: '0 24px 60px rgba(0, 0, 0, 0.15)',
-              padding: '24px 20px',
+              padding: '24px',
+              marginBottom: '28px',
               position: 'relative'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                <span style={{ width: '8px', height: '8px', background: '#F5601C', borderRadius: '50%' }}></span>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#A1A1AA', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Agent prompt</span>
-                <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#71717A' }}>describe task instructions or integrations</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '8px', height: '8px', background: '#F5601C', borderRadius: '50%' }}></span>
+                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    AGENT PROMPT
+                  </span>
+                </div>
+                <span style={{ fontSize: '12px', color: '#88909E' }}>
+                  describe task instructions or integrations
+                </span>
               </div>
 
               <textarea
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="Describe the AI agent you want to build (e.g. 'check solana balance and monitor high-value spl token swaps')..."
-                rows={5}
+                placeholder="Describe the AI agent you want to build (e.g. 'check solana balance and monitor high-value SPL token swaps')..."
+                rows={4}
                 style={{
                   width: '100%',
                   background: 'transparent',
                   border: 0,
                   outline: 0,
                   resize: 'none',
-                  color: '#fff',
                   fontSize: '16px',
                   lineHeight: 1.5,
+                  color: '#FFFFFF',
                   fontFamily: 'inherit',
                   marginBottom: '20px'
                 }}
               />
 
-              {/* Controls bar inside dark container */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #2E2E34', paddingTop: '16px', flexWrap: 'wrap', gap: '16px' }}>
-                <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#A1A1AA' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={fullStackToggle} onChange={() => setFullStackToggle(!fullStackToggle)} style={{ cursor: 'pointer' }} />
-                    <span>AUTONOMOUS</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #222630', paddingTop: '16px', flexWrap: 'wrap', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '13px', color: '#E2E8F0' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                    <input
+                      type="checkbox"
+                      checked={fullStackToggle}
+                      onChange={() => setFullStackToggle(!fullStackToggle)}
+                      style={{ accentColor: '#F5601C', cursor: 'pointer' }}
+                    />
+                    <span>Autonomous</span>
                   </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={noVibeToggle} onChange={() => setNoVibeToggle(!noVibeToggle)} style={{ cursor: 'pointer' }} />
-                    <span>EXPERT TOOLS ▾</span>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600 }}>
+                    <input
+                      type="checkbox"
+                      checked={noVibeToggle}
+                      onChange={() => setNoVibeToggle(!noVibeToggle)}
+                      style={{ accentColor: '#F5601C', cursor: 'pointer' }}
+                    />
+                    <span>Expert tools ▾</span>
                   </label>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: 'auto' }}>
+                <button
+                  onClick={() => triggerCompilation(aiPrompt)}
+                  style={{
+                    background: '#F5601C',
+                    color: '#FFFFFF',
+                    border: 0,
+                    borderRadius: '12px',
+                    padding: '12px 28px',
+                    fontWeight: 800,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 16px rgba(245, 96, 28, 0.3)'
+                  }}
+                >
+                  COMPILE AGENT
+                </button>
+              </div>
+            </div>
 
-                  <button
-                    onClick={() => triggerCompilation(aiPrompt)}
-                    style={{
-                      background: '#F5601C',
-                      color: '#fff',
-                      border: 0,
-                      borderRadius: '12px',
-                      padding: '12px 24px',
-                      fontWeight: 'bold',
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(245, 96, 28, 0.3)'
-                    }}
-                  >
-                    CLAUDING IT
-                  </button>
+            {/* Compact 2-Feature Pills Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px', width: '100%', maxWidth: '600px', marginBottom: '36px' }}>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', padding: '12px 18px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#FFF7ED', border: '1px solid #FFEDD5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#F5601C" stroke="#F5601C" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                  </svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#0A0A0A' }}>Auto-routed LLMs</div>
+                  <div style={{ fontSize: '11px', color: '#64748B' }}>Best model for your task</div>
                 </div>
               </div>
 
-
-            </div>
-
-            {/* Badges footer list */}
-            <div style={{ display: 'flex', gap: '16px', marginTop: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {[
-                { text: 'Auto-routed LLMs', icon: '⚡' },
-                { text: '24/7 Autonomous Loops', icon: '🌐' },
-                { text: 'Custom Solana Tools', icon: '🪄' }
-              ].map(pill => (
-                <span key={pill.text} style={{
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  background: 'rgba(255, 255, 255, 0.45)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.5)',
-                  color: '#475569',
-                  padding: '10px 24px',
-                  borderRadius: '999px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)'
-                }}>
-                  <span style={{ color: '#F5601C' }}>{pill.icon}</span>
-                  {pill.text}
-                </span>
-              ))}
-            </div>
-
-            {/* Available Agent Skills Header */}
-            <div style={{ margin: '48px 0 24px 0', textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: '#F5601C', marginBottom: '8px' }}>
-                <span style={{ height: '1px', width: '20px', background: 'linear-gradient(to left, #F5601C, transparent)' }}></span>
-                <span>✦</span>
-                <span style={{ height: '1px', width: '20px', background: 'linear-gradient(to right, #F5601C, transparent)' }}></span>
+              <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', padding: '12px 18px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#FFF7ED', border: '1px solid #FFEDD5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5601C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m15 4-2 2 4 4 2-2a2.828 2.828 0 1 0-4-4Z" fill="#FFEDD5" />
+                    <path d="m13 6-9.5 9.5a2.121 2.121 0 0 0 3 3L16 9" />
+                    <path d="M19 15v2" />
+                    <path d="M18 16h2" />
+                  </svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#0A0A0A' }}>Custom Solana Tools</div>
+                  <div style={{ fontSize: '11px', color: '#64748B' }}>Use built-in or your own</div>
+                </div>
               </div>
-              <h3 style={{
-                fontSize: '12px',
-                fontWeight: '800',
-                color: '#F5601C',
-                textTransform: 'uppercase',
-                letterSpacing: '0.15em',
-                margin: 0
-              }}>
-                Available Agent Capabilities & Skills
-              </h3>
             </div>
 
-            {/* Available Agent Skills Grid */}
+            {/* Built-in Solana Tools Header */}
+            <div style={{ width: '100%', maxWidth: '1100px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+              <div>
+                <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0A0A0A', margin: '0 0 6px 0' }}>
+                  Built-in Solana Tools
+                </h2>
+                <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
+                  Use these tools to analyze, monitor, and protect before you trade.
+                </p>
+              </div>
+              <button style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', padding: '8px 18px', borderRadius: '999px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', color: '#0A0A0A', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                View all tools →
+              </button>
+            </div>
+
+            {/* 4x3 Grid of 11 Tools + 1 Add Custom Tool */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-              gap: '24px',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '20px',
               width: '100%',
               maxWidth: '1100px',
-              marginBottom: '32px'
+              marginBottom: '40px'
             }}>
               {[
                 { title: 'Wallet Balance Checker', desc: 'Inspect SOL and SPL token balances instantly.', icon: '/icons/capability-wallet-balance.svg' },
@@ -1049,291 +1088,487 @@ function DashboardContent() {
                 { title: 'LP Lock Inspector', desc: 'Check lock and burn status of token liquidity pools.', icon: '/icons/capability-transaction-signer.svg' }
               ].map((skill, index) => (
                 <div key={index} style={{
-                  background: 'rgba(255, 255, 255, 0.35)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255, 255, 255, 0.45)',
-                  borderRadius: '24px',
-                  padding: '24px',
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '12px',
+                  padding: '20px',
                   position: 'relative',
-                  minHeight: '180px',
+                  minHeight: '190px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.03)'
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)'
                 }}>
-                  {/* Top Icon & Title */}
-                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '16px' }}>
-                    <img src={skill.icon} alt="" style={{ width: '56px', height: '56px', objectFit: 'contain', flexShrink: 0 }} />
-                    <strong style={{ fontSize: '18px', fontWeight: '800', color: '#0A0A0A', lineHeight: '1.2' }}>
-                      {skill.title}
-                    </strong>
+                  <div>
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '14px' }}>
+                      <img src={skill.icon} alt="" style={{ width: '56px', height: '56px', objectFit: 'contain', flexShrink: 0 }} />
+                      <strong style={{ fontSize: '15px', fontWeight: '800', color: '#0A0A0A', lineHeight: '1.2' }}>
+                        {skill.title}
+                      </strong>
+                    </div>
+
+                    <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.45', margin: 0 }}>
+                      {skill.desc}
+                    </p>
                   </div>
 
-                  {/* Orange Divider */}
-                  <div style={{ width: '24px', height: '2px', background: '#F5601C', marginBottom: '12px' }}></div>
-
-                  {/* Description */}
-                  <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.5', margin: '0 0 24px 0', paddingRight: '20px' }}>
-                    {skill.desc}
-                  </p>
-
-                  {/* Bottom Right Arrow Button */}
                   <div style={{
-                    position: 'absolute',
-                    bottom: '24px',
-                    right: '24px',
-                    width: '28px',
-                    height: '28px',
+                    alignSelf: 'flex-end',
+                    width: '26px',
+                    height: '26px',
                     borderRadius: '50%',
-                    background: 'rgba(245, 96, 28, 0.1)',
-                    color: '#F5601C',
+                    background: '#FAFAF8',
+                    border: '1px solid #E5E7EB',
+                    color: '#0A0A0A',
                     display: 'grid',
                     placeItems: 'center',
-                    fontSize: '12px',
+                    fontSize: '11px',
                     fontWeight: 'bold',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    marginTop: '16px'
                   }}>
                     →
                   </div>
                 </div>
               ))}
+
+              {/* 12th Card: Add Custom Tool */}
+              <div style={{
+                background: '#FFFFFF',
+                border: '1px solid #FDBA74',
+                borderRadius: '12px',
+                padding: '20px',
+                position: 'relative',
+                minHeight: '190px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                boxShadow: '0 4px 12px rgba(245, 96, 28, 0.05)'
+              }}>
+                <div>
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '14px' }}>
+                    <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: '#FFF7ED', border: '1px solid #FFEDD5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '32px', color: '#F5601C', fontWeight: 800 }}>
+                      +
+                    </div>
+                    <strong style={{ fontSize: '15px', fontWeight: '800', color: '#F5601C', lineHeight: '1.2' }}>
+                      Add Custom Tool
+                    </strong>
+                  </div>
+
+                  <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.45', margin: 0 }}>
+                    Integrate your own API or on-chain tool.
+                  </p>
+                </div>
+
+                <div style={{
+                  alignSelf: 'flex-end',
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '50%',
+                  background: '#FFF7ED',
+                  border: '1px solid #FFEDD5',
+                  color: '#F5601C',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  marginTop: '16px'
+                }}>
+                  →
+                </div>
+              </div>
             </div>
 
-            {/* Bottom Info Banner */}
+            {/* Bottom Security Info Banner */}
             <div style={{
               width: '100%',
-              maxWidth: '1000px',
-              background: 'rgba(255, 255, 255, 0.35)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.45)',
-              borderRadius: '24px',
-              padding: '16px 24px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '16px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.03)'
+              maxWidth: '1100px',
+              background: '#FFFFFF',
+              border: '1px solid #E5E7EB',
+              borderRadius: '16px',
+              padding: '24px 28px',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '24px',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.02)'
             }}>
+              {/* Item 1: Private by default */}
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', borderRight: '1px solid #F1F5F9', paddingRight: '20px' }}>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="m9 12 2 2 4-4" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '14px', fontWeight: 800, margin: '0 0 2px 0', color: '#0A0A0A' }}>Private by default</h4>
+                  <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.35 }}>Your agent spec stays private on-chain & in transit.</p>
+                </div>
+              </div>
 
+              {/* Item 2: Secure execution */}
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', borderRight: '1px solid #F1F5F9', paddingRight: '20px' }}>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    <circle cx="12" cy="16" r="1" fill="#0A0A0A" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '14px', fontWeight: 800, margin: '0 0 2px 0', color: '#0A0A0A' }}>Secure execution</h4>
+                  <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.35 }}>Tools run in isolated sandbox with scoped permissions.</p>
+                </div>
+              </div>
 
+              {/* Item 3: Up-to-date data */}
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', borderRight: '1px solid #F1F5F9', paddingRight: '20px' }}>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="m9 12 2 2 4-4" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '14px', fontWeight: 800, margin: '0 0 2px 0', color: '#0A0A0A' }}>Up-to-date data</h4>
+                  <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.35 }}>Real-time Solana data from reliable sources.</p>
+                </div>
+              </div>
+
+              {/* Item 4: Developer first */}
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '14px', fontWeight: 800, margin: '0 0 2px 0', color: '#0A0A0A' }}>Developer first</h4>
+                  <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.35 }}>Open APIs, webhooks, and easy integrations.</p>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Step 2: Compiling Spec View */}
         {step === 'compiling' && (
-          <div style={{ flex: 1, display: 'grid', placeItems: 'center', padding: '80px 24px' }}>
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '60px 20px 80px 20px',
+            position: 'relative',
+            width: '100%'
+          }}>
+            {/* Status header badge */}
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', justifyContent: 'center' }}>
+              <span style={{ fontSize: '12px', fontWeight: 'bold', background: '#FFF7ED', border: '1px solid #FFEDD5', color: '#C2410C', padding: '6px 16px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                <span style={{ width: '8px', height: '8px', background: '#F5601C', borderRadius: '50%' }}></span>
+                Fable 5 Compiler Active
+              </span>
+            </div>
+
+            {/* Solid White Card styled like Step 1 */}
             <div style={{
-              background: 'rgba(255, 255, 255, 0.35)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.45)',
-              borderRadius: '32px',
-              padding: '64px 48px',
+              background: '#FFFFFF',
+              border: '1px solid #E5E7EB',
+              borderRadius: '16px',
+              padding: '48px 40px',
               textAlign: 'center',
-              boxShadow: '0 30px 70px rgba(0, 0, 0, 0.08)',
-              maxWidth: '580px',
+              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.04)',
+              maxWidth: '560px',
               width: '100%',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              marginBottom: '32px'
             }}>
-              {/* Premium Gradient Cogwheel Icon */}
-              <svg className="spin-gear" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="url(#gear-gradient)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '24px' }}>
-                <defs>
-                  <linearGradient id="gear-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#A855F7" />
-                    <stop offset="100%" stopColor="#6366F1" />
-                  </linearGradient>
-                </defs>
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
+              {/* Brand Orange Animated Cogwheel */}
+              <div style={{ position: 'relative', width: '72px', height: '72px', display: 'grid', placeItems: 'center', marginBottom: '24px' }}>
+                <svg className="spin-gear" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#F5601C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </div>
 
-              <h2 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: '16px', color: '#0A0A0A' }}>
-                Compiling<br />Agent Spec...
+              <h2 style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: '12px', color: '#0A0A0A' }}>
+                Compiling Agent Spec...
               </h2>
-              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6, maxWidth: '380px', margin: 0 }}>
-                Structuring prompt tools, mapping provider adapters, and establishing voice model directives.
+              <p style={{ color: '#64748B', fontSize: '14px', lineHeight: 1.6, maxWidth: '420px', margin: '0 0 28px 0' }}>
+                Structuring prompt tools, mapping Solana adapters, and establishing voice model directives.
               </p>
+
+              {/* Dark Terminal Output Log matching Step 1 dark card style */}
+              <div style={{
+                width: '100%',
+                background: '#111318',
+                border: '1px solid #222630',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                fontFamily: 'monospace',
+                fontSize: '12px',
+                color: '#A0AEC0',
+                textAlign: 'left',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#10B981' }}>
+                  <span>✓</span> <span>[1/3] Parsing prompt requirements...</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#F5601C' }}>
+                  <span className="spin-gear" style={{ display: 'inline-block' }}>⚙</span> <span>[2/3] Auto-routing LLMs & tool specs...</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748B' }}>
+                  <span>○</span> <span>[3/3] Establishing sandbox directives...</span>
+                </div>
+              </div>
             </div>
           </div>
         )}
-
         {/* Step 3: Review Settings View */}
         {step === 'configure' && (
-          <div style={{ flex: 1, maxWidth: '1100px', margin: '10px auto', padding: '0 24px', width: '100%' }}>
+          <div style={{ flex: 1, maxWidth: '1140px', margin: '0 auto', padding: '24px 20px 80px 20px', width: '100%' }}>
 
             {/* Back button */}
             <button
               onClick={() => setStep('prompt')}
               style={{
-                background: 'rgba(255, 255, 255, 0.35)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.45)',
-                color: '#334155',
+                background: '#FFFFFF',
+                border: '1px solid #E5E7EB',
+                color: '#475569',
                 cursor: 'pointer',
                 marginBottom: '24px',
                 fontSize: '13px',
-                fontWeight: 600,
-                padding: '8px 16px',
-                borderRadius: '8px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                fontWeight: 700,
+                padding: '8px 18px',
+                borderRadius: '999px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
               ← Back to Compiler
             </button>
 
-            <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '32px', alignItems: 'start' }}>
+            <div className="responsive-grid" style={{ display: 'grid', gridTemplateColumns: '1.45fr 1fr', gap: '32px', alignItems: 'start', marginBottom: '40px' }}>
 
-              {/* Left panel: Spec Card */}
+              {/* Left panel: Spec Summary Card */}
               <div style={{
-                background: 'rgba(255, 255, 255, 0.35)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.45)',
-                borderRadius: '24px',
-                padding: '36px',
-                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.02)'
+                background: '#FFFFFF',
+                border: '1px solid #E5E7EB',
+                borderRadius: '16px',
+                padding: '32px',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.02)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '24px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px' }}>
+                <div>
+                  <h2 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 6px 0', letterSpacing: '-0.02em', color: '#0A0A0A' }}>
+                    Review Agent Settings
+                  </h2>
+                  <p style={{ color: '#64748B', fontSize: '14px', margin: 0 }}>
+                    Review your agent specification before launching it live.
+                  </p>
+                </div>
+
+                {/* Card 1: Agent Name, Version, Mode */}
+                <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px 20px', display: 'grid', gridTemplateColumns: '1.8fr 1fr 1.2fr', gap: '16px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#FAFAF8', border: '1px solid #F1F5F9', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                      🤖
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>AGENT NAME</div>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        style={{ fontSize: '15px', fontWeight: 800, color: '#0A0A0A', border: 0, outline: 0, background: 'transparent', width: '100%', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                  </div>
 
                   <div>
-                    <h2 style={{ fontSize: '28px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>Review Agent Settings</h2>
-                    <p style={{ color: '#64748b', fontSize: '13px', margin: '4px 0 0 0' }}>Review your agent configuration before launching it live.</p>
+                    <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>VERSION</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#0A0A0A' }}>1.0.0</div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>MODE</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#0A0A0A' }}>Autonomous</div>
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
-                    <img src="/icons/form-agent-name.svg" alt="" style={{ width: '16px', height: '16px' }} />
-                    Agent Name
-                  </label>
+                {/* Card 2: Description */}
+                <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px 20px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>DESCRIPTION</div>
                   <input
                     type="text"
-                    className="design-input"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
-
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
-                    <img src="/icons/form-description.svg" alt="" style={{ width: '16px', height: '16px' }} />
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    className="design-input"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    placeholder='Compiled from prompt: "cek solana"'
+                    style={{ fontSize: '14px', color: '#0A0A0A', border: 0, outline: 0, background: 'transparent', width: '100%', fontFamily: 'inherit', fontWeight: 500 }}
                   />
                 </div>
 
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
-                    <img src="/icons/form-system-instructions.svg" alt="" style={{ width: '16px', height: '16px' }} />
-                    System Instructions
-                  </label>
+                {/* Card 3: System Instructions */}
+                <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px 20px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>SYSTEM INSTRUCTIONS</div>
                   <textarea
-                    className="design-textarea"
                     value={instructions}
                     onChange={(e) => setInstructions(e.target.value)}
-                    rows={5}
+                    rows={3}
+                    style={{ fontSize: '14px', lineHeight: 1.5, color: '#0A0A0A', border: 0, outline: 0, background: 'transparent', width: '100%', fontFamily: 'inherit', resize: 'none', fontWeight: 500 }}
                   />
                 </div>
 
-                {/* Launch CTA inside the card at the bottom */}
-                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                {/* 4 Meta Stats Seamless Row with Vertical Dividers */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', padding: '6px 0' }}>
+                  {/* Item 1: PRIVACY */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRight: '1px solid #E5E7EB', paddingRight: '8px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F8FAFC', border: '1px solid #F1F5F9', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '10px', fontWeight: 500, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1.1, whiteSpace: 'nowrap' }}>PRIVACY</div>
+                      <div style={{ fontSize: '12px', fontWeight: 500, color: '#64748B', lineHeight: 1.2, whiteSpace: 'nowrap' }}>Spec kept private</div>
+                    </div>
+                  </div>
+
+                  {/* Item 2: ESTIMATED COST */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRight: '1px solid #E5E7EB', paddingRight: '8px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F8FAFC', border: '1px solid #F1F5F9', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v12M15 9.5a2.5 2.5 0 0 0-5 0c0 1.5 1 2 2.5 2.5s2.5 1 2.5 2.5a2.5 2.5 0 0 1-5 0" />
+                      </svg>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '10px', fontWeight: 500, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1.1, whiteSpace: 'nowrap' }}>ESTIMATED COST</div>
+                      <div style={{ fontSize: '12px', fontWeight: 500, color: '#64748B', lineHeight: 1.2, whiteSpace: 'nowrap' }}>Low</div>
+                    </div>
+                  </div>
+
+                  {/* Item 3: TOOLS */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRight: '1px solid #E5E7EB', paddingRight: '8px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F8FAFC', border: '1px solid #F1F5F9', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                      </svg>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '10px', fontWeight: 500, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1.1, whiteSpace: 'nowrap' }}>TOOLS</div>
+                      <div style={{ fontSize: '12px', fontWeight: 500, color: '#64748B', lineHeight: 1.2, whiteSpace: 'nowrap' }}>{tools.length} enabled</div>
+                    </div>
+                  </div>
+
+                  {/* Item 4: LAST UPDATED */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F8FAFC', border: '1px solid #F1F5F9', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '10px', fontWeight: 500, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 1.1, whiteSpace: 'nowrap' }}>LAST UPDATED</div>
+                      <div style={{ fontSize: '12px', fontWeight: 500, color: '#64748B', lineHeight: 1.2, whiteSpace: 'nowrap' }}>May 13, 2025 10:24 AM</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Action Button: Full Width Launch Agent Live */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', paddingTop: '8px' }}>
                   <button
                     onClick={handleLaunchAgent}
                     disabled={isPublishing}
                     style={{
-                      background: isPublishing ? '#94a3b8' : '#F5601C',
-                      color: '#fff',
+                      background: isPublishing ? '#94A3B8' : '#F5601C',
+                      color: '#FFFFFF',
                       border: 0,
-                      borderRadius: '999px',
-                      padding: '16px 36px',
+                      borderRadius: '12px',
+                      padding: '16px 24px',
                       fontSize: '16px',
-                      fontWeight: 'bold',
+                      fontWeight: 800,
                       cursor: isPublishing ? 'not-allowed' : 'pointer',
-                      boxShadow: '0 8px 24px rgba(245, 96, 28, 0.25)',
-                      textAlign: 'center',
-                      width: '100%',
-                      maxWidth: '360px'
+                      boxShadow: '0 4px 16px rgba(245, 96, 28, 0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      width: '100%'
                     }}
                   >
                     {isPublishing ? 'Launching Live...' : 'Launch Agent Live'}
                   </button>
-                  <div style={{ fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#64748B', textAlign: 'center', marginTop: '8px' }}>
                     Secure • Private • Encrypted
                   </div>
                 </div>
-
               </div>
 
-              {/* Right panel: Capabilities Card */}
+              {/* Right panel: Capabilities (Tools) Card */}
               <div style={{
-                background: 'rgba(255, 255, 255, 0.35)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.45)',
-                borderRadius: '24px',
-                padding: '32px',
-                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.02)'
+                background: '#FFFFFF',
+                border: '1px solid #E5E7EB',
+                borderRadius: '16px',
+                padding: '28px',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.02)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '20px'
               }}>
-                {/* Custom Mockup Header with Briefcase Card and Icon */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-                  <div style={{
-                    width: '64px',
-                    height: '64px',
-                    background: '#FDF8F5',
-                    border: '1px solid #F3EBE1',
-                    borderRadius: '16px',
-                    display: 'grid',
-                    placeItems: 'center',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
-                  }}>
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="8" width="18" height="12" rx="2" />
-                      <path d="M9 8V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3" />
-                      <circle cx="12" cy="14" r="2.5" fill="#F5601C" stroke="#1E293B" strokeWidth="1.5" />
-                    </svg>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '15px', fontWeight: 800, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                      CAPABILITIES (TOOLS)
-                    </span>
-                  </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0A0A0A', margin: 0 }}>
+                    Selected Capabilities (Tools)
+                  </h3>
+                  <span style={{ fontSize: '12px', fontWeight: 700, background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#059669', padding: '4px 12px', borderRadius: '999px' }}>
+                    {tools.length} enabled
+                  </span>
                 </div>
 
-                {/* Styled dynamic tool pills exactly like mockup */}
-                <div style={{ display: 'flex', gap: '6px 4px', flexWrap: 'wrap' }}>
+                {/* Styled dynamic tool chips matching reference image */}
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {tools.map(tool => (
                     <span key={tool} style={{
-                      padding: '5px 10px',
-                      background: '#FDF8F5',
-                      border: '1px solid #F3EBE1',
-                      color: '#2D3748',
-                      fontSize: '11px',
-                      fontWeight: '700',
-                      borderRadius: '999px',
+                      padding: '6px 12px',
+                      background: '#FAFAF9',
+                      border: '1px solid #E5E7EB',
+                      color: '#0A0A0A',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      borderRadius: '8px',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '6px',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.01)'
                     }}>
-                      <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#F5601C', display: 'inline-block' }}></span>
-                      {tool}
+                      <span style={{ color: '#10B981', fontWeight: 800 }}>✓</span>
+                      <span>{tool}</span>
                       <button
                         onClick={() => setTools(prev => prev.filter(t => t !== tool))}
                         style={{
                           background: 'none',
                           border: 0,
-                          color: '#A0AEC0',
+                          color: '#94A3B8',
                           cursor: 'pointer',
-                          fontSize: '9px',
+                          fontSize: '11px',
                           fontWeight: 'bold',
-                          marginLeft: '4px',
+                          marginLeft: '2px',
                           padding: '0 2px',
                           display: 'inline-flex',
                           alignItems: 'center'
@@ -1345,167 +1580,177 @@ function DashboardContent() {
                   ))}
                 </div>
 
-                {/* Add Tool selector */}
-                <div style={{ marginTop: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                {/* Add Custom Tool Dropdown/Selector Button */}
+                <div style={{ marginTop: '8px' }}>
                   <select
                     onChange={(e) => {
                       const selectedTool = e.target.value;
                       if (selectedTool && !tools.includes(selectedTool)) {
                         setTools(prev => [...prev, selectedTool]);
                       }
-                      e.target.value = ''; // Reset select
+                      e.target.value = '';
                     }}
                     defaultValue=""
                     style={{
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #e2e8f0',
-                      fontSize: '13px',
-                      background: '#fff',
-                      color: '#475569',
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: '12px',
+                      border: '1px solid #E5E7EB',
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      background: '#FFFFFF',
+                      color: '#0A0A0A',
                       cursor: 'pointer',
                       outline: 'none'
                     }}
                   >
-                    <option value="" disabled>+ Add Capability (Tool)...</option>
+                    <option value="" disabled>+ Add Custom Tool...</option>
                     {ALL_CATALOG_TOOLS.filter(t => !tools.includes(t)).map(t => (
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
                 </div>
 
-                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '24px', lineHeight: 1.4 }}>
-                  ℹ️ These tools will be available for your agent to use during execution.
+                {/* Bottom Callout Info Box */}
+                <div style={{
+                  background: '#EFF6FF',
+                  border: '1px solid #DBEAFE',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
+                  display: 'flex',
+                  gap: '10px',
+                  alignItems: 'flex-start'
+                }}>
+                  <span style={{ color: '#3B82F6', fontSize: '16px', fontWeight: 'bold' }}>ⓘ</span>
+                  <p style={{ fontSize: '12px', color: '#1E40AF', margin: 0, lineHeight: 1.45, fontWeight: 500 }}>
+                    These tools will be available for your agent to use during execution.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Security Info Banner across both columns */}
+            <div style={{
+              width: '100%',
+              background: '#FFFFFF',
+              border: '1px solid #E5E7EB',
+              borderRadius: '16px',
+              padding: '24px 28px',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '24px',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.02)'
+            }}>
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', borderRight: '1px solid #F1F5F9', paddingRight: '20px' }}>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="m9 12 2 2 4-4" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '14px', fontWeight: 800, margin: '0 0 2px 0', color: '#0A0A0A' }}>Spec kept private</h4>
+                  <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.35 }}>Your agent specification is encrypted and never shared.</p>
                 </div>
               </div>
 
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', borderRight: '1px solid #F1F5F9', paddingRight: '20px' }}>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    <circle cx="12" cy="16" r="1" fill="#0A0A0A" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '14px', fontWeight: 800, margin: '0 0 2px 0', color: '#0A0A0A' }}>Secure execution</h4>
+                  <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.35 }}>Tools run in isolated environment with scoped permissions.</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', borderRight: '1px solid #F1F5F9', paddingRight: '20px' }}>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <ellipse cx="12" cy="5" rx="9" ry="3" />
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '14px', fontWeight: 800, margin: '0 0 2px 0', color: '#0A0A0A' }}>Up-to-date data</h4>
+                  <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.35 }}>Built-in tools use reliable, real-time Solana data sources.</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '14px', fontWeight: 800, margin: '0 0 2px 0', color: '#0A0A0A' }}>Developer first</h4>
+                  <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: 1.35 }}>Open APIs, webhooks, and easy integrations.</p>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Step 4: Live Agent Chat Playground View */}
         {step === 'playground' && (
-          <div className="responsive-playground" style={{ flex: 1, display: 'flex', height: 'calc(100vh - 110px)' }}>
+          <div style={{ flex: 1, maxWidth: '1280px', margin: '0 auto', padding: '12px 20px 16px 20px', width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-            {/* Sidebar Controls */}
-            <aside className="responsive-sidebar" style={{
-              width: '280px',
-              background: 'rgba(255, 255, 255, 0.35)',
-              backdropFilter: 'blur(12px)',
-              borderRight: '1px solid rgba(255, 255, 255, 0.45)',
-              padding: '24px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div>
-                  <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Active Agent</span>
-                  <div style={{
-                    background: 'rgba(255, 255, 255, 0.4)',
-                    padding: '12px',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255, 255, 255, 0.45)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px'
-                  }}>
-                    <span style={{ fontSize: '24px' }}>🤖</span>
-                    <div>
-                      <strong style={{ display: 'block', fontSize: '14px', color: '#0A0A0A' }}>{name}</strong>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 600 }}>● Running Live</span>
-                        <button
-                          onClick={async () => {
-                            if (!selectedAgentId) return;
-                            if (!confirm(`Are you sure you want to delete agent "${name}" and all of its chat logs?`)) return;
+            {/* Main 3-Column Desktop Grid */}
+            <div className="responsive-playground-grid" style={{ display: 'grid', gridTemplateColumns: '240px 1fr 300px', gap: '16px', alignItems: 'start' }}>
 
-                            try {
-                              const token = jwtToken || localStorage.getItem(`jwt_token_${publicKey!.toBase58()}`) || '';
-                              const res = await fetch(`${API_BASE_URL}/v1/agents/delete?agentId=${selectedAgentId}`, {
-                                method: 'DELETE',
-                                headers: { 'Authorization': `Bearer ${token}` }
-                              });
-                              if (res.ok) {
-                                const data = await res.json();
-                                if (data.success) {
-                                  setModalConfig({
-                                    isOpen: true,
-                                    title: 'Agent Deleted',
-                                    message: `Successfully deleted agent "${name}" and its chat history.`,
-                                    type: 'success'
-                                  });
-                                  // Reload agent list
-                                  const listRes = await fetch(`${API_BASE_URL}/v1/agents/list`, {
-                                    headers: { 'Authorization': `Bearer ${token}` }
-                                  });
-                                  if (listRes.ok) {
-                                    const listData = await listRes.json();
-                                    setMyAgents(listData);
-                                    if (listData.length > 0) {
-                                      const latestAgent = listData[listData.length - 1];
-                                      setSelectedAgentId(latestAgent.id);
-                                      setName(latestAgent.name);
-                                      if (latestAgent.spec) {
-                                        setDescription(latestAgent.spec.description || '');
-                                        setInstructions(latestAgent.spec.instructions || '');
-                                        setTools(latestAgent.spec.tools || []);
-                                        if (latestAgent.spec.modelPolicy && latestAgent.spec.modelPolicy.costTier) {
-                                          setCostTier(latestAgent.spec.modelPolicy.costTier);
-                                        }
-                                      }
-                                      // Fetch history for the new selected agent
-                                      const histRes = await fetch(`${API_BASE_URL}/v1/chat/history?agentId=${latestAgent.id}`, {
-                                        headers: { 'Authorization': `Bearer ${token}` }
-                                      });
-                                      if (histRes.ok) {
-                                        const histData = await histRes.json();
-                                        setChatLog(histData.length > 0 ? histData : [{ role: 'assistant', content: `🤖 Switched to agent **${latestAgent.name}**. Ready for instructions.` }]);
-                                      }
-                                    } else {
-                                      // No agents left, reset to prompt wizard step!
-                                      setSelectedAgentId('');
-                                      setName('');
-                                      setChatLog([]);
-                                      setStep('prompt');
-                                    }
-                                  }
-                                } else {
-                                  alert('Failed to delete: ' + (data.error || 'Unknown error'));
-                                }
-                              }
-                            } catch (e) {
-                              console.error('Failed to delete agent:', e);
-                            }
-                          }}
-                          title="Delete Current Agent"
-                          style={{
-                            background: 'transparent',
-                            border: 0,
-                            fontSize: '13px',
-                            cursor: 'pointer',
-                            padding: '2px 4px',
-                            borderRadius: '4px',
-                            color: '#dc2626',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            outline: 'none',
-                            transition: 'background 0.2s'
-                          }}
-                          onMouseOver={(e) => e.currentTarget.style.background = 'rgba(220, 38, 38, 0.15)'}
-                          onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
-                        >
-                          🗑️
-                        </button>
+              {/* Column 1: Left Agent Controls Sidebar */}
+              <div style={{
+                background: '#FFFFFF',
+                border: '1px solid #E5E7EB',
+                borderRadius: '16px',
+                padding: '16px',
+                height: '550px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.02)'
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '8px' }}>
+                      ACTIVE AGENT
+                    </div>
+                    <div style={{
+                      background: '#FFFFFF',
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '10px',
+                      padding: '8px 10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                    }}>
+                      <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#FAFAF8', border: '1px solid #F1F5F9', display: 'grid', placeItems: 'center', flexShrink: 0, fontSize: '14px' }}>
+                        🤖
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '13px', fontWeight: 800, color: '#0A0A0A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {name || 'Crypto Scout Agent'}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '1px' }}>
+                          <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#10B981' }}></span>
+                          <span style={{ fontSize: '10px', fontWeight: 700, color: '#10B981' }}>Live</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {myAgents.length > 1 && (
                   <div>
-                    <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Switch Agent</span>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+                      SWITCH AGENT
+                    </div>
                     <select
                       value={selectedAgentId}
                       onChange={(e) => {
@@ -1518,11 +1763,7 @@ function DashboardContent() {
                             setDescription(targetAgent.spec.description || '');
                             setInstructions(targetAgent.spec.instructions || '');
                             setTools(targetAgent.spec.tools || []);
-                            if (targetAgent.spec.modelPolicy && targetAgent.spec.modelPolicy.costTier) {
-                              setCostTier(targetAgent.spec.modelPolicy.costTier);
-                            }
                           }
-                          // Fetch and load chat history for this agent!
                           (async () => {
                             try {
                               const token = jwtToken || localStorage.getItem(`jwt_token_${publicKey!.toBase58()}`) || '';
@@ -1531,35 +1772,22 @@ function DashboardContent() {
                               });
                               if (histRes.ok) {
                                 const histData = await histRes.json();
-                                if (histData.length > 0) {
-                                  setChatLog(histData);
-                                } else {
-                                  setChatLog([
-                                    { role: 'assistant', content: `🤖 Switched to agent **${targetAgent.name}**. Ready for instructions.` }
-                                  ]);
-                                }
-                              } else {
-                                setChatLog([
-                                  { role: 'assistant', content: `🤖 Switched to agent **${targetAgent.name}**. Ready for instructions.` }
-                                ]);
+                                setChatLog(histData.length > 0 ? histData : [{ role: 'assistant', content: `🤖 Switched to agent **${targetAgent.name}**. Ready for instructions.` }]);
                               }
                             } catch (e) {
                               console.error('Failed to load chat history:', e);
-                              setChatLog([
-                                { role: 'assistant', content: `🤖 Switched to agent **${targetAgent.name}**. Ready for instructions.` }
-                              ]);
                             }
                           })();
                         }
                       }}
                       style={{
                         width: '100%',
-                        padding: '10px',
+                        padding: '8px 10px',
                         borderRadius: '10px',
-                        border: '1px solid rgba(255, 255, 255, 0.45)',
-                        background: 'rgba(255, 255, 255, 0.4)',
-                        fontSize: '13px',
-                        fontWeight: 'bold',
+                        border: '1px solid #E5E7EB',
+                        background: '#FFFFFF',
+                        fontSize: '12px',
+                        fontWeight: 700,
                         color: '#0A0A0A',
                         outline: 'none',
                         cursor: 'pointer'
@@ -1568,112 +1796,225 @@ function DashboardContent() {
                       {myAgents.map(a => (
                         <option key={a.id} value={a.id}>{a.name}</option>
                       ))}
+                      {myAgents.length === 0 && <option value="">{name || 'Solana Wallet Monitor'}</option>}
                     </select>
                   </div>
-                )}
+                </div>
+
+                <button
+                  onClick={() => {
+                    setAiPrompt('');
+                    setChatLog([]);
+                    setStep('prompt');
+                  }}
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '10px',
+                    padding: '10px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    color: '#0A0A0A',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                  }}
+                >
+                  🚀 Compile New Agent
+                </button>
               </div>
 
-              {/* Reset / Compile new button */}
-              <button
-                onClick={() => {
-                  console.log('Step 4 Action: Resetting builder pipeline to start compile of new agent.');
-                  setAiPrompt('');
-                  setChatLog([]);
-                  setStep('prompt');
-                }}
-                style={{
-                  background: 'transparent',
-                  border: '2px solid rgba(255, 255, 255, 0.5)',
-                  color: '#0A0A0A',
-                  padding: '12px',
-                  borderRadius: '12px',
-                  fontWeight: 'bold',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  marginTop: '20px'
-                }}
-              >
-                + Compile New Agent
-              </button>
-            </aside>
-
-            {/* Sandbox Chat Playground */}
-            <section className="responsive-chat-window" style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'transparent', padding: '0 24px 24px' }}>
+              {/* Column 2: Center Sandbox Chat Playground */}
               <div style={{
-                height: '600px',
-                maxHeight: '100%',
-                background: 'rgba(255, 255, 255, 0.35)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.45)',
-                borderRadius: '12px',
+                background: '#FFFFFF',
+                border: '1px solid #E5E7EB',
+                borderRadius: '16px',
+                height: '550px',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.01)'
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.02)'
               }}>
-
-                {/* Chat window viewport */}
-                <div ref={chatViewportRef} style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Chat Log Viewport */}
+                <div ref={chatViewportRef} style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {chatLog.map((log, idx) => (
-                    <div key={idx} style={{ alignSelf: log.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
-                      <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '4px', textAlign: log.role === 'user' ? 'right' : 'left' }}>
-                        {log.role === 'user' ? 'YOU' : log.model ? `AGENT (${log.model.toUpperCase()})` : 'AGENT'}
-                      </span>
+                    <div key={idx} style={{ alignSelf: log.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '88%' }}>
+                      <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 600, marginBottom: '3px', textAlign: log.role === 'user' ? 'right' : 'left' }}>
+                        {log.role === 'user' ? 'You 10:24 AM' : `[Agent Active — ${log.model ? log.model.toUpperCase() : 'CLAUDE-3-5-SONNET'}]`}
+                      </div>
                       <div style={{
-                        padding: '12px 18px',
-                        borderRadius: '16px',
-                        background: log.role === 'user' ? '#F5601C' : '#f1f5f9',
-                        color: log.role === 'user' ? '#fff' : '#0A0A0A'
+                        padding: '10px 14px',
+                        borderRadius: log.role === 'user' ? '14px 14px 4px 14px' : '14px',
+                        background: log.role === 'user' ? '#F5601C' : '#FAFAF9',
+                        border: log.role === 'user' ? 0 : '1px solid #F1F5F9',
+                        color: log.role === 'user' ? '#FFFFFF' : '#0A0A0A',
+                        boxShadow: log.role === 'user' ? '0 4px 12px rgba(245, 96, 28, 0.25)' : 'none',
+                        fontSize: '13px'
                       }}>
                         <MessageContent content={log.content} isUser={log.role === 'user'} />
                       </div>
                     </div>
                   ))}
 
-                  {/* Streaming Assistant message */}
+                  {/* Live Streaming Message Bubble */}
                   {isStreaming && (
-                    <div style={{ alignSelf: 'flex-start', maxWidth: '80%' }}>
-                      <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>
-                        AGENT ({currentModel ? currentModel.toUpperCase() : 'ROUTING...'})
-                      </span>
-                      <div style={{ padding: '12px 18px', borderRadius: '16px', background: '#f1f5f9', color: '#0A0A0A' }}>
-                        <MessageContent content={currentResponse || 'Thinking...'} isUser={false} />
+                    <div style={{ alignSelf: 'flex-start', maxWidth: '88%' }}>
+                      <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 600, marginBottom: '3px' }}>
+                        [Agent Active — {currentModel ? currentModel.toUpperCase() : 'CLAUDE-3-5-SONNET'}]
+                      </div>
+                      <div style={{ padding: '10px 14px', borderRadius: '14px', background: '#FAFAF9', border: '1px solid #F1F5F9', color: '#0A0A0A', fontSize: '13px' }}>
+                        <MessageContent content={currentResponse || 'Executing agent spec reasoning...'} isUser={false} />
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Input action bar */}
-                <div style={{ padding: '18px 24px', borderTop: '1px solid #e2e8f0', background: '#fff', display: 'flex', gap: '12px' }}>
-                  <input
-                    type="text"
-                    value={sandboxPrompt}
-                    onChange={(e) => setSandboxPrompt(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSendSandboxPrompt()}
-                    placeholder={`Instruct ${name} to check solana balances, analyze spl tokens, or run loops...`}
-                    style={{ flex: 1, padding: '12px 16px', border: '1px solid #e2e8f0', borderRadius: '12px', outline: 0, fontSize: '14px' }}
-                  />
-                  <button
-                    onClick={handleSendSandboxPrompt}
-                    disabled={isStreaming}
-                    style={{
-                      background: '#0A0A0A',
-                      color: '#fff',
-                      border: 0,
-                      borderRadius: '12px',
-                      padding: '0 24px',
-                      fontWeight: 'bold',
-                      fontSize: '14px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Send
-                  </button>
+                {/* Bottom Interactive Chat Input Box */}
+                <div style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FFFFFF' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '10px',
+                    padding: '3px 4px 3px 12px',
+                    background: '#FFFFFF'
+                  }}>
+                    <span style={{ fontSize: '15px', color: '#94A3B8' }}>📎</span>
+                    <input
+                      type="text"
+                      value={sandboxPrompt}
+                      onChange={(e) => setSandboxPrompt(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSendSandboxPrompt()}
+                      placeholder={`Instruct ${name || 'Solana Wallet Monitor'} to check solana balances, analyze spl tokens, or run loops...`}
+                      style={{ flex: 1, border: 0, outline: 0, fontSize: '13px', color: '#0A0A0A', background: 'transparent' }}
+                    />
+                    <button
+                      onClick={handleSendSandboxPrompt}
+                      disabled={isStreaming}
+                      style={{
+                        background: '#0A0A0A',
+                        color: '#FFFFFF',
+                        border: 0,
+                        borderRadius: '6px',
+                        padding: '8px 16px',
+                        fontWeight: 800,
+                        fontSize: '12px',
+                        cursor: isStreaming ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      Send
+                    </button>
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#94A3B8', textAlign: 'center', marginTop: '4px' }}>
+                    Enter to send &nbsp;•&nbsp; Shift + Enter for new line
+                  </div>
+                </div>
+              </div>
+
+              {/* Column 3: Right Monitoring & Analytics Sidebar */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+                {/* Card 2: Dynamic Recent Activity */}
+                <div style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '16px',
+                  padding: '16px',
+                  height: '550px',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.02)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: '12px'
+                }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#0A0A0A', margin: 0 }}>
+                        Recent Activity
+                      </h3>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#10B981', background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '2px 8px', borderRadius: '999px' }}>
+                        Real-time
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {/* Item 1: Agent Status */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ color: '#10B981', fontWeight: 800, fontSize: '13px' }}>✓</span>
+                          <div>
+                            <div style={{ fontSize: '12px', fontWeight: 700, color: '#0A0A0A' }}>{name || 'Agent Active'}</div>
+                            <div style={{ fontSize: '10px', color: '#64748B' }}>Status: Live & Listening</div>
+                          </div>
+                        </div>
+                        <span style={{ fontSize: '10px', color: '#94A3B8' }}>Just now</span>
+                      </div>
+
+                      {/* Dynamic Tool Items */}
+                      {tools.map((t, idx) => {
+                        const toolTitle = t === 'solana_balance' ? 'Solana Balance'
+                          : t === 'spl_token_balance' ? 'SPL Token Balance'
+                            : t === 'solana_transaction_history' ? 'On-Chain Transactions'
+                              : t === 'token_metadata' ? 'Token Metadata'
+                                : t === 'web_search' ? 'Web Search Intelligence'
+                                  : t === 'custom_solana_tool' ? 'Custom Solana Program'
+                                    : t.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                        const toolSubtext = t === 'solana_balance' ? 'RPC Connected'
+                          : t === 'spl_token_balance' ? 'Token Indexer Active'
+                            : t === 'solana_transaction_history' ? 'Tx Parser Enabled'
+                              : t === 'token_metadata' ? 'Metaplex Parser Active'
+                                : t === 'web_search' ? 'Live Web Crawler'
+                                  : 'Tool Active & Configured';
+
+                        return (
+                          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ color: '#10B981', fontWeight: 800, fontSize: '13px' }}>✓</span>
+                              <div>
+                                <div style={{ fontSize: '12px', fontWeight: 700, color: '#0A0A0A' }}>{toolTitle}</div>
+                                <div style={{ fontSize: '10px', color: '#64748B' }}>{toolSubtext}</div>
+                              </div>
+                            </div>
+                            <span style={{ fontSize: '10px', color: '#94A3B8' }}>Active</span>
+                          </div>
+                        );
+                      })}
+
+                      {/* Fallback if tools empty */}
+                      {tools.length === 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ color: '#10B981', fontWeight: 800, fontSize: '13px' }}>✓</span>
+                            <div>
+                              <div style={{ fontSize: '12px', fontWeight: 700, color: '#0A0A0A' }}>Default Capability</div>
+                              <div style={{ fontSize: '10px', color: '#64748B' }}>Solana RPC Node Active</div>
+                            </div>
+                          </div>
+                          <span style={{ fontSize: '10px', color: '#94A3B8' }}>Active</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Dynamic Callout box */}
+                  <div style={{ background: '#FAFAF9', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '8px 10px', fontSize: '10px', color: '#64748B', lineHeight: 1.35 }}>
+                    Monitoring enabled. <strong>{name || 'Agent'}</strong> is live with {tools.length} configured tool{tools.length === 1 ? '' : 's'}.
+                  </div>
                 </div>
 
               </div>
-            </section>
+
+            </div>
+
+            {/* Page Footer Subtext */}
+            <div style={{ fontSize: '11px', color: '#64748B', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <span>🔒</span> All data is encrypted end-to-end. Spec kept private.
+            </div>
 
           </div>
         )}
