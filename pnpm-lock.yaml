@@ -8,7 +8,17 @@ pnpmfileChecksum: sha256-J/P3jnaB3+foZreAl57lX/OZ9CWF6vadDDD34USyi4c=
 
 importers:
 
-  .: {}
+  .:
+    dependencies:
+      next:
+        specifier: ^14.2.5
+        version: 14.2.35(@babel/core@7.29.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
 
   backend:
     dependencies:
