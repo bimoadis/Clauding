@@ -201,8 +201,28 @@ function DashboardContent() {
   const [fullStackToggle, setFullStackToggle] = useState(true);
   const [noVibeToggle, setNoVibeToggle] = useState(false);
 
+  // Unique agent name generator helper
+  const generateClientUniqueName = (prompt?: string) => {
+    const prefixes = ['Apex', 'Nova', 'Cyber', 'Aegis', 'Vanguard', 'Quantum', 'Hyper', 'Nexus', 'Prime', 'Solar', 'Pulse', 'Phantom', 'Aura', 'Helios', 'Krono', 'Orion'];
+    const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const randomId = Math.floor(100 + Math.random() * 900);
+    const lower = (prompt || '').toLowerCase();
+
+    let role = 'Solana Scout';
+    if (lower.includes('ca') || lower.includes('contract') || lower.includes('token')) {
+      role = 'Token Scanner';
+    } else if (lower.includes('saldo') || lower.includes('balance') || lower.includes('wallet')) {
+      role = 'Vault Sentinel';
+    } else if (lower.includes('price') || lower.includes('harga') || lower.includes('dex')) {
+      role = 'Liquidity Oracle';
+    } else if (lower.includes('news') || lower.includes('track')) {
+      role = 'Signal Crawler';
+    }
+    return `${randomPrefix} ${role} #${randomId}`;
+  };
+
   // Step 3: Editable Agent Config states
-  const [name, setName] = useState('Crypto Scout Agent');
+  const [name, setName] = useState(() => generateClientUniqueName());
   const [description, setDescription] = useState('Compiled from prompt: "make solana report"');
   const [instructions, setInstructions] = useState('Monitor crypto sources. Surface high-signal Solana and SPL token announcements. Always verify information before alerts.');
   const [tools, setTools] = useState<string[]>([
@@ -373,7 +393,7 @@ function DashboardContent() {
       const data = await response.json();
       console.log('Step 2 Success: Compiler returned agent spec data:', data);
 
-      setName(data.name || 'Crypto Scout Agent');
+      setName(data.name || generateClientUniqueName(promptText));
       setDescription(data.description || `Compiled from prompt: "${promptText}"`);
       setInstructions(data.instructions || '');
       setTools(data.tools || [
@@ -395,7 +415,7 @@ function DashboardContent() {
       console.error('Step 2 Error: Spec compilation failed. Error logs:', err);
       console.log('Step 2 Fallback: Loading developer fallback spec values to configure screen.');
 
-      setName('Crypto Scout Agent');
+      setName(generateClientUniqueName(promptText));
       setDescription(`Compiled from prompt: "${promptText}"`);
       setStep('configure');
     }
@@ -1383,11 +1403,36 @@ function DashboardContent() {
                 {/* Card 1: Agent Name, Version, Mode */}
                 <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '16px 20px', display: 'grid', gridTemplateColumns: '1.8fr 1fr 1.2fr', gap: '16px', alignItems: 'center' }}>
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#FAFAF8', border: '1px solid #F1F5F9', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                      🤖
+                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#FAFAF8', border: '1px solid #E2E8F0', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="10" rx="2" />
+                        <circle cx="12" cy="5" r="2" />
+                        <path d="M12 7v4" />
+                        <line x1="8" y1="16" x2="8" y2="16" />
+                        <line x1="16" y1="16" x2="16" y2="16" />
+                      </svg>
                     </div>
-                    <div>
-                      <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>AGENT NAME</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>AGENT NAME</span>
+                        <button
+                          type="button"
+                          onClick={() => setName(generateClientUniqueName(aiPrompt))}
+                          title="Generate Unique Name"
+                          style={{
+                            background: '#F1F5F9',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: '4px',
+                            padding: '2px 6px',
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            color: '#475569',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Shuffle Name
+                        </button>
+                      </div>
                       <input
                         type="text"
                         value={name}
@@ -1823,7 +1868,7 @@ function DashboardContent() {
                     boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
                   }}
                 >
-                  🚀 Compile New Agent
+                  Compile New Agent
                 </button>
               </div>
 

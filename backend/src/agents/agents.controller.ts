@@ -65,20 +65,46 @@ export class AgentsController {
     const isCrypto = promptLower.includes('crypto') || promptLower.includes('sol') || promptLower.includes('token') || promptLower.includes('ca') || promptLower.includes('saldo') || promptLower.includes('wallet');
     const isNews = promptLower.includes('news') || promptLower.includes('berita') || promptLower.includes('track');
 
+    // Helper to generate dynamic, memorable, and unique agent names
+    const generateUniqueAgentName = (prompt: string): string => {
+      const promptClean = prompt.trim();
+      const lower = promptClean.toLowerCase();
+      
+      const prefixes = ['Apex', 'Nova', 'Cyber', 'Aegis', 'Vanguard', 'Quantum', 'Hyper', 'Nexus', 'Prime', 'Solar', 'Pulse', 'Phantom', 'Aura', 'Helios', 'Krono', 'Orion'];
+      const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+      const randomId = Math.floor(100 + Math.random() * 900); // 3-digit unique tag e.g. 482
+
+      let roleName = '';
+      if (lower.includes('ca') || lower.includes('contract') || lower.includes('kontrak') || lower.includes('scan')) {
+        const roles = ['Token Scanner', 'Contract Auditor', 'CA Radar', 'Token Sentinel', 'Smart Contract Inspector'];
+        roleName = roles[Math.floor(Math.random() * roles.length)];
+      } else if (lower.includes('saldo') || lower.includes('balance') || lower.includes('wallet') || lower.includes('dompet')) {
+        const roles = ['Wallet Overseer', 'Vault Sentinel', 'Ledger Monitor', 'Solana Watcher', 'Balance Analyst'];
+        roleName = roles[Math.floor(Math.random() * roles.length)];
+      } else if (lower.includes('price') || lower.includes('harga') || lower.includes('dex') || lower.includes('liquidity') || lower.includes('pool')) {
+        const roles = ['Liquidity Oracle', 'Price Radar', 'Market Arbitrageur', 'DEX Scout', 'Orderbook Tracker'];
+        roleName = roles[Math.floor(Math.random() * roles.length)];
+      } else if (lower.includes('news') || lower.includes('berita') || lower.includes('feed') || lower.includes('track')) {
+        const roles = ['Signal Crawler', 'Market Pulse', 'Alpha Intelligence', 'News Synthesizer', 'Alpha Terminal'];
+        roleName = roles[Math.floor(Math.random() * roles.length)];
+      } else if (lower.includes('trade') || lower.includes('swap') || lower.includes('arbitrage') || lower.includes('snipe')) {
+        const roles = ['Alpha Sniper', 'Trade Router', 'Yield Navigator', 'Execution Matrix'];
+        roleName = roles[Math.floor(Math.random() * roles.length)];
+      } else if (lower.includes('sol') || lower.includes('crypto') || lower.includes('token') || lower.includes('spl')) {
+        const roles = ['Solana Scout', 'Chain Inspector', 'Alpha Radar', 'OnChain Analyst', 'Solana Navigator'];
+        roleName = roles[Math.floor(Math.random() * roles.length)];
+      } else {
+        const roles = ['Neural Agent', 'Intelligence Core', 'Autonomous Operator', 'Cognitive Analyst', 'Strategy Specialist'];
+        roleName = roles[Math.floor(Math.random() * roles.length)];
+      }
+
+      return `${randomPrefix} ${roleName} #${randomId}`;
+    };
+
     // Prioritize client-provided overrides from Step 3 editing form
     let name = actualBody?.name;
-    if (!name) {
-      if (promptLower.includes('ca') || promptLower.includes('token') || promptLower.includes('scan') || promptLower.includes('kontrak')) {
-        name = 'Token Analyzer Agent';
-      } else if (promptLower.includes('saldo') || promptLower.includes('balance') || promptLower.includes('wallet') || promptLower.includes('dompet')) {
-        name = 'Solana Wallet Monitor';
-      } else if (isNews) {
-        name = 'News Crawler Agent';
-      } else if (isCrypto) {
-        name = 'Crypto Scout Agent';
-      } else {
-        name = 'General Assistant Agent';
-      }
+    if (!name || name.trim().length === 0) {
+      name = generateUniqueAgentName(rawPrompt);
     }
 
     const description = actualBody?.description || `Compiled from prompt: "${rawPrompt}"`;

@@ -28,10 +28,28 @@ const LogoIcon: React.FC = () => (
   />
 );
 
+// Custom SVG Copy / Checkmark Icon Component
+const CopyIcon: React.FC<{ copied: boolean }> = ({ copied }) => {
+  if (copied) {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+};
+
 export default function Home() {
   const router = useRouter();
   const { connected } = useWallet();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [caCopied, setCaCopied] = useState(false);
 
   // Accordion FAQs (Note: "Is my agent always online?" removed as requested per 24/7 autonomous loop status)
   const faqs = [
@@ -153,6 +171,41 @@ export default function Home() {
         backgroundColor: '#FAFAF9'
       }}>
         <div style={{ width: '100%', maxWidth: '854px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+          {/* Copyable Contract Address Badge */}
+          <div
+            onClick={() => {
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText('Coming Soon');
+              }
+              setCaCopied(true);
+              setTimeout(() => setCaCopied(false), 2000);
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: '#FFFFFF',
+              border: '1px solid #E5E7EB',
+              borderRadius: '999px',
+              padding: '6px 16px',
+              fontSize: '13px',
+              fontWeight: 700,
+              color: '#334155',
+              cursor: 'pointer',
+              marginBottom: '20px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+              userSelect: 'all'
+            }}
+            title="Click to copy Contract Address"
+          >
+            <span style={{ color: '#F5601C' }}>CA:</span>
+            <span>Coming Soon</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: caCopied ? '#10B981' : '#64748B' }}>
+              <CopyIcon copied={caCopied} />
+              {caCopied && <span>Copied!</span>}
+            </span>
+          </div>
 
           <h1 style={{ fontSize: 'clamp(40px, 6vw, 72px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.08, marginBottom: '20px' }}>
             One prompt.<br />

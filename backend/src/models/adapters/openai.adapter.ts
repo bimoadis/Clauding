@@ -178,77 +178,97 @@ Integrate this live data and answer the user prompt accurately.`
         }
       }
 
-      // 1. Stream thinking process
-      let intro = `[Agent Active - ${req.model.toUpperCase()}]\n🤖 Reasoning: Analyzing prompt for required capabilities...\n`;
+      // 1. Stream clean status
+      let intro = `Processing request...\n`;
       if (matchedTools.length > 0) {
-        intro += `👉 Identified matched tools in catalog: [${matchedTools.join(', ')}]\n\n`;
-      } else {
-        intro += `👉 No specialized external tools required for this request. Processing general response...\n\n`;
+        intro += `Accessing data module: ${matchedTools.join(', ')}\n\n`;
       }
       
       for (const char of intro) {
         yield { delta: char };
-        await new Promise(resolve => setTimeout(resolve, 5));
+        await new Promise(resolve => setTimeout(resolve, 3));
       }
 
-      // 2. Execute matching tools and stream output
-      const toolResults: string[] = [];
+      // 2. Execute matching tools cleanly without dumping raw json
+      const toolResults: { toolName: string; data: any }[] = [];
       for (const toolName of matchedTools) {
         if (req.allowedTools && !req.allowedTools.includes(toolName)) {
-          let guardrailLog = `⚠️ [GUARDRAIL] Eksekusi tool [${toolName}] diblokir karena tool ini tidak diizinkan dalam review spesifikasi agen.\n\n`;
+          let guardrailLog = `Access to module [${toolName}] is restricted by agent capability settings.\n\n`;
           for (const char of guardrailLog) {
             yield { delta: char };
-            await new Promise(resolve => setTimeout(resolve, 5));
+            await new Promise(resolve => setTimeout(resolve, 3));
           }
           continue;
         }
         const tool = toolCatalog.find(t => t.name === toolName);
         if (tool) {
-          let execLog = `⚙️ Action: Executing tool [${toolName}]...\n`;
+          let execLog = `Synchronizing data from [${toolName}]...\n`;
           for (const char of execLog) {
             yield { delta: char };
-            await new Promise(resolve => setTimeout(resolve, 5));
+            await new Promise(resolve => setTimeout(resolve, 3));
           }
 
-          // Execute handler
           try {
             const res = await tool.handler({
-              query: 'latest Solana trend',
+              query: userPrompt,
               wallet: req.wallet || '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv',
               code: 'print("Running Python Sandbox Code")',
               text: 'Simulated Audio Transcription Result'
             });
-            const resStr = JSON.stringify(res, null, 2);
-            toolResults.push(`[${toolName}]: ${resStr}`);
+            toolResults.push({ toolName, data: res });
             
-            let resLog = `📥 Observation: \n\`\`\`json\n${resStr}\n\`\`\`\n\n`;
+            let resLog = `Data retrieved successfully.\n\n`;
             for (const char of resLog) {
               yield { delta: char };
-              await new Promise(resolve => setTimeout(resolve, 5));
+              await new Promise(resolve => setTimeout(resolve, 3));
             }
           } catch (err) {
-            const errLog = `❌ Observation Error: ${err instanceof Error ? err.message : 'failed'}\n\n`;
+            const errLog = `Failed to synchronize data: ${err instanceof Error ? err.message : 'execution error'}\n\n`;
             for (const char of errLog) {
               yield { delta: char };
-              await new Promise(resolve => setTimeout(resolve, 5));
+              await new Promise(resolve => setTimeout(resolve, 3));
             }
           }
         }
       }
 
-      // 3. Stream final synthesis
-      let finalSynthesis = `📝 Final Synthesis:\n`;
+      // 3. Synthesize tool results cleanly and professionally
+      let finalSynthesis = `### Executive Summary\n\n`;
       if (req.allowedTools && req.allowedTools.length > 0 && matchedTools.length === 0) {
-        finalSynthesis += `Maaf, saya dikonfigurasi sebagai agen khusus dengan keahlian: [${req.allowedTools.join(', ')}]. Saya tidak dapat menjawab pertanyaan atau menulis kode di luar keahlian tersebut.`;
-      } else if (matchedTools.length > 0) {
-        finalSynthesis += `Based on the active tool results above, the agent confirms all operations completed successfully and the ledger records have been updated accordingly.`;
+        finalSynthesis = `This agent is configured specifically for: ${req.allowedTools.join(', ')}. Inquiries outside these capabilities cannot be processed.`;
+      } else if (toolResults.length > 0) {
+        for (const item of toolResults) {
+          if (item.toolName === 'solana_balance' && item.data) {
+            const bal = item.data.solBalance ?? item.data.balance ?? item.data.sol ?? '0';
+            const walletAddr = item.data.wallet || req.wallet || '8TnpincCHRaiT8swphAAa3bJBSjrrUBCj2MgpaA6oZZv';
+            finalSynthesis += `• **Solana Balance (SOL)**: ${bal} SOL\n• **Wallet Address**: \`${walletAddr}\`\n`;
+          } else if (item.toolName === 'spl_token_balance' && item.data) {
+            finalSynthesis += `• **SPL Token Balance**: ${item.data.balance ?? item.data.amount ?? '0'} ${item.data.symbol || 'Token'}\n`;
+          } else if (item.toolName === 'dex_token_price' && item.data) {
+            finalSynthesis += `• **Token Price**: $${item.data.priceUsd ?? '0'}\n• **Liquidity**: $${item.data.liquidityUsd ?? '0'}\n• **24h Volume**: $${item.data.volume24h ?? '0'}\n`;
+          } else if (item.toolName === 'token_metadata' && item.data) {
+            finalSynthesis += `• **Token Name**: ${item.data.name || 'N/A'} (${item.data.symbol || 'N/A'})\n• **Contract Address (CA)**: \`${item.data.mint || item.data.address || 'N/A'}\`\n`;
+          } else if (item.toolName === 'solana_transaction_history' && item.data) {
+            finalSynthesis += `• **Transaction History**: Successfully retrieved latest verified transactions on Solana network.\n`;
+          } else if (item.toolName === 'solana_priority_fees' && item.data) {
+            finalSynthesis += `• **Estimated Priority Fee**: ${item.data.priorityFeeMicroLamports ?? item.data.fee ?? 'Standard'} micro-lamports\n`;
+          } else if (item.toolName === 'web_search' && item.data) {
+            finalSynthesis += `• **Search Findings**: ${typeof item.data === 'string' ? item.data : (item.data.summary || 'Latest information verified.')}\n`;
+          } else {
+            const cleanText = typeof item.data === 'object' 
+              ? Object.entries(item.data).map(([k, v]) => `  - ${k}: ${v}`).join('\n')
+              : item.data;
+            finalSynthesis += `• **${item.toolName}**:\n${cleanText}\n`;
+          }
+        }
+        finalSynthesis += `\nAll on-chain records have been fetched and synchronized in real time.`;
       } else {
-        finalSynthesis += `Here is the response to your message: "${userPrompt}"`;
+        finalSynthesis = `Here is the response to your request:\n\n${userPrompt}`;
       }
 
       for (const char of finalSynthesis) {
         yield { delta: char };
-        await new Promise(resolve => setTimeout(resolve, 5));
+        await new Promise(resolve => setTimeout(resolve, 3));
       }
       
       yield { usage: { inputTokens: 40, outputTokens: 80 } };

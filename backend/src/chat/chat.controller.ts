@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Req, Sse, MessageEvent, Query, UseGuards }
 import { Observable } from 'rxjs';
 import { OpenAIAdapter } from '../models/adapters/openai.adapter';
 import { AnthropicAdapter } from '../models/adapters/anthropic.adapter';
+import { XAIAdapter } from '../models/adapters/xai.adapter';
 import { ModelRouter } from '../models/model-router.service';
 import { ModelRef } from '../models/model-router.interface';
 import { db } from '../db/db';
@@ -20,12 +21,35 @@ interface ChatStreamDto {
 export class ChatController {
   private openai = new OpenAIAdapter();
   private anthropic = new AnthropicAdapter();
+  private xai = new XAIAdapter();
   private router = new ModelRouter();
 
   constructor(private readonly temporalService: TemporalService) { }
 
   // Mock database model catalog
   private modelsCatalog: ModelRef[] = [
+    {
+      id: 'mimo-v2.5-pro',
+      provider: 'xai',
+      displayName: 'Xiaomi MiMo v2.5 Pro',
+      inPriceMicroUsd: 1000000n,
+      outPriceMicroUsd: 3000000n,
+      qualityRank: 96,
+      latencyAvgMs: 600,
+      healthy: true,
+      capabilities: ['function_calling', 'vision']
+    },
+    {
+      id: 'mimo-v2.5',
+      provider: 'xai',
+      displayName: 'Xiaomi MiMo v2.5',
+      inPriceMicroUsd: 500000n,
+      outPriceMicroUsd: 1500000n,
+      qualityRank: 90,
+      latencyAvgMs: 400,
+      healthy: true,
+      capabilities: ['function_calling']
+    },
     {
       id: 'claude-3-5-sonnet',
       provider: 'anthropic',
@@ -190,7 +214,23 @@ export class ChatController {
           }
 
           // 2. Stream tokens from the adapter
-          const adapter = activeModel.provider === 'openai' ? this.openai : this.anthropic;
+          let adapter = this.openai;
+          const xaiKey = process.env.XAI_API_KEY || process.env.MIMO_API_KEY;
+          const openaiKey = process.env.OPENAI_API_KEY;
+          const anthropicKey = process.env.ANTHROPIC_API_KEY;
+
+          if (activeModel.provider === 'xai') {
+            adapter = this.xai as any;
+          } else if (activeModel.provider === 'anthropic') {
+            adapter = (!anthropicKey || anthropicKey.includes('your-') || anthropicKey.includes('sk-ant-...')) && xaiKey
+              ? (this.xai as any)
+              : this.anthropic;
+          } else {
+            adapter = (!openaiKey || openaiKey.includes('proj-...') || openaiKey.includes('your-')) && xaiKey
+              ? (this.xai as any)
+              : this.openai;
+          }
+
           const stream = adapter.stream({
             model: activeModel.id,
             messages: finalMessages,

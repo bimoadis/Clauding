@@ -1,5 +1,6 @@
 import { OpenAIAdapter } from '../models/adapters/openai.adapter';
 import { AnthropicAdapter } from '../models/adapters/anthropic.adapter';
+import { XAIAdapter } from '../models/adapters/xai.adapter';
 import { Message } from '../models/provider-adapter.interface';
 import { db } from '../db/db';
 import { users, wallets, agents, agentVersions, runs, usageEvents } from '../db/schema';
@@ -8,6 +9,7 @@ import { toolCatalog } from './tool-catalog';
 
 const openai = new OpenAIAdapter();
 const anthropic = new AnthropicAdapter();
+const xai = new XAIAdapter();
 
 export async function loadAgentSpec(agentId: string) {
   console.log(`[Activity] Loading AgentSpec for: ${agentId}`);
@@ -91,7 +93,23 @@ export async function executeTool(params: { toolName: string; args: Record<strin
 export async function callProviderModel(params: { modelId: string; provider: string; history: Message[]; runId: string }) {
   console.log(`[Activity] Invoking provider model: ${params.modelId} (${params.provider})`);
 
-  const adapter = params.provider === 'openai' ? openai : anthropic;
+  let adapter = openai;
+  const xaiKey = process.env.XAI_API_KEY || process.env.MIMO_API_KEY;
+  const openaiKey = process.env.OPENAI_API_KEY;
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+
+  if (params.provider === 'xai') {
+    adapter = xai as any;
+  } else if (params.provider === 'anthropic') {
+    adapter = (!anthropicKey || anthropicKey.includes('your-') || anthropicKey.includes('sk-ant-...')) && xaiKey
+      ? (xai as any)
+      : anthropic;
+  } else {
+    adapter = (!openaiKey || openaiKey.includes('proj-...') || openaiKey.includes('your-')) && xaiKey
+      ? (xai as any)
+      : openai;
+  }
+
   const response = await adapter.chat({
     model: params.modelId,
     messages: params.history
