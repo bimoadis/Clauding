@@ -131,6 +131,28 @@ export default function Home() {
           <a href="#pricing" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 14px' }}>Pricing</a>
           <a href="#faq" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 14px' }}>FAQ</a>
           <a href="/token" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#F5601C', padding: '6px 14px' }}>Docs</a>
+          <a
+            href="https://x.com/usecldg?s=11"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Follow on X (@usecldg)"
+            aria-label="X"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textDecoration: 'none',
+              cursor: 'pointer',
+              color: '#0A0A0A',
+              padding: '6px 10px',
+              borderRadius: '999px',
+              transition: 'opacity 0.2s'
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
         </div>
 
         {/* Right: Connect Button */}
@@ -415,8 +437,33 @@ export default function Home() {
             <span style={{ fontWeight: 800, fontSize: '18px', color: '#0A0A0A' }}>Clauding</span>
           </div>
 
-          <div style={{ fontSize: '13px', color: '#64748B' }}>
-            © 2026 Clauding. Autonomous Agent Compiler.
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+            <a
+              href="https://x.com/usecldg?s=11"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: '#0A0A0A',
+                textDecoration: 'none',
+                fontSize: '13px',
+                fontWeight: 700,
+                padding: '6px 14px',
+                borderRadius: '999px',
+                background: '#FFFFFF',
+                border: '1px solid #E5E7EB'
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              <span>Follow @usecldg</span>
+            </a>
+            <div style={{ fontSize: '13px', color: '#64748B' }}>
+              © 2026 Clauding. Autonomous Agent Compiler.
+            </div>
           </div>
         </div>
       </footer>

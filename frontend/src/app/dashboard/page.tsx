@@ -825,8 +825,32 @@ function DashboardContent() {
           </div>
         </div>
 
-        {/* Right: Connected Wallet MultiButton */}
-        <div className="desktop-wallet">
+        {/* Right: Connected Wallet MultiButton & Socials */}
+        <div className="desktop-wallet" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <a
+            href="https://x.com/usecldg?s=11"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Follow @usecldg on X"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '40px',
+              height: '40px',
+              borderRadius: '999px',
+              border: '1px solid #E2E8F0',
+              background: '#FFFFFF',
+              color: '#0A0A0A',
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
           <WalletMultiButton style={{
             background: '#F5601C',
             borderRadius: '999px',
@@ -896,6 +920,31 @@ function DashboardContent() {
             </div>
 
             <div style={{ width: '100%', height: '1px', background: '#e2e8f0', margin: '8px 0' }} />
+
+            <a
+              href="https://x.com/usecldg?s=11"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: '#0A0A0A',
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: 700,
+                padding: '10px 20px',
+                borderRadius: '999px',
+                background: '#F1F5F9',
+                width: '100%',
+                justifyContent: 'center'
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              <span>Follow @usecldg on X</span>
+            </a>
 
             <WalletMultiButton style={{
               background: '#F5601C',

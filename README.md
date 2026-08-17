@@ -1,149 +1,290 @@
-# 🤖 Clauding — Monorepo
+<div align="center">
 
-> **One prompt. Any AI agent.** 
-> Clauding is a platform to design, compile, and launch autonomous AI agents using just a single line of natural language instruction. Powered by Solana wallet integration, thread-based message history, a ReAct execution loop, and real-time on-chain analysis tools.
+<img src="docs/assets/banner.png" alt="KIRBLE Banner" width="100%" />
+
+# KIRBLE
+
+**Autonomous AI Agent Compiler & Web3 Orchestration Engine**
+
+*One prompt. Any AI agent. Compile, orchestrate, and launch autonomous Solana agents with transparent execution specs.*
+
+[![Chain](https://img.shields.io/badge/chain-Solana-9945FF?style=flat-square&labelColor=0A0F0C&logo=solana)](#solana-integration)
+[![Runtime](https://img.shields.io/badge/runtime-Next.js%2014%20·%20NestJS-E9E4D6?style=flat-square&labelColor=0A0F0C)](#tech-stack)
+[![Database](https://img.shields.io/badge/database-PostgreSQL%20·%20pgvector-336791?style=flat-square&labelColor=0A0F0C&logo=postgresql)](#database--vector-memory)
+[![Engine](https://img.shields.io/badge/engine-ReAct%20Loop%20·%20Drizzle%20ORM-FF6B6B?style=flat-square&labelColor=0A0F0C)](#agent-runtime)
+[![Auth](https://img.shields.io/badge/auth-SIWS%20(Ed25519)-10B981?style=flat-square&labelColor=0A0F0C)](#security--authentication)
+[![X (Twitter)](https://img.shields.io/badge/X-@usecldg-000000.svg?style=flat-square&logo=X&logoColor=white)](https://x.com/usecldg?s=11)
+[![License](https://img.shields.io/badge/license-MIT-38C172?style=flat-square&labelColor=0A0F0C)](#license)
+
+</div>
+
+---
+
+**KIRBLE** (formerly Clauding) is an autonomous AI agent platform and compilation engine designed to design, compile, and execute goal-driven AI agents using natural language prompts. Powered by Solana wallet authentication, thread-based memory, a dynamic ReAct (Reasoning + Acting) execution loop, and real-time on-chain and market analysis tools.
+
+---
+
+## ⚡ Why KIRBLE
+
+Building and orchestrating autonomous on-chain agents typically requires complex boilerplate, custom RPC wrappers, fragile prompt chains, and opaque agent execution logic. **KIRBLE** solves this by providing:
+
+- **One-Prompt Agent Compiler**: Describe an agent in plain language (English or Indonesian), and KIRBLE autonomously generates a transparent `AgentSpec` schema (system persona, behavioral guardrails, LLM models, and dynamic tool bindings).
+- **Autonomous ReAct Execution Loop**: Agents do not merely return text—they reason over intermediate states, evaluate conditions, execute tool calls, and adapt their plan until the objective is reached.
+- **Cryptographic Solana SIWS Authentication**: Zero-friction login and chat thread isolation via Sign-In-With-Solana (Ed25519 challenge-response signatures), keeping session histories strictly bound to wallet public keys.
+- **Built-in Web3 & Analytics Tool Catalog**: Instant integration with DexScreener price/liquidity endpoints, on-chain ledger queries, and safe code evaluation sandboxes.
+- **Ultra-Responsive Real-Time Streaming**: Low-latency token streaming via Server-Sent Events (SSE) combined with an elegant, modern dark glassmorphism dashboard.
+
+---
+
+## 🏛️ System Architecture
+
+```
+                               ┌────────────────────────────────┐
+                               │     USER / SOLANA WALLET       │
+                               │   (Phantom / Solflare SIWS)    │
+                               └───────────────┬────────────────┘
+                                               │
+                                               ▼
+                               ┌────────────────────────────────┐
+                               │      FRONTEND (NEXT.JS 14)     │
+                               │   • One-Prompt Compiler UI     │
+                               │   • Agent Playground Dashboard │
+                               │   • SSE Stream Consumer        │
+                               └───────────────┬────────────────┘
+                                               │ REST / SSE API
+                                               ▼
+                               ┌────────────────────────────────┐
+                               │      BACKEND (NESTJS API)      │
+                               │   • SIWS Auth Guard (JWT)      │
+                               │   • Model Router & Adapters    │
+                               │   • Agent Spec Compiler        │
+                               └───────────────┬────────────────┘
+                                               │
+               ┌───────────────────────────────┼───────────────────────────────┐
+               ▼                               ▼                               ▼
+      ┌─────────────────┐             ┌─────────────────┐             ┌─────────────────┐
+      │   LLM ADAPTERS  │             │   ReAct ENGINE  │             │   PERSISTENCE   │
+      │ • Claude 3.5    │             │ • Step Planning │             │ • PostgreSQL 16 │
+      │ • GPT-4o / Mini │             │ • Tool Dispatch │             │ • pgvector      │
+      │ • Prompt Engine │             │ • State Loop    │             │ • Drizzle ORM   │
+      └────────┬────────┘             └────────┬────────┘             └─────────────────┘
+               │                               │
+               └───────────────────────┬───────┘
+                                       ▼
+                     ┌───────────────────────────────────┐
+                     │          TOOL CATALOG             │
+                     │  • DexScreener Solana API         │
+                     │  • On-Chain Ledger & Balances     │
+                     │  • Python Evaluation Sandbox      │
+                     │  • Helius RPC & Webhook Triggers  │
+                     └───────────────────────────────────┘
+```
 
 ---
 
 ## 🌟 Key Features
 
-- **One-Prompt Compiler**: Describe the agent you want (in English or Indonesian), and Clauding will automatically analyze and configure its persona, rules, appropriate LLM models, and required capabilities (tools).
-- **Dynamic ReAct Loop System**: Agents don't just answer questions—they autonomously reason, make decisions, and execute a sequence of tools to achieve your goals.
-- **Solana Wallet Integration**: Authentication and chat thread history are securely bound to the user's public address via Phantom Wallet / Solana Wallet Adapter.
-- **Agent Capabilities (Tools Catalog)**:
-  - **DexScreener API**: Real-time queries for token prices, liquidity, volume, and contract info on Solana.
-  - **Python Sandbox**: Safe code execution on the backend sandbox.
-  - **Ledger & Balances**: Check wallet balances and transaction histories on-chain.
-- **Premium Glassmorphism UI**: Beautiful, responsive landing page and dashboard dashboard containing controls for creating, selecting, and deleting agents alongside their message logs.
+### 1. One-Prompt Compiler & Spec Engine
+Describe what you need: *"Create a Solana memecoin sentiment analyst that tracks 5m volume spikes on DexScreener and verifies liquidity lock status."*  
+KIRBLE will automatically compile the agent's identity, system prompt layers, assigned LLM engine, and required capabilities.
+
+### 2. Multi-Model Intelligent Routing
+Seamlessly dispatches queries to top-tier foundation models (Anthropic Claude 3.5 Sonnet / OpenAI GPT-4o) depending on reasoning requirements, latency, and cost constraints.
+
+### 3. Native Solana Web3 Integration
+- Cryptographic wallet sign-in with Ed25519 signature validation.
+- Agent chat history and configurations are safely tied to the wallet address.
+- Double-entry ledger integration for token billing and treasury top-ups.
+
+### 4. Real-Time Tool Execution
+- **DexScreener API**: Query live pairs, liquidity, 24h volume, price changes, and FDV.
+- **Solana On-Chain Balance**: Fetch token balances and transaction status.
+- **Python Sandbox**: Run deterministic data calculations and formatting safely.
+
+### 5. High-Performance Glassmorphism Dashboard
+Modern, responsive Next.js 14 user interface featuring agent creation consoles, real-time markdown token rendering, thread persistence, and model inspection tools.
 
 ---
 
 ## 📁 Monorepo Structure
 
 ```
-CLAUDING/
-├── backend/               # NestJS & Temporal Backend Service
+KIRBLE/
+├── backend/                     # NestJS & Fastify Backend Service
 │   ├── src/
-│   │   ├── agents/        # Agent Management Controller (Create, List, Delete)
-│   │   ├── chat/          # SSE Stream Chat Playground & Threads History
-│   │   ├── db/            # PostgreSQL Database + pgvector Schema (Drizzle ORM)
-│   │   ├── models/        # LLM Adapters (OpenAI & Anthropic) with ReAct Loop
-│   │   └── temporal/      # Tool catalog and dynamic capability triggers
+│   │   ├── agents/              # Agent Compiler & CRUD Controllers
+│   │   ├── auth/                # SIWS Nonce & Signature Verification (JWT)
+│   │   ├── billing/             # Double-entry ledger & Solana deposits
+│   │   ├── characters/          # Built-in agent personas & prompts
+│   │   ├── chat/                # SSE Stream Chat & Message Histories
+│   │   ├── db/                  # PostgreSQL Schema & pgvector (Drizzle ORM)
+│   │   ├── models/              # LLM Adapters (OpenAI, Anthropic) & ReAct Engine
+│   │   └── temporal/            # Durable Tool Catalog & Execution Workers
 │   └── package.json
 │
-├── frontend/              # Next.js 14 Frontend Application
+├── frontend/                    # Next.js 14 Frontend Application
 │   ├── src/app/
-│   │   ├── page.tsx       # Interactive landing page with macOS window mockup
-│   │   ├── dashboard/     # Main playground, agent sidebar, & chat cards
-│   │   └── layout.tsx     # Root wrapper & Solana Wallet Adapter
+│   │   ├── page.tsx             # Interactive landing page with compiler console
+│   │   ├── dashboard/           # Main playground, agent sidebar, & chat cards
+│   │   ├── compile/             # Standalone agent compiler wizard
+│   │   ├── token/               # Tokenomics & staking tiers page
+│   │   └── layout.tsx           # Solana Wallet Adapter & Global Layout
 │   └── package.json
 │
-├── package.json           # Root pnpm monorepo configuration
-└── pnpm-workspace.yaml    # pnpm workspace configuration
+├── docs/                        # Architecture briefs, specs, & assets
+│   └── assets/
+│       └── banner.png           # Repository Banner Asset
+│
+├── package.json                 # Root pnpm monorepo configuration
+├── pnpm-workspace.yaml          # Monorepo workspace configuration
+└── vercel.json                  # Frontend deployment configuration
 ```
 
 ---
 
-## 🛠️ System Prerequisites
+## 🛠️ Tech Stack
 
-Ensure you have installed:
-* [Node.js](https://nodejs.org/) (v20 or latest LTS version)
-* [pnpm](https://pnpm.io/) (v9+)
-* [PostgreSQL](https://www.postgresql.org/) (with `pgvector` extension enabled)
+| Layer | Technologies |
+|---|---|
+| **Frontend** | [Next.js 14](https://nextjs.org/) (App Router), React 18, TypeScript, Vanilla CSS / CSS Modules |
+| **Web3 & Wallet** | `@solana/wallet-adapter-react`, `@solana/web3.js`, `tweetnacl`, `bs58` |
+| **Backend API** | [NestJS](https://nestjs.org/), Fastify, Server-Sent Events (SSE) |
+| **Database & Memory** | [PostgreSQL 16](https://www.postgresql.org/), [pgvector](https://github.com/pgvector/pgvector), [Drizzle ORM](https://orm.drizzle.team/) |
+| **AI Models** | [Anthropic Claude 3.5](https://www.anthropic.com/), [OpenAI GPT-4o](https://openai.com/) |
+| **Blockchain Data** | [Helius RPC](https://helius.dev/), [DexScreener API](https://dexscreener.com/) |
+| **Package Manager** | [pnpm](https://pnpm.io/) Workspaces (v9+) |
 
 ---
 
-## 🚀 Local Getting Started Guide
+## 🚀 Getting Started
 
-### 1. Clone Repository & Install Dependencies
-Run the following in the monorepo root:
+### Prerequisites
+Make sure you have installed on your local system:
+- **Node.js** (v20.x LTS or higher)
+- **pnpm** (`npm install -g pnpm`)
+- **PostgreSQL 16** with `pgvector` extension enabled
+
+---
+
+### 1. Clone & Install Dependencies
+
 ```bash
-# Install both backend and frontend dependencies
+git clone https://github.com/bimoadis/KIRBLE.git
+cd KIRBLE
+
+# Install all monorepo dependencies
 pnpm install
 ```
 
-### 2. Configure Environment Variables (.env)
-Create a `.env` file inside the `/backend` folder:
+---
+
+### 2. Configure Environment Variables
+
+#### Backend `.env`
+Create a `.env` file in the `backend/` directory:
+
 ```env
-DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5432/clauding
-OPENAI_API_KEY=your_openai_api_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
+# Server
+PORT=3001
+NODE_ENV=development
+
+# Database
+DATABASE_URL=postgresql://postgres:postgrespassword@localhost:5432/kirble
+
+# Security & Authentication
+JWT_SECRET=your_super_secret_jwt_key_here
+FRONTEND_URL=http://localhost:3000
+
+# LLM Providers
+OPENAI_API_KEY=sk-proj-...
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Solana RPC & Treasury
+HELIUS_API_KEY=your_helius_api_key
+TREASURY_WALLET_ADDRESS=your_solana_treasury_public_key
 ```
 
-### 3. Run Database Migrations (Drizzle ORM)
-Migrate the schemas into your local PostgreSQL database:
-```bash
-# Generate database schema migrations
-pnpm --filter backend db:generate
+#### Frontend `.env.local`
+Create a `.env.local` file in the `frontend/` directory:
 
-# Apply migrations to the database
-pnpm --filter backend db:migrate
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_SOLANA_NETWORK=mainnet-beta
+NEXT_PUBLIC_RPC_URL=https://mainnet.helius-rpc.com/?api-key=your_helius_api_key
 ```
-
-### 4. Run the Application
-Open two separate terminal windows to run both services concurrently:
-
-* **Terminal 1: Backend Dev**
-  ```bash
-  pnpm dev:backend
-  ```
-  The backend will listen on port `3001` (`http://localhost:3001`).
-
-* **Terminal 2: Frontend Dev**
-  ```bash
-  pnpm dev:frontend
-  ```
-  The frontend will listen on port `3000` (`http://localhost:3000`).
 
 ---
 
-## 📦 Production Build Instructions
+### 3. Database Schema Migration
 
-To compile and launch optimized production builds:
+Apply database schemas with Drizzle ORM:
 
 ```bash
-# Build the NestJS backend
+# Generate migrations
+pnpm --filter backend db:generate
+
+# Apply migrations to database
+pnpm --filter backend db:migrate
+```
+
+---
+
+### 4. Run Development Servers
+
+Start both services concurrently:
+
+```bash
+# Run backend on port 3001
+pnpm dev:backend
+
+# Run frontend on port 3000 (in a separate terminal)
+pnpm dev:frontend
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser to start building agents.
+
+---
+
+## 📦 Production Build
+
+```bash
+# Build backend
 pnpm build:backend
 
-# Build the Next.js frontend
+# Build frontend
 pnpm build:frontend
 
-# Start the production services
+# Start production processes
 pnpm --filter backend start:prod
 pnpm --filter frontend start
 ```
 
 ---
 
-## 🌐 Production Deployment Guide
+## 🌐 Production Deployment
 
-Untuk mendeploy monorepo ini ke lingkungan produksi agar dapat diakses oleh publik, ikuti panduan berikut:
+### 1. Backend (Railway / Render / Docker)
+- Deploy using **Railway** with native pnpm monorepo support.
+- Set root directory to `backend`.
+- **Build command:** `pnpm install && pnpm --filter backend build`
+- **Start command:** `pnpm --filter backend start:prod`
+- Attach a PostgreSQL database add-on with `pgvector` enabled.
 
-### 1. Deploy Backend (Railway / Render / Fly.io)
-Platform yang sangat direkomendasikan adalah **Railway.app** karena dukungan native untuk monorepo pnpm dan add-on database:
-1. Hubungkan akun Railway Anda ke repositori GitHub `KIRBLE`.
-2. Tambahkan database **PostgreSQL** add-on di dalam proyek Railway Anda.
-3. Di dalam setelan service backend:
-   * **Root Directory:** Set ke `backend`.
-   * **Build Command:** `pnpm install && pnpm --filter backend build`
-   * **Start Command:** `pnpm --filter backend start:prod`
-4. Konfigurasikan Environment Variables pada service backend:
-   * `DATABASE_URL` (secara otomatis terhubung ke add-on PostgreSQL Railway).
-   * `JWT_SECRET` (generate kunci acak yang kuat).
-   * `OPENAI_API_KEY` dan `ANTHROPIC_API_KEY` (kunci API resmi Anda).
-   * `HELIUS_API_KEY` dan `TREASURY_WALLET_ADDRESS` (integrasi Solana).
-
-### 2. Deploy Frontend (Vercel)
-1. Hubungkan akun Vercel Anda ke repositori GitHub `KIRBLE`.
-2. Konfigurasikan setelan proyek Next.js:
-   * **Framework Preset:** `Next.js`.
-   * **Root Directory:** `frontend`.
-   * **Build Command:** `pnpm build`
-3. Masukkan **Environment Variable** di tab settings Vercel:
-   * **`NEXT_PUBLIC_API_URL`**: Masukkan URL publik backend Railway Anda (contoh: `https://your-backend.up.railway.app`). *Penting:* Jangan tambahkan tanda garis miring (`/`) di akhir URL.
-4. Klik **Deploy** dan verifikasi koneksi dashboard ke backend.
+### 2. Frontend (Vercel)
+- Connect repository to **Vercel**.
+- Set root directory to `frontend`.
+- Add environment variable: `NEXT_PUBLIC_API_URL=https://your-backend-service.up.railway.app` (without trailing slash).
 
 ---
 
-## 🔒 License
-This project is developed and maintained privately.
+## 🛡️ Security & Verification
+
+- **SIWS Challenge-Response**: Nonces expire in 5 minutes and are single-use to eliminate replay attacks.
+- **Zero-Custody Boundary**: KIRBLE never stores private keys or signs transactions on behalf of users without explicit client approval.
+- **Isolated Execution**: User-defined scripts and tool payloads run in bounded sandboxes.
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
