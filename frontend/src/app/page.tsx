@@ -108,10 +108,11 @@ export default function Home() {
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '24px 40px',
-        background: 'transparent'
+        background: 'transparent',
+        pointerEvents: 'auto'
       }}>
         {/* Left: Brand */}
-        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800', fontSize: '20px', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800', fontSize: '20px', color: '#0A0A0A', letterSpacing: '-0.02em', cursor: 'pointer' }} onClick={() => router.push('/')}>
           <LogoIcon />
           Clauding
         </span>
@@ -125,7 +126,8 @@ export default function Home() {
           border: '1px solid #E5E7EB',
           padding: '4px 12px',
           borderRadius: '999px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          pointerEvents: 'auto'
         }}>
           <a href="#how" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 14px' }}>How it works</a>
           <a href="#pricing" style={{ textDecoration: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, color: '#334155', padding: '6px 14px' }}>Pricing</a>
@@ -146,7 +148,8 @@ export default function Home() {
               color: '#0A0A0A',
               padding: '6px 10px',
               borderRadius: '999px',
-              transition: 'opacity 0.2s'
+              transition: 'opacity 0.2s',
+              pointerEvents: 'auto'
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -277,33 +280,298 @@ export default function Home() {
       <RealSpecOutput />
 
       {/* How it works */}
-      <section id="how" style={{ padding: '80px 24px', background: '#FFFFFF', borderTop: '1px solid #E5E7EB' }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '48px', letterSpacing: '-0.02em' }}>
-            From a single sentence to a live running agent
-          </h2>
+      <section id="how" style={{ padding: '80px 24px 100px 24px', background: '#FFFFFF', borderTop: '1px solid #E5E7EB' }}>
+        <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
+          {/* Eyebrow & Headline Header */}
+          <div style={{ marginBottom: '48px', textAlign: 'left' }}>
+            <div style={{
+              color: '#F5601C',
+              fontSize: '13px',
+              fontWeight: 800,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              marginBottom: '12px'
+            }}>
+              THE CLAUDING WAY
+            </div>
+            <h2 style={{
+              fontSize: 'clamp(32px, 4vw, 46px)',
+              fontWeight: 800,
+              letterSpacing: '-0.035em',
+              color: '#0A0A0A',
+              lineHeight: 1.12,
+              marginBottom: '16px'
+            }}>
+              From a single sentence<br />
+              to a live running agent
+            </h2>
+            <p style={{
+              color: '#64748B',
+              fontSize: '16px',
+              lineHeight: 1.5,
+              margin: 0
+            }}>
+              Clauding turns your idea into an autonomous AI agent on Solana in minutes.
+            </p>
+          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
-            <div style={{ padding: '24px', background: '#FAFAF9', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
-              <div style={{ fontSize: '28px', marginBottom: '12px' }}>📝</div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>1. Describe It</h3>
-              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
-                Describe your agent objective in plain language or use slash commands <code>/</code> to pin capabilities.
-              </p>
+          {/* Cards & Connectors Flow */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'stretch',
+            gap: '12px',
+            flexWrap: 'wrap',
+            position: 'relative'
+          }}>
+            {/* Card 1 */}
+            <div style={{
+              flex: '1 1 300px',
+              minWidth: '280px',
+              background: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid #E5E7EB',
+              padding: '32px 26px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+            }}>
+              <div>
+                {/* 2x Enlarged Orange Pencil Icon Badge */}
+                <div style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '18px',
+                  background: '#FFF4EB',
+                  border: '1px solid #FFE2CF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#F5601C',
+                  boxShadow: '0 8px 20px -6px rgba(245, 96, 28, 0.18)'
+                }}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                    <path d="m15 5 4 4" />
+                  </svg>
+                </div>
+
+                <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0A0A0A', marginTop: '24px', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                  1. Describe It
+                </h3>
+                <p style={{ color: '#64748B', fontSize: '14.5px', lineHeight: 1.55, marginBottom: '28px' }}>
+                  Describe your agent objective in plain language or use slash commands / to pin capabilities.
+                </p>
+              </div>
+
+              {/* Example Callout Box (Orange Themed) */}
+              <div style={{
+                background: '#FFF9F5',
+                border: '1px solid #FFE4D3',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <div style={{ color: '#F5601C', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+                  </svg>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#F5601C' }}>Example</span>
+                  <span style={{ fontSize: '13px', color: '#334155', fontWeight: 500, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                    &quot;check solana balance and search the web&quot;
+                  </span>
+                </div>
+              </div>
             </div>
-            <div style={{ padding: '24px', background: '#FAFAF9', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
-              <div style={{ fontSize: '28px', marginBottom: '12px' }}>⚙️</div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>2. Review Spec & Tools</h3>
-              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
-                Inspect the generated system prompt and assigned tools. Adjust parameters and step budgets.
-              </p>
+
+            {/* Desktop Connector 1 -> 2 */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              padding: '0 4px'
+            }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: '#F5601C',
+                color: '#FFFFFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 10px rgba(245, 96, 28, 0.35)',
+                zIndex: 2,
+                flexShrink: 0
+              }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </div>
             </div>
-            <div style={{ padding: '24px', background: '#FAFAF9', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
-              <div style={{ fontSize: '28px', marginBottom: '12px' }}>▶️</div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>3. Deploy & Run</h3>
-              <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
-                Execute your agent autonomously. The routing engine handles model choices and tool dispatch.
-              </p>
+
+            {/* Card 2 */}
+            <div style={{
+              flex: '1 1 300px',
+              minWidth: '280px',
+              background: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid #E5E7EB',
+              padding: '32px 26px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+            }}>
+              <div>
+                {/* 2x Enlarged Orange Gear Icon Badge */}
+                <div style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '18px',
+                  background: '#FFF4EB',
+                  border: '1px solid #FFE2CF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#F5601C',
+                  boxShadow: '0 8px 20px -6px rgba(245, 96, 28, 0.18)'
+                }}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </div>
+
+                <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0A0A0A', marginTop: '24px', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                  2. Review Spec & Tools
+                </h3>
+                <p style={{ color: '#64748B', fontSize: '14.5px', lineHeight: 1.55, marginBottom: '28px' }}>
+                  Inspect the generated system prompt and assigned tools. Adjust parameters and step budgets.
+                </p>
+              </div>
+
+              {/* Outcome Callout Box (Orange Themed) */}
+              <div style={{
+                background: '#FFF9F5',
+                border: '1px solid #FFE4D3',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <div style={{ color: '#F5601C', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="16 10 10 16 7 13" />
+                  </svg>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#F5601C' }}>Outcome</span>
+                  <span style={{ fontSize: '13px', color: '#334155', fontWeight: 500, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                    Customize tools, limits, and behavior.
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Connector 2 -> 3 */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              padding: '0 4px'
+            }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: '#F5601C',
+                color: '#FFFFFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 10px rgba(245, 96, 28, 0.35)',
+                zIndex: 2,
+                flexShrink: 0
+              }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div style={{
+              flex: '1 1 300px',
+              minWidth: '280px',
+              background: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid #E5E7EB',
+              padding: '32px 26px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+            }}>
+              <div>
+                {/* 2x Enlarged Orange Play Triangle Icon Badge */}
+                <div style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '18px',
+                  background: '#FFF4EB',
+                  border: '1px solid #FFE2CF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#F5601C',
+                  boxShadow: '0 8px 20px -6px rgba(245, 96, 28, 0.18)'
+                }}>
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="6 3 20 12 6 21 6 3" />
+                  </svg>
+                </div>
+
+                <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0A0A0A', marginTop: '24px', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                  3. Deploy & Run
+                </h3>
+                <p style={{ color: '#64748B', fontSize: '14.5px', lineHeight: 1.55, marginBottom: '28px' }}>
+                  Execute your agent autonomously. The routing engine handles model choices and tool dispatch.
+                </p>
+              </div>
+
+              {/* Result Callout Box (Orange Themed) */}
+              <div style={{
+                background: '#FFF9F5',
+                border: '1px solid #FFE4D3',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <div style={{ color: '#F5601C', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                  </svg>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#F5601C' }}>Result</span>
+                  <span style={{ fontSize: '13px', color: '#334155', fontWeight: 500, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                    Live on-chain. Always working.
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

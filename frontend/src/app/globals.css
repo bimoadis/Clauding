@@ -71,6 +71,11 @@ nav {
   pointer-events: none;
 }
 
+.landing-nav,
+.landing-nav * {
+  pointer-events: auto !important;
+}
+
 .navbar {
   pointer-events: auto;
   display: flex;
